@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"regexp"
 	"time"
 )
@@ -16,6 +17,7 @@ func main() {
 	// 4. enrich logs with metadata (IP lookup -- add fake delay)
 	enrichedChan := EnrichLogStage(filteredChan)
 	// 5. serialize to JSON
+	jsonChan := SerializeLogStage(enrichedChan)
 	// 6. write to persistent storage
 }
 
@@ -37,10 +39,10 @@ var logPriorities = map[LogLevel]LogPriority{
 }
 
 type LogRecord struct {
-	Timestamp time.Time
-	Level     LogLevel
-	Message   string
-	IP        string
+	Timestamp time.Time `json:"timestamp"`
+	Level     LogLevel  `json:"level"`
+	Message   string    `json:"message"`
+	IP        string    `json:"ip"`
 }
 
 // ParseLog parse a log line into a structured log object
@@ -121,6 +123,23 @@ func EnrichLogStage(in <-chan *LogRecord) <-chan *LogRecord {
 			recordVal := *record
 			recordVal.IP = "127.0.0.1"
 			out <- &recordVal
+		}
+		close(out)
+	}()
+	return out
+}
+
+// SerializeLogStage serializes LogRecord into JSON
+func SerializeLogStage(in <-chan *LogRecord) <-chan []byte {
+	out := make(chan []byte)
+	go func() {
+		for record := range in {
+			jsonData, err := json.Marshal(record)
+			if err != nil {
+				// TODO: log the error
+				continue
+			}
+			out <- jsonData
 		}
 		close(out)
 	}()
