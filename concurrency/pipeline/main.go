@@ -14,6 +14,7 @@ func main() {
 	// 3. apply filters to a structured log object
 	filteredChan := FilterLogStage(parsedChan, logPriorities[WARNING])
 	// 4. enrich logs with metadata (IP lookup -- add fake delay)
+	enrichedChan := EnrichLogStage(filteredChan)
 	// 5. serialize to JSON
 	// 6. write to persistent storage
 }
@@ -39,6 +40,7 @@ type LogRecord struct {
 	Timestamp time.Time
 	Level     LogLevel
 	Message   string
+	IP        string
 }
 
 // ParseLog parse a log line into a structured log object
@@ -103,6 +105,22 @@ func FilterLogStage(in <-chan *LogRecord, priority LogPriority) <-chan *LogRecor
 			if lp, ok := logPriorities[record.Level]; ok && lp >= priority {
 				out <- record
 			}
+		}
+		close(out)
+	}()
+	return out
+}
+
+// EnrichLogStage adds metadata to log records.
+func EnrichLogStage(in <-chan *LogRecord) <-chan *LogRecord {
+	out := make(chan *LogRecord)
+	go func() {
+		for record := range in {
+			time.Sleep(100 * time.Millisecond)
+			// We need to make a copy of the record to avoid mutating the original
+			recordVal := *record
+			recordVal.IP = "127.0.0.1"
+			out <- &recordVal
 		}
 		close(out)
 	}()
