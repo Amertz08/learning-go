@@ -188,6 +188,7 @@ func PersistLogStage(ctx context.Context, in <-chan []byte) {
 				return // Channel closed
 			}
 			_ = data // No Op
+			time.Sleep(1 * time.Second)
 		}
 	}
 }
