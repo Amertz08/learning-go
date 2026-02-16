@@ -19,6 +19,7 @@ func main() {
 	// 5. serialize to JSON
 	jsonChan := SerializeLogStage(enrichedChan)
 	// 6. write to persistent storage
+	PersistLogStage(jsonChan)
 }
 
 type LogLevel string
@@ -144,4 +145,11 @@ func SerializeLogStage(in <-chan *LogRecord) <-chan []byte {
 		close(out)
 	}()
 	return out
+}
+
+// PersistLogStage writes the JSON record
+func PersistLogStage(in <-chan []byte) {
+	for range in {
+		// No Op
+	}
 }
