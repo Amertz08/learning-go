@@ -21,7 +21,12 @@ func main() {
 	// 5. serialize to JSON
 	jsonChan := SerializeLogStage(ctx, enrichedChan)
 	// 6. write to persistent storage
-	PersistLogStage(ctx, jsonChan)
+	done := make(chan struct{})
+	go func() {
+		PersistLogStage(ctx, jsonChan)
+		close(done)
+	}()
+	<-done
 }
 
 type LogLevel string
@@ -75,6 +80,7 @@ func ParseLog(b []byte) (*LogRecord, error) {
 func ReadStreamStage(ctx context.Context, count int) <-chan []byte {
 	out := make(chan []byte)
 	go func() {
+		defer close(out)
 		for i := 0; i < count; i++ {
 			logLine := time.Now().Format(time.RFC3339Nano) + "|INFO|Sample log message"
 			select {
@@ -85,16 +91,15 @@ func ReadStreamStage(ctx context.Context, count int) <-chan []byte {
 			}
 
 		}
-		close(out)
 	}()
 	return out
 }
 
 // ParseStreamStage parses log lines into structured log objects
 func ParseStreamStage(ctx context.Context, in <-chan []byte) <-chan *LogRecord {
-	// TODO: pointer or value?
 	out := make(chan *LogRecord)
 	go func() {
+		defer close(out)
 		for bytes := range in {
 			record, err := ParseLog(bytes)
 			if err != nil {
@@ -107,7 +112,6 @@ func ParseStreamStage(ctx context.Context, in <-chan []byte) <-chan *LogRecord {
 			case out <- record:
 			}
 		}
-		close(out)
 	}()
 	return out
 }
@@ -116,6 +120,7 @@ func ParseStreamStage(ctx context.Context, in <-chan []byte) <-chan *LogRecord {
 func FilterLogStage(ctx context.Context, in <-chan *LogRecord, priority LogPriority) <-chan *LogRecord {
 	out := make(chan *LogRecord)
 	go func() {
+		defer close(out)
 		for record := range in {
 			if lp, ok := logPriorities[record.Level]; ok && lp >= priority {
 				select {
@@ -125,7 +130,6 @@ func FilterLogStage(ctx context.Context, in <-chan *LogRecord, priority LogPrior
 				}
 			}
 		}
-		close(out)
 	}()
 	return out
 }
@@ -134,6 +138,7 @@ func FilterLogStage(ctx context.Context, in <-chan *LogRecord, priority LogPrior
 func EnrichLogStage(ctx context.Context, in <-chan *LogRecord) <-chan *LogRecord {
 	out := make(chan *LogRecord)
 	go func() {
+		defer close(out)
 		for record := range in {
 			time.Sleep(100 * time.Millisecond)
 			// We need to make a copy of the record to avoid mutating the original
@@ -146,7 +151,6 @@ func EnrichLogStage(ctx context.Context, in <-chan *LogRecord) <-chan *LogRecord
 			case out <- &recordVal:
 			}
 		}
-		close(out)
 	}()
 	return out
 }
@@ -155,6 +159,7 @@ func EnrichLogStage(ctx context.Context, in <-chan *LogRecord) <-chan *LogRecord
 func SerializeLogStage(ctx context.Context, in <-chan *LogRecord) <-chan []byte {
 	out := make(chan []byte)
 	go func() {
+		defer close(out)
 		for record := range in {
 			jsonData, err := json.Marshal(record)
 			if err != nil {
@@ -168,7 +173,6 @@ func SerializeLogStage(ctx context.Context, in <-chan *LogRecord) <-chan []byte 
 			case out <- jsonData:
 			}
 		}
-		close(out)
 	}()
 	return out
 }
@@ -179,8 +183,11 @@ func PersistLogStage(ctx context.Context, in <-chan []byte) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-in:
-			// No Op
+		case data, ok := <-in:
+			if !ok {
+				return // Channel closed
+			}
+			_ = data // No Op
 		}
 	}
 }
