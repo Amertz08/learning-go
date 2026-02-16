@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"regexp"
 	"time"
 )
 
 func main() {
+	fmt.Println("starting pipeline")
 	ctx := context.Background()
 	// pipeline steps
 	// 1. read from a stream
@@ -52,7 +54,7 @@ type LogRecord struct {
 // Logs are assumed to be in the format <timestamp>|<level>|<message>
 func ParseLog(b []byte) (*LogRecord, error) {
 	logString := string(b)
-	re := regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)\|([A-Z]+)\|(.*)$`)
+	re := regexp.MustCompile(`^([^|]+)\|([^|]+)\|(.*)$`)
 	matches := re.FindStringSubmatch(logString)
 	if len(matches) != 4 {
 		// TODO log
@@ -82,6 +84,7 @@ func ReadStreamStage(ctx context.Context, count int) <-chan []byte {
 			case <-ctx.Done():
 				return
 			case out <- []byte(logLine):
+				fmt.Println("sending log line:", logLine)
 				time.Sleep(100 * time.Millisecond)
 			}
 
@@ -97,8 +100,10 @@ func ParseStreamStage(ctx context.Context, in <-chan []byte) <-chan *LogRecord {
 		defer close(out)
 		for bytes := range in {
 			record, err := ParseLog(bytes)
+			fmt.Println("parsing log line:", string(bytes))
 			if err != nil || record == nil {
 				// TODO: should probably log
+				fmt.Println("error parsing log line:", err, record)
 				continue
 			}
 			select {
@@ -118,11 +123,14 @@ func FilterLogStage(ctx context.Context, in <-chan *LogRecord, priority LogPrior
 		defer close(out)
 		for record := range in {
 			if lp, ok := logPriorities[record.Level]; ok && lp >= priority {
+				fmt.Println("sending filtered log line:", record.Message)
 				select {
 				case <-ctx.Done():
 					return
 				case out <- record:
 				}
+			} else {
+				fmt.Println("skipping log line:", record.Message)
 			}
 		}
 	}()
@@ -162,6 +170,7 @@ func SerializeLogStage(ctx context.Context, in <-chan *LogRecord) <-chan []byte 
 				// TODO: log the error
 				continue
 			}
+			fmt.Println("sending json log line:", string(jsonData))
 
 			select {
 			case <-ctx.Done():
@@ -185,6 +194,7 @@ func PersistLogStage(ctx context.Context, in <-chan []byte) {
 				return // Channel closed
 			}
 			_ = data // No Op
+			fmt.Println("persisting log line:", string(data))
 			time.Sleep(1 * time.Second)
 		}
 	}
