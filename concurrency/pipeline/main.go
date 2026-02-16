@@ -52,3 +52,15 @@ func ParseLog(b []byte) (*LogRecord, error) {
 
 	return record, nil
 }
+
+func ReadStreamStage(count int) <-chan []byte {
+	out := make(chan []byte)
+	go func() {
+		for i := 0; i < count; i++ {
+			logLine := time.Now().Format(time.RFC3339Nano) + "|INFO|Sample log message"
+			out <- []byte(logLine)
+		}
+		close(out)
+	}()
+	return out
+}
