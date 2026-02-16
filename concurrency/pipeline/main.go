@@ -6,13 +6,15 @@ import (
 )
 
 func main() {
-	// start log generator
 	// pipeline steps
-	// 1. read from a stream and parse bytes to a structured log object
-	// 2. apply filters to a structured log object
-	// 3. enrich logs with metadata (IP lookup -- add fake delay)
-	// 4. serialize to JSON
-	// 5. write to persistent storage
+	// 1. read from a stream
+	readStream := ReadStreamStage(100)
+	// 2. parse bytes to a structured log object
+	ParseStreamStage(readStream)
+	// 3. apply filters to a structured log object
+	// 4. enrich logs with metadata (IP lookup -- add fake delay)
+	// 5. serialize to JSON
+	// 6. write to persistent storage
 }
 
 type LogLevel string
@@ -43,7 +45,7 @@ func ParseLog(b []byte) (*LogRecord, error) {
 	record := &LogRecord{}
 	ts, err := time.Parse(time.RFC3339Nano, matches[1])
 	if err != nil {
-		// TODO custom erro
+		// TODO custom error
 		return nil, err
 	}
 	record.Timestamp = ts
@@ -59,6 +61,23 @@ func ReadStreamStage(count int) <-chan []byte {
 		for i := 0; i < count; i++ {
 			logLine := time.Now().Format(time.RFC3339Nano) + "|INFO|Sample log message"
 			out <- []byte(logLine)
+		}
+		close(out)
+	}()
+	return out
+}
+
+func ParseStreamStage(in <-chan []byte) <-chan *LogRecord {
+	// TODO: pointer or value?
+	out := make(chan *LogRecord)
+	go func() {
+		for bytes := range in {
+			record, err := ParseLog(bytes)
+			if err != nil {
+				// TODO: should probably log
+				continue
+			}
+			out <- record
 		}
 		close(out)
 	}()
