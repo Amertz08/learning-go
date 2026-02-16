@@ -1,25 +1,27 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"regexp"
 	"time"
 )
 
 func main() {
+	ctx := context.Background()
 	// pipeline steps
 	// 1. read from a stream
-	readChan := ReadStreamStage(100)
+	readChan := ReadStreamStage(ctx, 100)
 	// 2. parse bytes to a structured log object
-	parsedChan := ParseStreamStage(readChan)
+	parsedChan := ParseStreamStage(ctx, readChan)
 	// 3. apply filters to a structured log object
-	filteredChan := FilterLogStage(parsedChan, logPriorities[WARNING])
+	filteredChan := FilterLogStage(ctx, parsedChan, logPriorities[WARNING])
 	// 4. enrich logs with metadata (IP lookup -- add fake delay)
-	enrichedChan := EnrichLogStage(filteredChan)
+	enrichedChan := EnrichLogStage(ctx, filteredChan)
 	// 5. serialize to JSON
-	jsonChan := SerializeLogStage(enrichedChan)
+	jsonChan := SerializeLogStage(ctx, enrichedChan)
 	// 6. write to persistent storage
-	PersistLogStage(jsonChan)
+	PersistLogStage(ctx, jsonChan)
 }
 
 type LogLevel string
@@ -70,12 +72,18 @@ func ParseLog(b []byte) (*LogRecord, error) {
 }
 
 // ReadStreamStage generates a stream of log lines
-func ReadStreamStage(count int) <-chan []byte {
+func ReadStreamStage(ctx context.Context, count int) <-chan []byte {
 	out := make(chan []byte)
 	go func() {
 		for i := 0; i < count; i++ {
 			logLine := time.Now().Format(time.RFC3339Nano) + "|INFO|Sample log message"
-			out <- []byte(logLine)
+			select {
+			case <-ctx.Done():
+				return
+			case out <- []byte(logLine):
+				time.Sleep(100 * time.Millisecond)
+			}
+
 		}
 		close(out)
 	}()
@@ -83,7 +91,7 @@ func ReadStreamStage(count int) <-chan []byte {
 }
 
 // ParseStreamStage parses log lines into structured log objects
-func ParseStreamStage(in <-chan []byte) <-chan *LogRecord {
+func ParseStreamStage(ctx context.Context, in <-chan []byte) <-chan *LogRecord {
 	// TODO: pointer or value?
 	out := make(chan *LogRecord)
 	go func() {
@@ -93,7 +101,11 @@ func ParseStreamStage(in <-chan []byte) <-chan *LogRecord {
 				// TODO: should probably log
 				continue
 			}
-			out <- record
+			select {
+			case <-ctx.Done():
+				return
+			case out <- record:
+			}
 		}
 		close(out)
 	}()
@@ -101,12 +113,16 @@ func ParseStreamStage(in <-chan []byte) <-chan *LogRecord {
 }
 
 // FilterLogStage filters log records greater than or equal to the given priority.
-func FilterLogStage(in <-chan *LogRecord, priority LogPriority) <-chan *LogRecord {
+func FilterLogStage(ctx context.Context, in <-chan *LogRecord, priority LogPriority) <-chan *LogRecord {
 	out := make(chan *LogRecord)
 	go func() {
 		for record := range in {
 			if lp, ok := logPriorities[record.Level]; ok && lp >= priority {
-				out <- record
+				select {
+				case <-ctx.Done():
+					return
+				case out <- record:
+				}
 			}
 		}
 		close(out)
@@ -115,7 +131,7 @@ func FilterLogStage(in <-chan *LogRecord, priority LogPriority) <-chan *LogRecor
 }
 
 // EnrichLogStage adds metadata to log records.
-func EnrichLogStage(in <-chan *LogRecord) <-chan *LogRecord {
+func EnrichLogStage(ctx context.Context, in <-chan *LogRecord) <-chan *LogRecord {
 	out := make(chan *LogRecord)
 	go func() {
 		for record := range in {
@@ -123,7 +139,12 @@ func EnrichLogStage(in <-chan *LogRecord) <-chan *LogRecord {
 			// We need to make a copy of the record to avoid mutating the original
 			recordVal := *record
 			recordVal.IP = "127.0.0.1"
-			out <- &recordVal
+
+			select {
+			case <-ctx.Done():
+				return
+			case out <- &recordVal:
+			}
 		}
 		close(out)
 	}()
@@ -131,7 +152,7 @@ func EnrichLogStage(in <-chan *LogRecord) <-chan *LogRecord {
 }
 
 // SerializeLogStage serializes LogRecord into JSON
-func SerializeLogStage(in <-chan *LogRecord) <-chan []byte {
+func SerializeLogStage(ctx context.Context, in <-chan *LogRecord) <-chan []byte {
 	out := make(chan []byte)
 	go func() {
 		for record := range in {
@@ -140,7 +161,12 @@ func SerializeLogStage(in <-chan *LogRecord) <-chan []byte {
 				// TODO: log the error
 				continue
 			}
-			out <- jsonData
+
+			select {
+			case <-ctx.Done():
+				return
+			case out <- jsonData:
+			}
 		}
 		close(out)
 	}()
@@ -148,8 +174,13 @@ func SerializeLogStage(in <-chan *LogRecord) <-chan []byte {
 }
 
 // PersistLogStage writes the JSON record
-func PersistLogStage(in <-chan []byte) {
-	for range in {
-		// No Op
+func PersistLogStage(ctx context.Context, in <-chan []byte) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-in:
+			// No Op
+		}
 	}
 }
