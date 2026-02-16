@@ -21,12 +21,7 @@ func main() {
 	// 5. serialize to JSON
 	jsonChan := SerializeLogStage(ctx, enrichedChan)
 	// 6. write to persistent storage
-	done := make(chan struct{})
-	go func() {
-		PersistLogStage(ctx, jsonChan)
-		close(done)
-	}()
-	<-done
+	PersistLogStage(ctx, jsonChan)
 }
 
 type LogLevel string
@@ -102,7 +97,7 @@ func ParseStreamStage(ctx context.Context, in <-chan []byte) <-chan *LogRecord {
 		defer close(out)
 		for bytes := range in {
 			record, err := ParseLog(bytes)
-			if err != nil {
+			if err != nil || record == nil {
 				// TODO: should probably log
 				continue
 			}
