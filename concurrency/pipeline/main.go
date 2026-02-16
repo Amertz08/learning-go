@@ -8,16 +8,18 @@ import (
 func main() {
 	// pipeline steps
 	// 1. read from a stream
-	readStream := ReadStreamStage(100)
+	readChan := ReadStreamStage(100)
 	// 2. parse bytes to a structured log object
-	ParseStreamStage(readStream)
+	parsedChan := ParseStreamStage(readChan)
 	// 3. apply filters to a structured log object
+	filteredChan := FilterLogStage(parsedChan, logPriorities[WARNING])
 	// 4. enrich logs with metadata (IP lookup -- add fake delay)
 	// 5. serialize to JSON
 	// 6. write to persistent storage
 }
 
 type LogLevel string
+type LogPriority int
 
 const (
 	DEBUG   LogLevel = "DEBUG"
@@ -25,6 +27,13 @@ const (
 	INFO    LogLevel = "INFO"
 	ERROR   LogLevel = "ERROR"
 )
+
+var logPriorities = map[LogLevel]LogPriority{
+	DEBUG:   0,
+	WARNING: 1,
+	INFO:    2,
+	ERROR:   3,
+}
 
 type LogRecord struct {
 	Timestamp time.Time
@@ -78,6 +87,20 @@ func ParseStreamStage(in <-chan []byte) <-chan *LogRecord {
 				continue
 			}
 			out <- record
+		}
+		close(out)
+	}()
+	return out
+}
+
+// FilterLogStage filters log records greater than or equal to the given priority.
+func FilterLogStage(in <-chan *LogRecord, priority LogPriority) <-chan *LogRecord {
+	out := make(chan *LogRecord)
+	go func() {
+		for record := range in {
+			if lp, ok := logPriorities[record.Level]; ok && lp >= priority {
+				out <- record
+			}
 		}
 		close(out)
 	}()
