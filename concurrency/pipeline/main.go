@@ -64,6 +64,7 @@ func ParseLog(b []byte) (*LogRecord, error) {
 	return record, nil
 }
 
+// ReadStreamStage generates a stream of log lines
 func ReadStreamStage(count int) <-chan []byte {
 	out := make(chan []byte)
 	go func() {
@@ -76,6 +77,7 @@ func ReadStreamStage(count int) <-chan []byte {
 	return out
 }
 
+// ParseStreamStage parses log lines into structured log objects
 func ParseStreamStage(in <-chan []byte) <-chan *LogRecord {
 	// TODO: pointer or value?
 	out := make(chan *LogRecord)
