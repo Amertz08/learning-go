@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// TODO: abstract out the stages into a pipeline
 func main() {
 	fmt.Println("starting pipeline")
 	ctx := context.Background()
@@ -24,7 +25,9 @@ func main() {
 	// 5. serialize to JSON
 	jsonChan := SerializeLogStage(ctx, enrichedChan)
 	// 6. write to persistent storage
-	PersistLogStage(ctx, jsonChan)
+	// TODO: I think we're exiting early
+	persistChan := PersistLogStage(ctx, jsonChan)
+	<-persistChan
 }
 
 type LogLevel string
@@ -186,19 +189,22 @@ func SerializeLogStage(ctx context.Context, in <-chan *LogRecord) <-chan []byte 
 }
 
 // PersistLogStage writes the JSON record
-func PersistLogStage(ctx context.Context, in <-chan []byte) {
+func PersistLogStage(ctx context.Context, in <-chan []byte) <-chan struct{} {
 	// TODO: since this is disk bound, we can consider using a worker pool to parallelize the write process.
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case data, ok := <-in:
-			if !ok {
-				return // Channel closed
+	// TODO: actual struct example
+	out := make(chan struct{})
+	go func() {
+		defer close(out)
+		for _ = range in {
+			fmt.Println("persisting log line")
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				time.Sleep(1 * time.Second)
+				out <- struct{}{}
 			}
-			_ = data // No Op
-			fmt.Println("persisting log line:", string(data))
-			time.Sleep(1 * time.Second)
 		}
-	}
+	}()
+	return out
 }
