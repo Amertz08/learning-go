@@ -131,6 +131,7 @@ func FilterLogStage(ctx context.Context, in <-chan *LogRecord, priority LogPrior
 
 // EnrichLogStage adds metadata to log records.
 func EnrichLogStage(ctx context.Context, in <-chan *LogRecord) <-chan *LogRecord {
+	// TODO: since this is network bound, we can consider using a worker pool to parallelize the enrichment process
 	out := make(chan *LogRecord)
 	go func() {
 		defer close(out)
@@ -174,6 +175,7 @@ func SerializeLogStage(ctx context.Context, in <-chan *LogRecord) <-chan []byte 
 
 // PersistLogStage writes the JSON record
 func PersistLogStage(ctx context.Context, in <-chan []byte) {
+	// TODO: since this is disk bound, we can consider using a worker pool to parallelize the write process.
 	for {
 		select {
 		case <-ctx.Done():
