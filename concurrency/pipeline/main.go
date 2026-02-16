@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"regexp"
 	"time"
 )
@@ -78,8 +79,10 @@ func ReadStreamStage(ctx context.Context, count int) <-chan []byte {
 	out := make(chan []byte)
 	go func() {
 		defer close(out)
+		levels := []LogLevel{DEBUG, WARNING, INFO, ERROR}
 		for i := 0; i < count; i++ {
-			logLine := time.Now().Format(time.RFC3339Nano) + "|INFO|Sample log message"
+			randomLevel := levels[rand.Intn(len(levels))]
+			logLine := time.Now().Format(time.RFC3339Nano) + "|" + string(randomLevel) + "|Sample log message"
 			select {
 			case <-ctx.Done():
 				return
