@@ -18,7 +18,7 @@ func main() {
 		SourceBytes(NewReadStreamStage(100)).
 		TransformBytesToRecord(NewParseStreamStage()).
 		TransformRecord(NewFilterLogStage(logPriorities[WARNING])).
-		TransformRecord(NewEnrichLogStage()).
+		TransformRecord(NewEnrichLogStage(5)). // 5 concurrent workers
 		TransformRecordToBytes(NewSerializeLogStage()).
 		SinkBytes(NewPersistToFileStage("logs.json")).
 		Run()
@@ -284,29 +284,70 @@ func FilterLogStage(ctx context.Context, in <-chan *LogRecord, priority LogPrior
 }
 
 // NewEnrichLogStage creates a transform stage that enriches log records
-func NewEnrichLogStage() TransformRecordStage {
-	return EnrichLogStage
+// workers parameter specifies the maximum number of concurrent enrichment operations
+func NewEnrichLogStage(workers int) TransformRecordStage {
+	return func(ctx context.Context, in <-chan *LogRecord) <-chan *LogRecord {
+		return EnrichLogStage(ctx, in, workers)
+	}
 }
 
-// EnrichLogStage adds metadata to log records.
-func EnrichLogStage(ctx context.Context, in <-chan *LogRecord) <-chan *LogRecord {
-	// TODO: since this is network bound, we can consider using a worker pool to parallelize the enrichment process
+// EnrichLogStage adds metadata to log records using a worker pool for concurrent processing.
+func EnrichLogStage(ctx context.Context, in <-chan *LogRecord, workers int) <-chan *LogRecord {
 	out := make(chan *LogRecord)
+
 	go func() {
 		defer close(out)
-		for record := range in {
-			time.Sleep(100 * time.Millisecond)
-			// We need to make a copy of the record to avoid mutating the original
-			recordVal := *record
-			recordVal.IP = "127.0.0.1"
 
+		// Create a channel for worker results
+		results := make(chan *LogRecord, workers)
+
+		// Use sync to track worker completion
+		var workersDone = make(chan struct{})
+		activeWorkers := workers
+
+		// Fan-out: start a worker pool
+		for i := 0; i < workers; i++ {
+			go func(workerID int) {
+				defer func() {
+					// Signal this worker is done
+					workersDone <- struct{}{}
+				}()
+
+				for record := range in {
+					// Simulate HTTP request delay
+					time.Sleep(100 * time.Millisecond)
+
+					// We need to make a copy of the record to avoid mutating the original
+					recordVal := *record
+					recordVal.IP = "127.0.0.1"
+
+					select {
+					case <-ctx.Done():
+						return
+					case results <- &recordVal:
+					}
+				}
+			}(i)
+		}
+
+		// Close the results channel when all workers are done
+		go func() {
+			for i := 0; i < activeWorkers; i++ {
+				<-workersDone
+			}
+			close(results)
+		}()
+
+		// Fan-in: send results to an output channel
+		for enriched := range results {
 			select {
 			case <-ctx.Done():
 				return
-			case out <- &recordVal:
+			case out <- enriched:
 			}
 		}
 	}()
+
 	return out
 }
 
