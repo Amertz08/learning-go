@@ -25,9 +25,9 @@ func main() {
 	// 5. serialize to JSON
 	jsonChan := SerializeLogStage(ctx, enrichedChan)
 	// 6. write to persistent storage
-	// TODO: I think we're exiting early
 	persistChan := PersistLogStage(ctx, jsonChan)
-	<-persistChan
+	for range persistChan {
+	}
 }
 
 type LogLevel string
@@ -108,7 +108,6 @@ func ParseStreamStage(ctx context.Context, in <-chan []byte) <-chan *LogRecord {
 			record, err := ParseLog(bytes)
 			fmt.Println("parsing log line:", string(bytes))
 			if err != nil || record == nil {
-				// TODO: should probably log
 				fmt.Println("error parsing log line:", err, record)
 				continue
 			}
@@ -197,12 +196,11 @@ func PersistLogStage(ctx context.Context, in <-chan []byte) <-chan struct{} {
 		defer close(out)
 		for _ = range in {
 			fmt.Println("persisting log line")
+			time.Sleep(1 * time.Second)
 			select {
 			case <-ctx.Done():
 				return
-			default:
-				time.Sleep(1 * time.Second)
-				out <- struct{}{}
+			case out <- struct{}{}:
 			}
 		}
 	}()
