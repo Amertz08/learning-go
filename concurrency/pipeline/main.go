@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"os"
 	"regexp"
 	"time"
 )
@@ -19,8 +20,10 @@ func main() {
 		TransformRecord(NewFilterLogStage(logPriorities[WARNING])).
 		TransformRecord(NewEnrichLogStage()).
 		TransformRecordToBytes(NewSerializeLogStage()).
-		SinkBytes(NewPersistLogStage()).
+		SinkBytes(NewPersistToFileStage("logs.json")).
 		Run()
+
+	fmt.Println("pipeline complete - logs written to logs.json")
 }
 
 // ============================================================================
@@ -339,26 +342,62 @@ func SerializeLogStage(ctx context.Context, in <-chan *LogRecord) <-chan []byte 
 // Pipeline Stages - Sink
 // ============================================================================
 
-// NewPersistLogStage creates a sink stage that persists log records
-func NewPersistLogStage() SinkBytesStage {
-	return PersistLogStage
+// NewPersistToFileStage creates a sink stage that writes log records to a JSON file
+func NewPersistToFileStage(filename string) SinkBytesStage {
+	return func(ctx context.Context, in <-chan []byte) <-chan struct{} {
+		return PersistToFileStage(ctx, in, filename)
+	}
 }
 
-// PersistLogStage writes the JSON record
-func PersistLogStage(ctx context.Context, in <-chan []byte) <-chan struct{} {
-	// TODO: since this is disk bound, we can consider using a worker pool to parallelize the write process.
-	// TODO: actual struct example
+// PersistToFileStage writes JSON records to a file
+func PersistToFileStage(ctx context.Context, in <-chan []byte, filename string) <-chan struct{} {
 	out := make(chan struct{})
 	go func() {
 		defer close(out)
-		for _ = range in {
-			fmt.Println("persisting log line")
-			time.Sleep(1 * time.Second)
+
+		// Open a file for writing
+		file, err := os.Create(filename)
+		if err != nil {
+			fmt.Printf("error creating file %s: %v\n", filename, err)
+			return
+		}
+		defer file.Close()
+
+		// Write opening bracket for JSON array
+		if _, err := file.WriteString("[\n"); err != nil {
+			fmt.Printf("error writing to file: %v\n", err)
+			return
+		}
+
+		first := true
+		for jsonData := range in {
+			// Add comma separator for all but the first record
+			if !first {
+				if _, err := file.WriteString(",\n"); err != nil {
+					fmt.Printf("error writing to file: %v\n", err)
+					continue
+				}
+			}
+			first = false
+
+			// Write the JSON record
+			if _, err := file.Write(jsonData); err != nil {
+				fmt.Printf("error writing to file: %v\n", err)
+				continue
+			}
+
+			fmt.Printf("persisted log to file: %s\n", filename)
+
 			select {
 			case <-ctx.Done():
 				return
 			case out <- struct{}{}:
 			}
+		}
+
+		// Write a closing bracket for JSON array
+		if _, err := file.WriteString("\n]\n"); err != nil {
+			fmt.Printf("error writing to file: %v\n", err)
 		}
 	}()
 	return out
