@@ -9,112 +9,6 @@ import (
 	"time"
 )
 
-// Pipeline represents a data processing pipeline with multiple stages
-type Pipeline struct {
-	ctx context.Context
-}
-
-// NewPipeline creates a new pipeline with the given context
-func NewPipeline(ctx context.Context) *Pipeline {
-	return &Pipeline{ctx: ctx}
-}
-
-// SourceBytesStage represents a stage that produces []byte values
-type SourceBytesStage func(context.Context) <-chan []byte
-
-// TransformBytesToRecordStage transforms []byte to *LogRecord
-type TransformBytesToRecordStage func(context.Context, <-chan []byte) <-chan *LogRecord
-
-// TransformRecordStage transforms *LogRecord to *LogRecord
-type TransformRecordStage func(context.Context, <-chan *LogRecord) <-chan *LogRecord
-
-// TransformRecordToBytesStage transforms *LogRecord to []byte
-type TransformRecordToBytesStage func(context.Context, <-chan *LogRecord) <-chan []byte
-
-// SinkBytesStage consumes []byte values and returns acknowledgments
-type SinkBytesStage func(context.Context, <-chan []byte) <-chan struct{}
-
-// PipelineStage represents a complete pipeline stage configuration
-type PipelineStage struct {
-	sourceBytesStage            SourceBytesStage
-	transformBytesToRecordStage TransformBytesToRecordStage
-	transformRecordStages       []TransformRecordStage
-	transformRecordToBytesStage TransformRecordToBytesStage
-	sinkBytesStage              SinkBytesStage
-}
-
-// SourceBytes sets the source stage that produces []byte values
-func (p *Pipeline) SourceBytes(stage SourceBytesStage) *PipelineWithBytes {
-	return &PipelineWithBytes{
-		ctx:    p.ctx,
-		stages: PipelineStage{sourceBytesStage: stage},
-		ch:     stage(p.ctx),
-	}
-}
-
-// PipelineWithBytes represents a pipeline with a []byte channel
-type PipelineWithBytes struct {
-	ctx    context.Context
-	stages PipelineStage
-	ch     <-chan []byte
-}
-
-// TransformBytesToRecord transforms []byte to *LogRecord
-func (p *PipelineWithBytes) TransformBytesToRecord(stage TransformBytesToRecordStage) *PipelineWithRecord {
-	return &PipelineWithRecord{
-		ctx:    p.ctx,
-		stages: p.stages,
-		ch:     stage(p.ctx, p.ch),
-	}
-}
-
-// PipelineWithRecord represents a pipeline with a *LogRecord channel
-type PipelineWithRecord struct {
-	ctx    context.Context
-	stages PipelineStage
-	ch     <-chan *LogRecord
-}
-
-// TransformRecord applies a transformation to *LogRecord
-func (p *PipelineWithRecord) TransformRecord(stage TransformRecordStage) *PipelineWithRecord {
-	return &PipelineWithRecord{
-		ctx:    p.ctx,
-		stages: p.stages,
-		ch:     stage(p.ctx, p.ch),
-	}
-}
-
-// TransformRecordToBytes transforms *LogRecord to []byte
-func (p *PipelineWithRecord) TransformRecordToBytes(stage TransformRecordToBytesStage) *PipelineWithBytes {
-	return &PipelineWithBytes{
-		ctx:    p.ctx,
-		stages: p.stages,
-		ch:     stage(p.ctx, p.ch),
-	}
-}
-
-// SinkBytes consumes []byte values
-func (p *PipelineWithBytes) SinkBytes(stage SinkBytesStage) *PipelineComplete {
-	return &PipelineComplete{
-		ctx:    p.ctx,
-		stages: p.stages,
-		ch:     stage(p.ctx, p.ch),
-	}
-}
-
-// PipelineComplete represents a complete pipeline ready to run
-type PipelineComplete struct {
-	ctx    context.Context
-	stages PipelineStage
-	ch     <-chan struct{}
-}
-
-// Run executes the pipeline and waits for completion
-func (p *PipelineComplete) Run() {
-	for range p.ch {
-	}
-}
-
 func main() {
 	fmt.Println("starting pipeline")
 	ctx := context.Background()
@@ -128,6 +22,10 @@ func main() {
 		SinkBytes(NewPersistLogStage()).
 		Run()
 }
+
+// ============================================================================
+// Domain Types
+// ============================================================================
 
 type LogLevel string
 type LogPriority int
@@ -176,6 +74,124 @@ func ParseLog(b []byte) (*LogRecord, error) {
 	return record, nil
 }
 
+// ============================================================================
+// Pipeline Framework
+// ============================================================================
+
+// Pipeline represents a data processing pipeline with multiple stages
+type Pipeline struct {
+	ctx context.Context
+}
+
+// NewPipeline creates a new pipeline with the given context
+func NewPipeline(ctx context.Context) *Pipeline {
+	return &Pipeline{ctx: ctx}
+}
+
+// Stage function types
+
+// SourceBytesStage represents a stage that produces []byte values
+type SourceBytesStage func(context.Context) <-chan []byte
+
+// TransformBytesToRecordStage transforms []byte to *LogRecord
+type TransformBytesToRecordStage func(context.Context, <-chan []byte) <-chan *LogRecord
+
+// TransformRecordStage transforms *LogRecord to *LogRecord
+type TransformRecordStage func(context.Context, <-chan *LogRecord) <-chan *LogRecord
+
+// TransformRecordToBytesStage transforms *LogRecord to []byte
+type TransformRecordToBytesStage func(context.Context, <-chan *LogRecord) <-chan []byte
+
+// SinkBytesStage consumes []byte values and returns acknowledgments
+type SinkBytesStage func(context.Context, <-chan []byte) <-chan struct{}
+
+// PipelineStage represents a complete pipeline stage configuration
+type PipelineStage struct {
+	sourceBytesStage            SourceBytesStage
+	transformBytesToRecordStage TransformBytesToRecordStage
+	transformRecordStages       []TransformRecordStage
+	transformRecordToBytesStage TransformRecordToBytesStage
+	sinkBytesStage              SinkBytesStage
+}
+
+// Pipeline builder types and methods
+
+// SourceBytes sets the source stage that produces []byte values
+func (p *Pipeline) SourceBytes(stage SourceBytesStage) *PipelineWithBytes {
+	return &PipelineWithBytes{
+		ctx:    p.ctx,
+		stages: PipelineStage{sourceBytesStage: stage},
+		ch:     stage(p.ctx),
+	}
+}
+
+// PipelineWithBytes represents a pipeline with a []byte channel
+type PipelineWithBytes struct {
+	ctx    context.Context
+	stages PipelineStage
+	ch     <-chan []byte
+}
+
+// TransformBytesToRecord transforms []byte to *LogRecord
+func (p *PipelineWithBytes) TransformBytesToRecord(stage TransformBytesToRecordStage) *PipelineWithRecord {
+	return &PipelineWithRecord{
+		ctx:    p.ctx,
+		stages: p.stages,
+		ch:     stage(p.ctx, p.ch),
+	}
+}
+
+// SinkBytes consumes []byte values
+func (p *PipelineWithBytes) SinkBytes(stage SinkBytesStage) *PipelineComplete {
+	return &PipelineComplete{
+		ctx:    p.ctx,
+		stages: p.stages,
+		ch:     stage(p.ctx, p.ch),
+	}
+}
+
+// PipelineWithRecord represents a pipeline with a *LogRecord channel
+type PipelineWithRecord struct {
+	ctx    context.Context
+	stages PipelineStage
+	ch     <-chan *LogRecord
+}
+
+// TransformRecord applies a transformation to *LogRecord
+func (p *PipelineWithRecord) TransformRecord(stage TransformRecordStage) *PipelineWithRecord {
+	return &PipelineWithRecord{
+		ctx:    p.ctx,
+		stages: p.stages,
+		ch:     stage(p.ctx, p.ch),
+	}
+}
+
+// TransformRecordToBytes transforms *LogRecord to []byte
+func (p *PipelineWithRecord) TransformRecordToBytes(stage TransformRecordToBytesStage) *PipelineWithBytes {
+	return &PipelineWithBytes{
+		ctx:    p.ctx,
+		stages: p.stages,
+		ch:     stage(p.ctx, p.ch),
+	}
+}
+
+// PipelineComplete represents a complete pipeline ready to run
+type PipelineComplete struct {
+	ctx    context.Context
+	stages PipelineStage
+	ch     <-chan struct{}
+}
+
+// Run executes the pipeline and waits for completion
+func (p *PipelineComplete) Run() {
+	for range p.ch {
+	}
+}
+
+// ============================================================================
+// Pipeline Stages - Source
+// ============================================================================
+
 // NewReadStreamStage creates a source stage that generates log lines
 func NewReadStreamStage(count int) SourceBytesStage {
 	return func(ctx context.Context) <-chan []byte {
@@ -204,6 +220,10 @@ func ReadStreamStage(ctx context.Context, count int) <-chan []byte {
 	}()
 	return out
 }
+
+// ============================================================================
+// Pipeline Stages - Transforms
+// ============================================================================
 
 // NewParseStreamStage creates a transform stage that parses log lines
 func NewParseStreamStage() TransformBytesToRecordStage {
@@ -314,6 +334,10 @@ func SerializeLogStage(ctx context.Context, in <-chan *LogRecord) <-chan []byte 
 	}()
 	return out
 }
+
+// ============================================================================
+// Pipeline Stages - Sink
+// ============================================================================
 
 // NewPersistLogStage creates a sink stage that persists log records
 func NewPersistLogStage() SinkBytesStage {
