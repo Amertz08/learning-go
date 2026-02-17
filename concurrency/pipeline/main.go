@@ -303,7 +303,6 @@ func EnrichLogStage(ctx context.Context, in <-chan *LogRecord, workers int) <-ch
 
 		// Use sync to track worker completion
 		var workersDone = make(chan struct{})
-		activeWorkers := workers
 
 		// Fan-out: start a worker pool
 		for i := 0; i < workers; i++ {
@@ -332,7 +331,7 @@ func EnrichLogStage(ctx context.Context, in <-chan *LogRecord, workers int) <-ch
 
 		// Close the results channel when all workers are done
 		go func() {
-			for i := 0; i < activeWorkers; i++ {
+			for i := 0; i < workers; i++ {
 				<-workersDone
 			}
 			close(results)
