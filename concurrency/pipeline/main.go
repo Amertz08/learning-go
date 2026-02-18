@@ -20,7 +20,7 @@ func main() {
 		TransformRecord(NewFilterLogStage(logPriorities[WARNING])).
 		TransformRecord(NewEnrichLogStage(5)). // 5 concurrent workers
 		TransformRecordToBytes(NewSerializeLogStage()).
-		SinkBytes(NewPersistToFileStage("logs.json")).
+		SinkBytes(NewPersistToFileStage("logs.json")). // If this was a DB write instead of a file, this could be concurrent as well.
 		Run()
 
 	fmt.Println("pipeline complete - logs written to logs.json")
