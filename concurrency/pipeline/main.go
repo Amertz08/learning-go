@@ -439,6 +439,10 @@ func PersistToFileStage(ctx context.Context, in <-chan []byte, filename string) 
 
 			fmt.Printf("persisted log to file: %s\n", filename)
 
+			// We don't need to acknowledge each record being written since we're not doing anything
+			// in .Run() with the value. We could modify this to return a Result{} of some kind and print
+			// the acknowledgement of each being completed. We do at least need the channel being returned, however,
+			// to block the pipeline from exiting until all records have been written.
 			select {
 			case <-ctx.Done():
 				return
