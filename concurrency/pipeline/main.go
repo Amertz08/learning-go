@@ -14,6 +14,14 @@ func main() {
 	fmt.Println("starting pipeline")
 	ctx := context.Background()
 
+	// Some thoughts.
+	// 1. It might make sense for the Filter and Serialize stage to output to Buffered channels.
+	//		This is because they're going to complete much quicker than the I/O bound stages that follow them,
+	//		and there is no reason for them to be blocked until the I/O bound stages are ready to consume them.
+	//		The issue in my mind is that this makes them "aware" of the stage that follows i.e., conceptually leakage forward
+	//		in the pipeline. Maybe I am too puritanical and this isn't really an issue. The application itself responding
+	//		to the pipeline's needs is a good thing.
+	//		The other actual issue is this can lead to an increase in memory usage. This can be mitigated with tuning.
 	NewPipeline(ctx).
 		SourceBytes(NewReadStreamStage(100)).
 		TransformBytesToRecord(NewParseStreamStage()).
