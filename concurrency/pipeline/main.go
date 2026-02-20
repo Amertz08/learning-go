@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"os"
 	"regexp"
+	"sync"
 	"time"
 )
 
@@ -309,17 +310,13 @@ func EnrichLogStage(ctx context.Context, in <-chan *LogRecord, workers int) <-ch
 
 		// Create a channel for worker results
 		results := make(chan *LogRecord, workers)
-
-		// Use sync to track worker completion
-		var workersDone = make(chan struct{})
+		var wg sync.WaitGroup
 
 		// Fan-out: start a worker pool
 		for i := 0; i < workers; i++ {
+			wg.Add(1)
 			go func(workerID int) {
-				defer func() {
-					// Signal this worker is done
-					workersDone <- struct{}{}
-				}()
+				defer wg.Done()
 
 				for record := range in {
 					// Simulate HTTP request delay
@@ -340,9 +337,7 @@ func EnrichLogStage(ctx context.Context, in <-chan *LogRecord, workers int) <-ch
 
 		// Close the results channel when all workers are done
 		go func() {
-			for i := 0; i < workers; i++ {
-				<-workersDone
-			}
+			wg.Wait()
 			close(results)
 		}()
 
