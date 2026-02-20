@@ -14,20 +14,20 @@ func main() {
 	fmt.Println("starting pipeline")
 	ctx := context.Background()
 
-	// Some thoughts.
-	// 1. It might make sense for the Filter and Serialize stage to output to Buffered channels.
-	//		This is because they're going to complete much quicker than the I/O bound stages that follow them,
-	//		and there is no reason for them to be blocked until the I/O bound stages are ready to consume them.
-	//		The issue in my mind is that this makes them "aware" of the stage that follows i.e., conceptually leakage forward
-	//		in the pipeline. Maybe I am too puritanical and this isn't really an issue. The application itself responding
-	//		to the pipeline's needs is a good thing.
-	//		The other actual issue is this can lead to an increase in memory usage. This can be mitigated with tuning.
+	// I only implemented concurrent workers in the enrichment stage, but the DB write stage
+	// would benefit from concurrent writes as well if it was actually writing to a DB.
+	enrichConcurrentWorkers := 5
+
+	// These can be tuned to deal with any memory issues
+	filterBufferSize := 1_000
+	serializeBufferSize := 100
+
 	NewPipeline(ctx).
 		SourceBytes(NewReadStreamStage(100)).
 		TransformBytesToRecord(NewParseStreamStage()).
-		TransformRecord(NewFilterLogStage(logPriorities[WARNING])).
-		TransformRecord(NewEnrichLogStage(5)). // 5 concurrent workers
-		TransformRecordToBytes(NewSerializeLogStage()).
+		TransformRecord(NewFilterLogStage(logPriorities[WARNING], filterBufferSize)).
+		TransformRecord(NewEnrichLogStage(enrichConcurrentWorkers)).
+		TransformRecordToBytes(NewSerializeLogStage(serializeBufferSize)).
 		SinkBytes(NewPersistToFileStage("logs.json")). // If this was a DB write instead of a file, this could be concurrent as well.
 		Run()
 
@@ -264,15 +264,15 @@ func ParseStreamStage(ctx context.Context, in <-chan []byte) <-chan *LogRecord {
 }
 
 // NewFilterLogStage creates a transform stage that filters log records
-func NewFilterLogStage(priority LogPriority) TransformRecordStage {
+func NewFilterLogStage(priority LogPriority, bufferSize int) TransformRecordStage {
 	return func(ctx context.Context, in <-chan *LogRecord) <-chan *LogRecord {
-		return FilterLogStage(ctx, in, priority)
+		return FilterLogStage(ctx, in, bufferSize, priority)
 	}
 }
 
 // FilterLogStage filters log records greater than or equal to the given priority.
-func FilterLogStage(ctx context.Context, in <-chan *LogRecord, priority LogPriority) <-chan *LogRecord {
-	out := make(chan *LogRecord)
+func FilterLogStage(ctx context.Context, in <-chan *LogRecord, bufferSize int, priority LogPriority) <-chan *LogRecord {
+	out := make(chan *LogRecord, bufferSize)
 	go func() {
 		defer close(out)
 		for record := range in {
@@ -359,13 +359,15 @@ func EnrichLogStage(ctx context.Context, in <-chan *LogRecord, workers int) <-ch
 }
 
 // NewSerializeLogStage creates a transform stage that serializes log records to JSON
-func NewSerializeLogStage() TransformRecordToBytesStage {
-	return SerializeLogStage
+func NewSerializeLogStage(bufferSize int) TransformRecordToBytesStage {
+	return func(ctx context.Context, in <-chan *LogRecord) <-chan []byte {
+		return SerializeLogStage(ctx, in, bufferSize)
+	}
 }
 
 // SerializeLogStage serializes LogRecord into JSON
-func SerializeLogStage(ctx context.Context, in <-chan *LogRecord) <-chan []byte {
-	out := make(chan []byte)
+func SerializeLogStage(ctx context.Context, in <-chan *LogRecord, bufferSize int) <-chan []byte {
+	out := make(chan []byte, bufferSize)
 	go func() {
 		defer close(out)
 		for record := range in {
