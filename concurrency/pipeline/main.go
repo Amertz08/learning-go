@@ -19,6 +19,7 @@ func main() {
 	enrichConcurrentWorkers := 5
 
 	// These can be tuned to deal with any memory issues
+	// I implemented a buffer given the consumers will be slower than the producers since they're I/O bound.
 	filterBufferSize := 1_000
 	serializeBufferSize := 100
 
