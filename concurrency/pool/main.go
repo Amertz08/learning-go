@@ -55,6 +55,7 @@ func main() {
 	// My interpretation is that jobs should not be dropped or lost during processing.
 	// If the process is canceled, however, jobs should be processed up to the point of cancellation.
 	// The way this is currently written, the WIP job could still have attempts left.
+	// An alternative approach would be to use a buffered channel for input jobs and drain it before exiting.
 }
 
 type Job struct {
