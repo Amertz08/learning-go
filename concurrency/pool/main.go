@@ -33,17 +33,12 @@ func main() {
 		go func(c context.Context, in <-chan *Job) {
 			defer wg.Done()
 			for input := range in {
-				select {
-				case <-c.Done():
-					return
-				default:
-					for !input.Success && len(input.Errors) < maxAttempts {
-						select {
-						case <-c.Done():
-							return
-						default:
-							input.DoWork()
-						}
+				for !input.Success && len(input.Errors) < maxAttempts {
+					select {
+					case <-c.Done():
+						return
+					default:
+						input.DoWork()
 					}
 				}
 			}
