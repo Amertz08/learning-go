@@ -10,6 +10,8 @@ import (
 
 func main() {
 	ctx := context.Background()
+	// There is no real reason this channel cannot be buffered.
+	// Creation of jobs takes significantly less time than consumption of them.
 	inputChannel := make(chan *Job)
 	go func(c context.Context) {
 		defer close(inputChannel)
@@ -47,6 +49,12 @@ func main() {
 
 	// Will block until all workers are done
 	wg.Wait()
+
+	// The requirements do state that "No job should be lost."
+	// I did not clarify what that meant w/ ChatGPT (probably could ask it.)
+	// My interpretation is that jobs should not be dropped or lost during processing.
+	// If the process is canceled, however, jobs should be processed up to the point of cancellation.
+	// The way this is currently written, the WIP job could still have attempts left.
 }
 
 type Job struct {
