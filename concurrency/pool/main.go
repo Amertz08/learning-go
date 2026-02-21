@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"math/rand/v2"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -21,6 +23,7 @@ func main() {
 	}(ctx)
 
 	maxWorkers := 10
+	maxAttempts := 3
 	var wg sync.WaitGroup
 
 	for i := 0; i < maxWorkers; i++ {
@@ -32,7 +35,9 @@ func main() {
 				case <-c.Done():
 					return
 				default:
-					fmt.Println(input)
+					for !input.Success && len(input.Errors) < maxAttempts {
+						input.DoWork()
+					}
 				}
 			}
 		}(ctx, inputChannel)
@@ -47,6 +52,20 @@ type Job struct {
 	Errors  []error
 }
 
-func (j Job) String() string {
+func (j *Job) String() string {
 	return fmt.Sprintf("Job %d: %v", j.Id, j.Success)
+}
+
+func (j *Job) DoWork() {
+	minTime := 50 * time.Millisecond
+	maxTime := 2 * time.Second
+	randomDuration := minTime + time.Duration(rand.Int64N(int64(maxTime-minTime)))
+	time.Sleep(randomDuration)
+
+	// Fail 30% of the time
+	j.Success = rand.IntN(10) < 3
+	if !j.Success {
+		j.Errors = append(j.Errors, fmt.Errorf("failed job %d", j.Id))
+	}
+	fmt.Println(j)
 }
