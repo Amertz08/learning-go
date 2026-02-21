@@ -30,7 +30,8 @@ func main() {
 		TransformRecord(NewFilterLogStage(logPriorities[WARNING], filterBufferSize)).
 		TransformRecord(NewEnrichLogStage(enrichConcurrentWorkers)).
 		TransformRecordToBytes(NewSerializeLogStage(serializeBufferSize)).
-		SinkBytes(NewPersistToFileStage("logs.json")). // If this was a DB write instead of a file, this could be concurrent as well.
+		SinkBytes(NewPersistToFileStage("logs.json")).
+		// If this was a DB write instead of a file, this could be concurrent as well.
 		Run()
 
 	fmt.Println("pipeline complete - logs written to logs.json")
@@ -146,7 +147,9 @@ type PipelineWithBytes struct {
 }
 
 // TransformBytesToRecord transforms []byte to *LogRecord
-func (p *PipelineWithBytes) TransformBytesToRecord(stage TransformBytesToRecordStage) *PipelineWithRecord {
+func (p *PipelineWithBytes) TransformBytesToRecord(
+	stage TransformBytesToRecordStage,
+) *PipelineWithRecord {
 	return &PipelineWithRecord{
 		ctx:    p.ctx,
 		stages: p.stages,
@@ -180,7 +183,9 @@ func (p *PipelineWithRecord) TransformRecord(stage TransformRecordStage) *Pipeli
 }
 
 // TransformRecordToBytes transforms *LogRecord to []byte
-func (p *PipelineWithRecord) TransformRecordToBytes(stage TransformRecordToBytesStage) *PipelineWithBytes {
+func (p *PipelineWithRecord) TransformRecordToBytes(
+	stage TransformRecordToBytesStage,
+) *PipelineWithBytes {
 	return &PipelineWithBytes{
 		ctx:    p.ctx,
 		stages: p.stages,
@@ -220,7 +225,11 @@ func ReadStreamStage(ctx context.Context, count int) <-chan []byte {
 		levels := []LogLevel{DEBUG, WARNING, INFO, ERROR}
 		for i := 0; i < count; i++ {
 			randomLevel := levels[rand.Intn(len(levels))]
-			logLine := time.Now().Format(time.RFC3339Nano) + "|" + string(randomLevel) + "|Sample log message"
+			logLine := time.Now().
+				Format(time.RFC3339Nano) +
+				"|" + string(
+				randomLevel,
+			) + "|Sample log message"
 			select {
 			case <-ctx.Done():
 				return
@@ -273,7 +282,12 @@ func NewFilterLogStage(priority LogPriority, bufferSize int) TransformRecordStag
 }
 
 // FilterLogStage filters log records greater than or equal to the given priority.
-func FilterLogStage(ctx context.Context, in <-chan *LogRecord, bufferSize int, priority LogPriority) <-chan *LogRecord {
+func FilterLogStage(
+	ctx context.Context,
+	in <-chan *LogRecord,
+	bufferSize int,
+	priority LogPriority,
+) <-chan *LogRecord {
 	out := make(chan *LogRecord, bufferSize)
 	go func() {
 		defer close(out)
