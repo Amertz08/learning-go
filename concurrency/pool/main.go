@@ -10,25 +10,27 @@ import (
 
 func main() {
 	ctx := context.Background()
-	inputChannel := make(chan Job)
+	inputChannel := make(chan *Job)
 	go func(c context.Context) {
 		defer close(inputChannel)
 		for i := 0; i < 100; i++ {
 			select {
 			case <-c.Done():
 				return
-			case inputChannel <- Job{Id: i}:
+			case inputChannel <- &Job{Id: i}:
 			}
 		}
 	}(ctx)
 
+	// Create 10 workers
 	maxWorkers := 10
+	// Attempt 3 times to process a job before marking it as failed
 	maxAttempts := 3
 	var wg sync.WaitGroup
 
 	for i := 0; i < maxWorkers; i++ {
 		wg.Add(1)
-		go func(c context.Context, in <-chan Job) {
+		go func(c context.Context, in <-chan *Job) {
 			defer wg.Done()
 			for input := range in {
 				select {
@@ -36,13 +38,19 @@ func main() {
 					return
 				default:
 					for !input.Success && len(input.Errors) < maxAttempts {
-						input.DoWork()
+						select {
+						case <-c.Done():
+							return
+						default:
+							input.DoWork()
+						}
 					}
 				}
 			}
 		}(ctx, inputChannel)
 	}
 
+	// Will block until all workers are done
 	wg.Wait()
 }
 
@@ -63,7 +71,7 @@ func (j *Job) DoWork() {
 	time.Sleep(randomDuration)
 
 	// Fail 30% of the time
-	j.Success = rand.IntN(10) < 3
+	j.Success = rand.IntN(10) >= 3
 	if !j.Success {
 		j.Errors = append(j.Errors, fmt.Errorf("failed job %d", j.Id))
 	}
