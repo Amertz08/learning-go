@@ -6,27 +6,31 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 )
 
 func main() {
+	mutex := sync.Mutex{}
 	var frequency = make(map[string]int)
 
 	startTime := time.Now()
 	for i := 1000; i <= 1030; i++ {
 		url := fmt.Sprintf("https://rfc-editor.org/rfc/rfc%d.txt", i)
-		countWords(url, frequency)
+		go countWords(url, frequency, &mutex)
 	}
-	elapsedTime := time.Since(startTime)
+	duration := time.Since(startTime)
 	time.Sleep(10 * time.Second)
+	mutex.Lock()
 	for word, count := range frequency {
 		fmt.Printf("%s: %d\n", word, count)
 	}
-	fmt.Println("Elapsed time:", elapsedTime)
+	mutex.Unlock()
+	fmt.Println("Elapsed time:", duration)
 }
 
-func countWords(url string, frequency map[string]int) {
+func countWords(url string, frequency map[string]int, mutex *sync.Mutex) {
 	resp, _ := http.Get(url)
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
@@ -40,7 +44,9 @@ func countWords(url string, frequency map[string]int) {
 			strippedWord := removePunctuation(word)
 			matched, _ := regexp.Match(`^[a-zA-Z]+$`, []byte(strippedWord))
 			if matched {
+				mutex.Lock()
 				frequency[strings.ToLower(strippedWord)]++
+				mutex.Unlock()
 			}
 		}
 	}
