@@ -11,26 +11,55 @@ import (
 	"unicode"
 )
 
+type WordFrequency struct {
+	frequency map[string]int
+	mutex     *sync.Mutex
+}
+
+func NewWordFrequency() *WordFrequency {
+	return &WordFrequency{
+		frequency: make(map[string]int),
+		mutex:     &sync.Mutex{},
+	}
+}
+
+func (wf *WordFrequency) Count(word string) {
+	wf.mutex.Lock()
+	wf.frequency[strings.ToLower(word)]++
+	wf.mutex.Unlock()
+}
+
+func (wf *WordFrequency) Counts() map[string]int {
+	return wf.frequency
+}
+
+func (wf *WordFrequency) Lock() {
+	wf.mutex.Lock()
+}
+
+func (wf *WordFrequency) Unlock() {
+	wf.mutex.Unlock()
+}
+
 func main() {
-	mutex := sync.Mutex{}
-	var frequency = make(map[string]int)
+	var frequency = NewWordFrequency()
 
 	startTime := time.Now()
 	for i := 1000; i <= 1030; i++ {
 		url := fmt.Sprintf("https://rfc-editor.org/rfc/rfc%d.txt", i)
-		go countWords(url, frequency, &mutex)
+		go countWords(url, frequency)
 	}
 	duration := time.Since(startTime)
 	time.Sleep(10 * time.Second)
-	mutex.Lock()
-	for word, count := range frequency {
+	frequency.Lock()
+	for word, count := range frequency.Counts() {
 		fmt.Printf("%s: %d\n", word, count)
 	}
-	mutex.Unlock()
+	frequency.Unlock()
 	fmt.Println("Elapsed time:", duration)
 }
 
-func countWords(url string, frequency map[string]int, mutex *sync.Mutex) {
+func countWords(url string, frequency *WordFrequency) {
 	resp, _ := http.Get(url)
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
@@ -44,9 +73,7 @@ func countWords(url string, frequency map[string]int, mutex *sync.Mutex) {
 			strippedWord := removePunctuation(word)
 			matched, _ := regexp.Match(`^[a-zA-Z]+$`, []byte(strippedWord))
 			if matched {
-				mutex.Lock()
-				frequency[strings.ToLower(strippedWord)]++
-				mutex.Unlock()
+				frequency.Count(strippedWord)
 			}
 		}
 	}
