@@ -66,6 +66,7 @@ func countWords(url string, frequency *WordFrequency) {
 		panic(fmt.Sprintf("error fetching %s: %s", url, resp.Status))
 	}
 
+	// TODO: this is loading the whole file into memory. Steaming would be better.
 	body, _ := io.ReadAll(resp.Body)
 	lines := strings.Split(string(body), "\n")
 	for _, line := range lines {
