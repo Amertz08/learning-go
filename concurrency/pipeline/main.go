@@ -324,6 +324,7 @@ func EnrichLogStage(ctx context.Context, in <-chan *LogRecord, workers int) <-ch
 
 		// Create a channel for worker results
 		results := make(chan *LogRecord, workers)
+		// TODO: implement a semaphore to limit the number of concurrent workers
 		var wg sync.WaitGroup
 
 		// Fan-out: start a worker pool
