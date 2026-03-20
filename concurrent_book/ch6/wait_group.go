@@ -86,3 +86,21 @@ func (wg *WaitGrp) Done() {
 	}
 	wg.cond.L.Unlock()
 }
+
+func (wg *WaitGrp) TryLock() bool {
+	wg.cond.L.Lock()
+	if wg.size == 0 {
+		wg.cond.L.Unlock()
+		return true
+	}
+	return false
+}
+
+func (wg *WaitGrp) TryWait() bool {
+	wg.cond.L.Lock()
+	if wg.size > 0 {
+		wg.cond.L.Unlock()
+		return false
+	}
+	return true
+}
