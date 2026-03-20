@@ -34,6 +34,7 @@ func (b *Barrier) Wait() {
 
 func main() {
 	var matrixA, matrixB, result [matrixSize][matrixSize]int
+	// We did matrixSize + 1 because we're having to sync with the 'main' goroutine
 	barrier := NewBarrier(matrixSize + 1)
 	for row := 0; row < matrixSize; row++ {
 		go rowMultiply(&matrixA, &matrixB, &result, row, barrier)
@@ -68,7 +69,7 @@ func generateRandMatrix(matrix *[matrixSize][matrixSize]int) {
 
 func rowMultiply(matrixA, matrixB, result *[matrixSize][matrixSize]int, row int, barrier *Barrier) {
 	for {
-		// Wait for all goroutines to reach the barrier before starting
+		// Block until the 'main' goroutine releases the barrier
 		barrier.Wait()
 		for col := 0; col < matrixSize; col++ {
 			sum := 0
@@ -77,7 +78,7 @@ func rowMultiply(matrixA, matrixB, result *[matrixSize][matrixSize]int, row int,
 			}
 			result[row][col] = sum
 		}
-		// Wait for rest of goroutines to finish calculating row totals
+		// Wait for the rest of goroutines to finish calculating row totals
 		barrier.Wait()
 	}
 }
