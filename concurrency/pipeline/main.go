@@ -325,11 +325,10 @@ func EnrichLogStage(ctx context.Context, in <-chan *LogRecord, workers int) <-ch
 		// Create a channel for worker results
 		results := make(chan *LogRecord, workers)
 		// Semaphore vs. wait group here. If you were to use a semaphore you could have
-		// many goroutines that are doing work until it hits the critical section (network call)
-		// at which point the execution would block. A wait group would not allow any work to happen
-		// until a worker completes. This includes parts of the code that is not a "critical section."
-		// So if your unit of work does other things and then hits the scarce resource it might make
-		// sense to use a semaphore over a wait group.
+		// as many goroutines as there is work and then acquire the semaphore when the network call happens to limit concurrent requests.
+		// We limited the number of concurrent requests by only spawning 'workers' number of goroutines.
+		// If there was lots of not I/O bound work it would have been better to spawn many more goroutines and use the semaphore
+		// to limit the number of concurrent requests when it came to do I/O bound work.
 		var wg sync.WaitGroup
 
 		// Fan-out: start a worker pool
