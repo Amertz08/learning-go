@@ -329,6 +329,7 @@ func EnrichLogStage(ctx context.Context, in <-chan *LogRecord, workers int) <-ch
 		// We limited the number of concurrent requests by only spawning 'workers' number of goroutines.
 		// If there was lots of not I/O bound work it would have been better to spawn many more goroutines and use the semaphore
 		// to limit the number of concurrent requests when it came to do I/O bound work.
+		// The WaitGroup is used here because we want to block until all workers are done and then close the results channel.
 		var wg sync.WaitGroup
 
 		// Fan-out: start a worker pool
