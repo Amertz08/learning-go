@@ -25,7 +25,7 @@ func generateNumbers() chan int {
 
 func main() {
 	// initialize a timer channel
-	start := time.After(5 * time.Second)
+	timeout := time.After(5 * time.Second)
 	outChannel := generateNumbers()
 	for {
 		select {
@@ -33,7 +33,8 @@ func main() {
 		case num := <-outChannel:
 			fmt.Println(num)
 		// once we can read from the start channel we know 5 seconds have elapsed and can exit the program.
-		case <-start:
+		// This is an example of how you can use a select statement to process channels while including a timeout
+		case <-timeout:
 			return
 		}
 	}
