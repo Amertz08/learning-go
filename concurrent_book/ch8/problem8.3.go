@@ -19,6 +19,8 @@ func main() {
 		case move, open := <-player1:
 			// In the book solution they refactored this logic into a function
 			if !open {
+				// This example problem shows how you can use a nil channel to remove the case from being evaluated
+				// by the select statement.
 				player1 = nil
 				playerCount--
 				println("Player 1 closed, player count:", playerCount)
