@@ -147,8 +147,10 @@ func Broadcast(ctx context.Context, inCh <-chan int, pipeLineFuncs ...PipeLineFu
 			if !ok {
 				return
 			}
+			// We have a value from input so read the value and pass it to each pipeline function
 			for i, pipeFunc := range pipeLineFuncs {
 				if newInputs[i] == nil {
+					// If we have not yet created a channel for this pipeline function, create one
 					newInputs[i] = make(chan int)
 				}
 				newInputs[i] <- val
