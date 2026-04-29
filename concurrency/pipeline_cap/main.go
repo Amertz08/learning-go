@@ -21,18 +21,18 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	out := PrintValues("printer1")(ctx,
+	out := PrintValues("printer1")(ctx, 100,
 		FanIn(ctx,
-			FanOut(ctx, 4, GenerateValues(ctx), SquareValues)))
+			FanOut(ctx, 4, 0, GenerateValues(ctx, 100), SquareValues)))
 	<-out
 }
 
 // PipeLineFunc represents a function that takes a context and an input channel and returns an output channel.
-type PipeLineFunc func(ctx context.Context, in <-chan int) <-chan int
+type PipeLineFunc func(ctx context.Context, buffSize int, in <-chan int) <-chan int
 
 // GenerateValues creates a channel that emits an infinite sequence of integers, respecting context cancellation signals.
-func GenerateValues(ctx context.Context) <-chan int {
-	output := make(chan int)
+func GenerateValues(ctx context.Context, buffSize int) <-chan int {
+	output := make(chan int, buffSize)
 
 	go func() {
 		defer close(output)
@@ -51,8 +51,8 @@ func GenerateValues(ctx context.Context) <-chan int {
 }
 
 // SquareValues reads integers from the input channel, squares them, and sends the results to the output channel.
-func SquareValues(ctx context.Context, input <-chan int) <-chan int {
-	output := make(chan int)
+func SquareValues(ctx context.Context, buffSize int, input <-chan int) <-chan int {
+	output := make(chan int, buffSize)
 
 	go func() {
 		defer close(output)
@@ -76,8 +76,8 @@ func SquareValues(ctx context.Context, input <-chan int) <-chan int {
 
 // PrintValues takes a name and returns a PipeLineFunc that logs channel values with the given name prefix.
 func PrintValues(name string) PipeLineFunc {
-	return func(ctx context.Context, input <-chan int) <-chan int {
-		output := make(chan int)
+	return func(ctx context.Context, buffSize int, input <-chan int) <-chan int {
+		output := make(chan int, buffSize)
 
 		go func() {
 			defer close(output)
@@ -96,12 +96,12 @@ func PrintValues(name string) PipeLineFunc {
 }
 
 // FanOut will kick off multiple workers to process the input channel with the given pipeline function
-func FanOut(ctx context.Context, workers int, in <-chan int, pipeFunc PipeLineFunc) []<-chan int {
+func FanOut(ctx context.Context, workers int, buffSize int, in <-chan int, pipeFunc PipeLineFunc) []<-chan int {
 	output := make([]<-chan int, workers)
 
 	// A wait group is not needed here as the pipeFunc will close the output channel when done
 	for i := 0; i < workers; i++ {
-		output[i] = pipeFunc(ctx, in)
+		output[i] = pipeFunc(ctx, buffSize, in)
 	}
 	return output
 }
@@ -137,7 +137,7 @@ func FanIn(ctx context.Context, inChans []<-chan int) <-chan int {
 }
 
 // Broadcast will duplex a message from an input channel across many pipeline functions
-func Broadcast(ctx context.Context, inCh <-chan int, pipeLineFuncs ...PipeLineFunc) {
+func Broadcast(ctx context.Context, buffSize int, inCh <-chan int, pipeLineFuncs ...PipeLineFunc) {
 	newInputs := make([]chan int, len(pipeLineFuncs))
 	// Make sure to close all input channels when done
 	defer func() {
@@ -162,7 +162,7 @@ func Broadcast(ctx context.Context, inCh <-chan int, pipeLineFuncs ...PipeLineFu
 				}
 				newInputs[i] <- val
 				// TODO: I think we should be gathering the channels then returning them somehow
-				pipeFunc(ctx, newInputs[i])
+				pipeFunc(ctx, buffSize, newInputs[i])
 			}
 		case <-ctx.Done():
 			return
