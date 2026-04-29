@@ -1,5 +1,10 @@
 package main
 
+import (
+	"context"
+	"time"
+)
+
 /*
 	The purpose of this program is to demonstrate a pipeline implementation and be a 'capstone' type example project
 
@@ -11,4 +16,23 @@ package main
 */
 
 func main() {
+}
+
+func GenerateValues(ctx context.Context) <-chan int {
+	output := make(chan int)
+
+	go func() {
+		defer close(output)
+		for i := 0; ; i++ {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				output <- i
+				time.Sleep(100 * time.Millisecond)
+			}
+		}
+	}()
+
+	return output
 }
