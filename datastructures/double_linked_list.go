@@ -1,5 +1,35 @@
 package datastructures
 
+/*
+Asked ChatGPT for an interface, so I knew what methods to impelment
+type DoublyLinkedList[T any] interface {
+    // Insert
+    PushFront(value T)
+    PushBack(value T)
+    InsertBefore(node Node[T], value T) Node[T]
+    InsertAfter(node Node[T], value T) Node[T]
+
+    // Remove
+    Remove(node Node[T]) T
+
+    // Access
+    Front() Node[T]
+    Back() Node[T]
+
+    // Navigation
+    Next(node Node[T]) Node[T]
+    Prev(node Node[T]) Node[T]
+
+    // State
+    Len() int
+    IsEmpty() bool
+}
+
+type Node[T any] interface {
+    Value() T
+}
+*/
+
 type node struct {
 	Val  int
 	Next *node
