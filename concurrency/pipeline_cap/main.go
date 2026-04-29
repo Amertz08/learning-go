@@ -27,8 +27,10 @@ func main() {
 	<-out
 }
 
+// PipeLineFunc represents a function that takes a context and an input channel and returns an output channel.
 type PipeLineFunc func(ctx context.Context, in <-chan int) <-chan int
 
+// GenerateValues creates a channel that emits an infinite sequence of integers, respecting context cancellation signals.
 func GenerateValues(ctx context.Context) <-chan int {
 	output := make(chan int)
 
@@ -48,6 +50,7 @@ func GenerateValues(ctx context.Context) <-chan int {
 	return output
 }
 
+// SquareValues reads integers from the input channel, squares them, and sends the results to the output channel.
 func SquareValues(ctx context.Context, input <-chan int) <-chan int {
 	output := make(chan int)
 
@@ -71,6 +74,7 @@ func SquareValues(ctx context.Context, input <-chan int) <-chan int {
 	return output
 }
 
+// PrintValues takes a name and returns a PipeLineFunc that logs channel values with the given name prefix.
 func PrintValues(name string) PipeLineFunc {
 	return func(ctx context.Context, input <-chan int) <-chan int {
 		output := make(chan int)
