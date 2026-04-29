@@ -27,11 +27,26 @@ func main() {
 	squaredResults := FanIn(ctx, FanOut(ctx, 4, 0, initialInput, SquareValues))
 	out := PrintValues("printer1")(ctx, 100, squaredResults)
 
-	<-out
+	confs := []PipeLineFuncConfig{
+		{PrintValues("printer2"), 0},
+		{PrintValues("printer3"), 0},
+	}
+
+	// TODO: not actually printing values
+	outs := Broadcast(ctx, out, confs...)
+
+	for _, o := range outs {
+		<-o
+	}
 }
 
 // PipeLineFunc represents a function that takes a context and an input channel and returns an output channel.
 type PipeLineFunc func(ctx context.Context, buffSize int, in <-chan int) <-chan int
+
+type PipeLineFuncConfig struct {
+	Func       PipeLineFunc
+	BufferSize int
+}
 
 // GenerateValues creates a channel that emits an infinite sequence of integers, respecting context cancellation signals.
 func GenerateValues(ctx context.Context, buffSize int) <-chan int {
@@ -139,10 +154,10 @@ func FanIn(ctx context.Context, inChans []<-chan int) <-chan int {
 	return output
 }
 
-// Broadcast will duplex a message from an input channel across many pipeline functions
-func Broadcast(ctx context.Context, buffSize int, inCh <-chan int, pipeLineFuncs ...PipeLineFunc) []<-chan int {
-	newInputs := make([]chan int, len(pipeLineFuncs))
-	outputChans := make([]<-chan int, len(pipeLineFuncs))
+// Broadcast will multiplex a message from an input channel across many pipeline functions
+func Broadcast(ctx context.Context, inCh <-chan int, pipeLineFuncConfigs ...PipeLineFuncConfig) []<-chan int {
+	newInputs := make([]chan int, len(pipeLineFuncConfigs))
+	outputChans := make([]<-chan int, len(pipeLineFuncConfigs))
 	// Make sure to close all input channels when done
 	defer func() {
 		for _, ch := range newInputs {
@@ -160,13 +175,13 @@ func Broadcast(ctx context.Context, buffSize int, inCh <-chan int, pipeLineFuncs
 					return
 				}
 				// We have a value from input so read the value and pass it to each pipeline function
-				for i, pipeFunc := range pipeLineFuncs {
+				for i, conf := range pipeLineFuncConfigs {
 					if newInputs[i] == nil {
 						// If we have not yet created a channel for this pipeline function, create one
-						newInputs[i] = make(chan int)
+						newInputs[i] = make(chan int, cap(inCh))
 					}
 					newInputs[i] <- val
-					outputChans[i] = pipeFunc(ctx, buffSize, newInputs[i])
+					outputChans[i] = conf.Func(ctx, conf.BufferSize, newInputs[i])
 				}
 			case <-ctx.Done():
 				return
