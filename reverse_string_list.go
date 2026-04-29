@@ -17,7 +17,7 @@ func main() {
 	fmt.Println(reverseWordList(vals))
 
 	vals = []string{"a", "p", "p", "l", "e", " ", "h", "e", "l", "l", "o"}
-	fmt.Println(reverseWordList(vals))
+	fmt.Println(reverseWordsWithStack(vals))
 }
 
 func reverseWordList(vals []string) []string {
