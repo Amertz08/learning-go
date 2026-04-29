@@ -333,6 +333,8 @@ func EnrichLogStage(ctx context.Context, in <-chan *LogRecord, workers int) <-ch
 		var wg sync.WaitGroup
 
 		// Fan-out: start a worker pool
+		// TODO: we could also make 'fanning out' a meta operation that took a pipeline function and worker count
+		// 	This would allow us to easily create a worker pool for any pipeline stage without having to duplicate the fan-out logic.
 		for i := 0; i < workers; i++ {
 			wg.Add(1)
 			go func(workerID int) {
