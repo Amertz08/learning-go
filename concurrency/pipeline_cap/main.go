@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"sync"
 	"time"
 )
 
@@ -16,8 +17,8 @@ import (
 */
 
 func main() {
-	ctx := context.Background()
-	defer ctx.Done()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	out := PrintValues(ctx,
 		FanIn(ctx,
@@ -91,7 +92,6 @@ func PrintValues(ctx context.Context, input <-chan int) <-chan int {
 func FanOut(ctx context.Context, workers int, in <-chan int, pipeFunc PipeLineFunc) []<-chan int {
 	output := make([]<-chan int, workers)
 
-	// TODO: Is a wait group needed here?
 	for i := 0; i < workers; i++ {
 		output[i] = pipeFunc(ctx, in)
 	}
@@ -102,9 +102,11 @@ func FanOut(ctx context.Context, workers int, in <-chan int, pipeFunc PipeLineFu
 func FanIn(ctx context.Context, inChans []<-chan int) <-chan int {
 	output := make(chan int)
 
-	// TODO: Is a wait group needed here?
+	var wg sync.WaitGroup
 	for _, ch := range inChans {
+		wg.Add(1)
 		go func(inCh <-chan int) {
+			defer wg.Done()
 			for val := range inCh {
 				select {
 				case output <- val:
@@ -115,6 +117,11 @@ func FanIn(ctx context.Context, inChans []<-chan int) <-chan int {
 			}
 		}(ch)
 	}
+
+	go func() {
+		wg.Wait()
+		close(output)
+	}()
 
 	return output
 }
