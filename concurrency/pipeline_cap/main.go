@@ -36,3 +36,26 @@ func GenerateValues(ctx context.Context) <-chan int {
 
 	return output
 }
+
+func SquareValues(ctx context.Context, input <-chan int) <-chan int {
+	output := make(chan int)
+
+	go func() {
+		defer close(output)
+		for {
+			select {
+			case val, ok := <-input:
+				if !ok {
+					return
+				}
+				// Make this slower than the input to demonstrate pipeline bottlenecks
+				time.Sleep(1 * time.Second)
+				output <- val * val
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	return output
+}
