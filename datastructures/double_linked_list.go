@@ -8,15 +8,21 @@ type node struct {
 
 type DoubleLinkedList struct {
 	Head *node
+	size int
 }
 
 func NewDLL() *DoubleLinkedList {
 	return &DoubleLinkedList{}
 }
 
+func (dll *DoubleLinkedList) Size() int {
+	return dll.size
+}
+
 func (dll *DoubleLinkedList) Append(val int) {
 	if dll.Head == nil {
 		dll.Head = &node{Val: val}
+		dll.size++
 		return
 	}
 	current := dll.Head
@@ -24,4 +30,5 @@ func (dll *DoubleLinkedList) Append(val int) {
 		current = current.Next
 	}
 	current.Next = &node{Val: val, Prev: current}
+	dll.size++
 }
