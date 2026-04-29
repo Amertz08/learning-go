@@ -21,6 +21,7 @@ func main() {
 }
 
 func reverseWordList(vals []string) []string {
+	// TODO: not very clean. I feel like this could be refactored
 	firstPtr := 0
 	for i, ch := range vals {
 		// once we see a space, reverse the word
