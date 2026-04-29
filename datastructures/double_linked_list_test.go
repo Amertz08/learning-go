@@ -96,11 +96,11 @@ func TestPushEnd(t *testing.T) {
 		l := NewDLL()
 		l.PushEnd(1)
 
-		if l.Head == nil {
+		if l.Front() == nil {
 			t.Errorf("Expected head to be set after append, got nil")
 		}
-		if l.Head.Val != 1 {
-			t.Errorf("Expected head value to be 1, got %d", l.Head.Val)
+		if l.Front().Val != 1 {
+			t.Errorf("Expected head value to be 1, got %d", l.Front().Val)
 		}
 	})
 	t.Run("append_multiple_elements", func(t *testing.T) {
@@ -108,17 +108,17 @@ func TestPushEnd(t *testing.T) {
 		l.PushEnd(1)
 		l.PushEnd(2)
 
-		if l.Head == nil {
+		if l.Front() == nil {
 			t.Errorf("Expected head to be set after append, got nil")
 		}
-		if l.Head.Val != 1 {
-			t.Errorf("Expected head value to be 1, got %d", l.Head.Val)
+		if l.Front().Val != 1 {
+			t.Errorf("Expected head value to be 1, got %d", l.Front().Val)
 		}
-		if l.Head.Next == nil {
+		if l.Front().Next == nil {
 			t.Errorf("Expected second node to be set after append, got nil")
 		}
-		if l.Head.Next.Val != 2 {
-			t.Errorf("Expected second node value to be 2, got %d", l.Head.Next.Val)
+		if l.Front().Next.Val != 2 {
+			t.Errorf("Expected second node value to be 2, got %d", l.Front().Next.Val)
 		}
 	})
 }
@@ -127,11 +127,11 @@ func TestPushFront(t *testing.T) {
 	t.Run("empty_list", func(t *testing.T) {
 		l := NewDLL()
 		l.PushFront(1)
-		if l.Head == nil {
+		if l.Front() == nil {
 			t.Errorf("Expected head to be set after push front, got nil")
 		}
-		if l.Head.Val != 1 {
-			t.Errorf("Expected head value to be 1, got %d", l.Head.Val)
+		if l.Front().Val != 1 {
+			t.Errorf("Expected head value to be 1, got %d", l.Front().Val)
 		}
 	})
 	t.Run("already_has_value", func(t *testing.T) {
@@ -139,11 +139,11 @@ func TestPushFront(t *testing.T) {
 		l.PushFront(1)
 		l.PushFront(2)
 
-		if l.Head == nil {
+		if l.Front() == nil {
 			t.Errorf("Expected head to be set after push front, got nil")
 		}
-		if l.Head.Val != 2 {
-			t.Errorf("Expected head value to be 2, got %d", l.Head.Val)
+		if l.Front().Val != 2 {
+			t.Errorf("Expected head value to be 2, got %d", l.Front().Val)
 		}
 	})
 }
