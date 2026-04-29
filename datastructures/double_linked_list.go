@@ -30,14 +30,14 @@ type Node[T any] interface {
 }
 */
 
-type node struct {
+type Node struct {
 	Val  int
-	Next *node
-	Prev *node
+	Next *Node
+	Prev *Node
 }
 
 type DoubleLinkedList struct {
-	Head *node
+	Head *Node
 	size int
 }
 
@@ -54,9 +54,13 @@ func (dll *DoubleLinkedList) IsEmpty() bool {
 	return dll.size == 0
 }
 
+func (dll *DoubleLinkedList) Front() *Node {
+	return dll.Head
+}
+
 func (dll *DoubleLinkedList) PushEnd(val int) {
 	if dll.Head == nil {
-		dll.Head = &node{Val: val}
+		dll.Head = &Node{Val: val}
 		dll.size++
 		return
 	}
@@ -64,19 +68,19 @@ func (dll *DoubleLinkedList) PushEnd(val int) {
 	for current.Next != nil {
 		current = current.Next
 	}
-	current.Next = &node{Val: val, Prev: current}
+	current.Next = &Node{Val: val, Prev: current}
 	dll.size++
 }
 
 func (dll *DoubleLinkedList) PushFront(val int) {
 	if dll.Head == nil {
-		dll.Head = &node{Val: val}
+		dll.Head = &Node{Val: val}
 		dll.size++
 		return
 	}
 
 	tmp := dll.Head
-	dll.Head = &node{Val: val, Next: tmp}
+	dll.Head = &Node{Val: val, Next: tmp}
 	dll.Head.Next = tmp
 	tmp.Prev = dll.Head
 

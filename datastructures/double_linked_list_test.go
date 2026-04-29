@@ -42,6 +42,25 @@ func TestIsEmpty(t *testing.T) {
 	})
 }
 
+func TestFront(t *testing.T) {
+	t.Run("empty_list", func(t *testing.T) {
+		l := NewDLL()
+		if l.Front() != nil {
+			t.Errorf("Expected front of empty list to be nil, got %d", l.Front().Val)
+		}
+	})
+	t.Run("non_empty_list", func(t *testing.T) {
+		l := NewDLL()
+		l.PushEnd(1)
+		if l.Front() == nil {
+			t.Errorf("Expected front of non-empty list to be set, got nil")
+		}
+		if l.Front().Val != 1 {
+			t.Errorf("Expected front value to be 1, got %d", l.Front().Val)
+		}
+	})
+}
+
 func TestPushEnd(t *testing.T) {
 	t.Run("append_single_element", func(t *testing.T) {
 		l := NewDLL()
