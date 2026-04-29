@@ -19,9 +19,13 @@ func main() {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	out := PrintValues(ctx, SquareValues(ctx, GenerateValues(ctx)))
+	out := PrintValues(ctx,
+		FanIn(ctx,
+			FanOut(ctx, 4, GenerateValues(ctx), SquareValues)))
 	<-out
 }
+
+type PipeLineFunc func(ctx context.Context, in <-chan int) <-chan int
 
 func GenerateValues(ctx context.Context) <-chan int {
 	output := make(chan int)
@@ -79,6 +83,38 @@ func PrintValues(ctx context.Context, input <-chan int) <-chan int {
 			}
 		}
 	}()
+
+	return output
+}
+
+// FanOut will kick off multiple workers to process the input channel with the given pipeline function
+func FanOut(ctx context.Context, workers int, in <-chan int, pipeFunc PipeLineFunc) []<-chan int {
+	output := make([]<-chan int, workers)
+
+	// TODO: Is a wait group needed here?
+	for i := 0; i < workers; i++ {
+		output[i] = pipeFunc(ctx, in)
+	}
+	return output
+}
+
+// FanIn will combine multiple input channels into a single output channel
+func FanIn(ctx context.Context, inChans []<-chan int) <-chan int {
+	output := make(chan int)
+
+	// TODO: Is a wait group needed here?
+	for _, ch := range inChans {
+		go func(inCh <-chan int) {
+			for val := range inCh {
+				select {
+				case output <- val:
+					continue
+				case <-ctx.Done():
+					return
+				}
+			}
+		}(ch)
+	}
 
 	return output
 }
