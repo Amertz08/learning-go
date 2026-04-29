@@ -13,8 +13,10 @@ func Print[T any](quit <-chan int, input <-chan T) <-chan T {
 		for moreData {
 			select {
 			case msg, moreData = <-input:
-				fmt.Println(msg)
-				output <- msg
+				if moreData {
+					fmt.Println(msg)
+					output <- msg
+				}
 			case <-quit:
 				return
 			}
