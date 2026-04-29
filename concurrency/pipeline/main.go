@@ -364,6 +364,8 @@ func EnrichLogStage(ctx context.Context, in <-chan *LogRecord, workers int) <-ch
 		// Fan-in: send results to an output channel
 		// TODO: fan-in might make more sense as it's own operation and simply have each
 		// 	worker send their results to a separate channel, which is then merged into a single channel via a fan-in function.
+		//	This would help keep a consistent interface for our pipeline stages of one input channel and one output channel.
+		//	Fan-in would be a 'meta' operation in the pipeline.
 		for enriched := range results {
 			select {
 			case <-ctx.Done():
