@@ -32,6 +32,7 @@ type Node[T any] interface {
 }
 */
 
+// TODO: make a generic doubly linked list
 type Node struct {
 	Val  int
 	Next *Node
