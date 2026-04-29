@@ -1,18 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"time"
 )
-
-func main() {
-	quit := make(chan int)
-	numbers := GenerateSquares(quit)
-
-	for number := range numbers {
-		fmt.Println(number)
-	}
-}
 
 func GenerateSquares(quit <-chan int) <-chan int {
 	out := make(chan int)
