@@ -38,6 +38,7 @@ type Node struct {
 
 type DoubleLinkedList struct {
 	Head *Node
+	back *Node
 	size int
 }
 
@@ -58,17 +59,22 @@ func (dll *DoubleLinkedList) Front() *Node {
 	return dll.Head
 }
 
+func (dll *DoubleLinkedList) Back() *Node {
+	return dll.back
+}
+
 func (dll *DoubleLinkedList) PushEnd(val int) {
 	if dll.Head == nil {
 		dll.Head = &Node{Val: val}
+		dll.back = dll.Head
 		dll.size++
 		return
 	}
-	current := dll.Head
-	for current.Next != nil {
-		current = current.Next
-	}
-	current.Next = &Node{Val: val, Prev: current}
+
+	tmp := dll.back
+	dll.back = &Node{Val: val}
+	dll.back.Prev = tmp
+	tmp.Next = dll.back
 	dll.size++
 }
 
