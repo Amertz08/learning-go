@@ -128,3 +128,36 @@ func FanIn(ctx context.Context, inChans []<-chan int) <-chan int {
 
 	return output
 }
+
+// Broadcast will duplex a message from an input channel across many pipeline functions
+func Broadcast(ctx context.Context, inCh <-chan int, pipeLineFuncs ...PipeLineFunc) {
+	newInputs := make([]chan int, len(pipeLineFuncs))
+	// Make sure to close all input channels when done
+	defer func() {
+		for _, ch := range newInputs {
+			if ch != nil {
+				close(ch)
+			}
+		}
+	}()
+
+	for {
+		select {
+		case val, ok := <-inCh:
+			if !ok {
+				return
+			}
+			for i, pipeFunc := range pipeLineFuncs {
+				if newInputs[i] == nil {
+					newInputs[i] = make(chan int)
+				}
+				newInputs[i] <- val
+				// TODO: I think we should be gathering the channels then returning them somehow
+				pipeFunc(ctx, newInputs[i])
+			}
+		case <-ctx.Done():
+			return
+		}
+	}
+	// TODO: should there be a return?
+}
