@@ -86,6 +86,7 @@ func reverseWordsWithStack(vals []string) []string {
 	}
 
 	var result []string
+	// TODO: actually 'pop' stack
 	for i := len(wordStack) - 1; i >= 0; i-- {
 		result = append(result, wordStack[i]...)
 	}
