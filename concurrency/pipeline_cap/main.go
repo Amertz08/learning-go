@@ -92,6 +92,7 @@ func PrintValues(ctx context.Context, input <-chan int) <-chan int {
 func FanOut(ctx context.Context, workers int, in <-chan int, pipeFunc PipeLineFunc) []<-chan int {
 	output := make([]<-chan int, workers)
 
+	// A wait group is not needed here as the pipeFunc will close the output channel when done
 	for i := 0; i < workers; i++ {
 		output[i] = pipeFunc(ctx, in)
 	}
@@ -102,6 +103,8 @@ func FanOut(ctx context.Context, workers int, in <-chan int, pipeFunc PipeLineFu
 func FanIn(ctx context.Context, inChans []<-chan int) <-chan int {
 	output := make(chan int)
 
+	// A wait group is needed here because we're creating the output channel in the scope of this function
+	// and it needs to close the output channel when it's goroutines are done.
 	var wg sync.WaitGroup
 	for _, ch := range inChans {
 		wg.Add(1)
