@@ -16,6 +16,11 @@ import (
 */
 
 func main() {
+	ctx := context.Background()
+	defer ctx.Done()
+
+	out := PrintValues(ctx, SquareValues(ctx, GenerateValues(ctx)))
+	<-out
 }
 
 func GenerateValues(ctx context.Context) <-chan int {
@@ -53,6 +58,24 @@ func SquareValues(ctx context.Context, input <-chan int) <-chan int {
 				output <- val * val
 			case <-ctx.Done():
 				return
+			}
+		}
+	}()
+
+	return output
+}
+
+func PrintValues(ctx context.Context, input <-chan int) <-chan int {
+	output := make(chan int)
+
+	go func() {
+		defer close(output)
+		for val := range input {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				println(val)
 			}
 		}
 	}()
