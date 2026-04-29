@@ -140,8 +140,9 @@ func FanIn(ctx context.Context, inChans []<-chan int) <-chan int {
 }
 
 // Broadcast will duplex a message from an input channel across many pipeline functions
-func Broadcast(ctx context.Context, buffSize int, inCh <-chan int, pipeLineFuncs ...PipeLineFunc) {
+func Broadcast(ctx context.Context, buffSize int, inCh <-chan int, pipeLineFuncs ...PipeLineFunc) []<-chan int {
 	newInputs := make([]chan int, len(pipeLineFuncs))
+	outputChans := make([]<-chan int, len(pipeLineFuncs))
 	// Make sure to close all input channels when done
 	defer func() {
 		for _, ch := range newInputs {
@@ -151,25 +152,27 @@ func Broadcast(ctx context.Context, buffSize int, inCh <-chan int, pipeLineFuncs
 		}
 	}()
 
-	for {
-		select {
-		case val, ok := <-inCh:
-			if !ok {
+	go func() {
+		for {
+			select {
+			case val, ok := <-inCh:
+				if !ok {
+					return
+				}
+				// We have a value from input so read the value and pass it to each pipeline function
+				for i, pipeFunc := range pipeLineFuncs {
+					if newInputs[i] == nil {
+						// If we have not yet created a channel for this pipeline function, create one
+						newInputs[i] = make(chan int)
+					}
+					newInputs[i] <- val
+					outputChans[i] = pipeFunc(ctx, buffSize, newInputs[i])
+				}
+			case <-ctx.Done():
 				return
 			}
-			// We have a value from input so read the value and pass it to each pipeline function
-			for i, pipeFunc := range pipeLineFuncs {
-				if newInputs[i] == nil {
-					// If we have not yet created a channel for this pipeline function, create one
-					newInputs[i] = make(chan int)
-				}
-				newInputs[i] <- val
-				// TODO: I think we should be gathering the channels then returning them somehow
-				pipeFunc(ctx, buffSize, newInputs[i])
-			}
-		case <-ctx.Done():
-			return
 		}
-	}
-	// TODO: should there be a return?
+	}()
+
+	return outputChans
 }
