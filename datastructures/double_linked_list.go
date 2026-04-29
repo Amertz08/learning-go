@@ -1,5 +1,7 @@
 package datastructures
 
+import "fmt"
+
 /*
 Asked ChatGPT for an interface, so I knew what methods to impelment
 type DoublyLinkedList[T any] interface {
@@ -91,4 +93,38 @@ func (dll *DoubleLinkedList) PushFront(val int) {
 	tmp.Prev = dll.front
 
 	dll.size++
+}
+
+func (dll *DoubleLinkedList) Remove(val int) error {
+	// Iterate through the list until the first value is found
+	// target previous node to target nodes next
+	curPtr := dll.front
+	for curPtr != nil {
+		if curPtr.Val == val {
+			nextPtr := curPtr.Next
+			prevPtr := curPtr.Prev
+
+			// Swap node next/prev pointers if possible
+			if prevPtr != nil {
+				prevPtr.Next = nextPtr
+			}
+			if nextPtr != nil {
+				nextPtr.Prev = prevPtr
+			}
+
+			// Handle case we're at the front or back of the list
+			if curPtr == dll.front {
+				dll.front = nextPtr
+			}
+			if curPtr == dll.back {
+				dll.back = prevPtr
+			}
+
+			dll.size--
+
+			return nil
+		}
+		curPtr = curPtr.Next
+	}
+	return fmt.Errorf("value not found in list")
 }

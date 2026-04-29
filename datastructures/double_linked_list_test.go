@@ -147,3 +147,24 @@ func TestPushFront(t *testing.T) {
 		}
 	})
 }
+
+func TestRemove(t *testing.T) {
+	t.Run("remove_from_empty_list", func(t *testing.T) {
+		l := NewDLL()
+		err := l.Remove(1)
+		if err == nil {
+			t.Errorf("Expected error when removing from empty list, got nil")
+		}
+	})
+	t.Run("remove_single_element", func(t *testing.T) {
+		l := NewDLL()
+		l.PushFront(1)
+		err := l.Remove(1)
+		if err != nil {
+			t.Errorf("Expected no error when removing single element, got %v", err)
+		}
+		if l.Front() != nil {
+			t.Errorf("Expected head to be nil after remove, got %v", l.Front())
+		}
+	})
+}
