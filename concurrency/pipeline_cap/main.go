@@ -21,9 +21,12 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	out := PrintValues("printer1")(ctx, 100,
-		FanIn(ctx,
-			FanOut(ctx, 4, 0, GenerateValues(ctx, 100), SquareValues)))
+	initialInput := GenerateValues(ctx, 100)
+
+	// Pipeline starts here
+	squaredResults := FanIn(ctx, FanOut(ctx, 4, 0, initialInput, SquareValues))
+	out := PrintValues("printer1")(ctx, 100, squaredResults)
+
 	<-out
 }
 
