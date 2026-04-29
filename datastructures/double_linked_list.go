@@ -67,3 +67,18 @@ func (dll *DoubleLinkedList) PushEnd(val int) {
 	current.Next = &node{Val: val, Prev: current}
 	dll.size++
 }
+
+func (dll *DoubleLinkedList) PushFront(val int) {
+	if dll.Head == nil {
+		dll.Head = &node{Val: val}
+		dll.size++
+		return
+	}
+
+	tmp := dll.Head
+	dll.Head = &node{Val: val, Next: tmp}
+	dll.Head.Next = tmp
+	tmp.Prev = dll.Head
+
+	dll.size++
+}

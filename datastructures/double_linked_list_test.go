@@ -73,3 +73,28 @@ func TestPushEnd(t *testing.T) {
 		}
 	})
 }
+
+func TestPushFront(t *testing.T) {
+	t.Run("empty_list", func(t *testing.T) {
+		l := NewDLL()
+		l.PushFront(1)
+		if l.Head == nil {
+			t.Errorf("Expected head to be set after push front, got nil")
+		}
+		if l.Head.Val != 1 {
+			t.Errorf("Expected head value to be 1, got %d", l.Head.Val)
+		}
+	})
+	t.Run("already_has_value", func(t *testing.T) {
+		l := NewDLL()
+		l.PushFront(1)
+		l.PushFront(2)
+
+		if l.Head == nil {
+			t.Errorf("Expected head to be set after push front, got nil")
+		}
+		if l.Head.Val != 2 {
+			t.Errorf("Expected head value to be 2, got %d", l.Head.Val)
+		}
+	})
+}
