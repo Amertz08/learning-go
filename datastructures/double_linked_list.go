@@ -54,7 +54,7 @@ func (dll *DoubleLinkedList) IsEmpty() bool {
 	return dll.size == 0
 }
 
-func (dll *DoubleLinkedList) Append(val int) {
+func (dll *DoubleLinkedList) PushEnd(val int) {
 	if dll.Head == nil {
 		dll.Head = &node{Val: val}
 		dll.size++
