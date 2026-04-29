@@ -3,7 +3,7 @@ package datastructures
 import "fmt"
 
 /*
-Asked ChatGPT for an interface, so I knew what methods to impelment
+Asked ChatGPT for an interface, so I knew what methods to implement
 type DoublyLinkedList[T any] interface {
     // Insert
     PushFront(value T)
@@ -17,6 +17,7 @@ type DoublyLinkedList[T any] interface {
     // Access
     Front() Node[T]
     Back() Node[T]
+	Get(idx int) Node[T]
 
     // Navigation
     Next(node Node[T]) Node[T]
