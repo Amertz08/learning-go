@@ -57,3 +57,19 @@ func TestSize(t *testing.T) {
 		}
 	})
 }
+
+func TestIsEmpty(t *testing.T) {
+	t.Run("empty_list", func(t *testing.T) {
+		l := NewDLL()
+		if !l.IsEmpty() {
+			t.Errorf("Expected empty list to be reported as empty, got non-empty")
+		}
+	})
+	t.Run("non_empty_list", func(t *testing.T) {
+		l := NewDLL()
+		l.Append(1)
+		if l.IsEmpty() {
+			t.Errorf("Expected non-empty list to be reported as non-empty, got empty")
+		}
+	})
+}

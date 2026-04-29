@@ -21,7 +21,7 @@ type DoublyLinkedList[T any] interface {
     Prev(node Node[T]) Node[T]
 
     // State
-    Len() int
+    Len() int // Done
     IsEmpty() bool
 }
 
@@ -47,6 +47,11 @@ func NewDLL() *DoubleLinkedList {
 
 func (dll *DoubleLinkedList) Size() int {
 	return dll.size
+}
+
+func (dll *DoubleLinkedList) IsEmpty() bool {
+	// Could also do dll.Head == nil
+	return dll.size == 0
 }
 
 func (dll *DoubleLinkedList) Append(val int) {
