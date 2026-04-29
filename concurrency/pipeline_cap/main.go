@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -20,7 +21,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	out := PrintValues(ctx,
+	out := PrintValues("printer1")(ctx,
 		FanIn(ctx,
 			FanOut(ctx, 4, GenerateValues(ctx), SquareValues)))
 	<-out
@@ -70,22 +71,24 @@ func SquareValues(ctx context.Context, input <-chan int) <-chan int {
 	return output
 }
 
-func PrintValues(ctx context.Context, input <-chan int) <-chan int {
-	output := make(chan int)
+func PrintValues(name string) PipeLineFunc {
+	return func(ctx context.Context, input <-chan int) <-chan int {
+		output := make(chan int)
 
-	go func() {
-		defer close(output)
-		for val := range input {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				println(val)
+		go func() {
+			defer close(output)
+			for val := range input {
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					fmt.Printf("%s: %d\n", name, val)
+				}
 			}
-		}
-	}()
+		}()
 
-	return output
+		return output
+	}
 }
 
 // FanOut will kick off multiple workers to process the input channel with the given pipeline function
