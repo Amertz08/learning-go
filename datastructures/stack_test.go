@@ -67,7 +67,7 @@ func TestStackImp_Pop(t *testing.T) {
 func TestStackImp_Peak(t *testing.T) {
 	t.Run("returns false on empty stack", func(t *testing.T) {
 		stack := stackImp[int]{}
-		_, ok := stack.Peak()
+		_, ok := stack.Peek()
 		if ok {
 			t.Errorf("Expected false got true for empty stack")
 		}
@@ -75,7 +75,7 @@ func TestStackImp_Peak(t *testing.T) {
 	t.Run("returns value at end of stack", func(t *testing.T) {
 		stack := stackImp[int]{}
 		stack.Push(1)
-		val, ok := stack.Peak()
+		val, ok := stack.Peek()
 		if !ok {
 			t.Errorf("Expected true got false for non-empty stack")
 		}

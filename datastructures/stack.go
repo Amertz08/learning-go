@@ -32,6 +32,10 @@ type stackImp[T any] struct {
 	items []T
 }
 
+func NewStack[T any]() Stack[T] {
+	return &stackImp[T]{}
+}
+
 func (s *stackImp[T]) Len() int {
 	return len(s.items)
 }
@@ -54,7 +58,7 @@ func (s stackImp[T]) Pop() (T, bool) {
 	return val, true
 }
 
-func (s stackImp[T]) Peak() (T, bool) {
+func (s stackImp[T]) Peek() (T, bool) {
 	var val T
 	if s.IsEmpty() {
 		return val, false
