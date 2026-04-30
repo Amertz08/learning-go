@@ -30,6 +30,7 @@ func main() {
 	squaredResults := FanIn(ctx, FanOut(ctx, 4, 0, initialInput, SquareValues))
 	out := PrintValues("printer1")(ctx, 100, squaredResults)
 
+	// TODO: pipeline after broadcast
 	confs := []PipeLineFuncConfig{
 		{PrintValues("printer2"), 0},
 		{PrintValues("printer3"), 0},
@@ -178,6 +179,7 @@ func Broadcast(ctx context.Context, inCh <-chan int, pipeLineFuncConfigs ...Pipe
 					return
 				}
 				// We have a value from input so read the value and pass it to each pipeline function
+				// This is where the broadcast happens
 				for i, conf := range pipeLineFuncConfigs {
 					if newInputs[i] == nil {
 						// If we have not yet created a channel for this pipeline function, create one
