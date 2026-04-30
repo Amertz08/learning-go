@@ -48,7 +48,7 @@ func (s *stackImp[T]) IsEmpty() bool {
 	return len(s.items) == 0
 }
 
-func (s stackImp[T]) Pop() (T, bool) {
+func (s *stackImp[T]) Pop() (T, bool) {
 	var val T
 	if s.IsEmpty() {
 		return val, false
@@ -58,7 +58,7 @@ func (s stackImp[T]) Pop() (T, bool) {
 	return val, true
 }
 
-func (s stackImp[T]) Peek() (T, bool) {
+func (s *stackImp[T]) Peek() (T, bool) {
 	var val T
 	if s.IsEmpty() {
 		return val, false
