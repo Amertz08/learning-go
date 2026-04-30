@@ -44,3 +44,11 @@ func (q *queueImp[T]) Dequeue() (T, bool) {
 	q.queue = q.queue[1:]
 	return val, true
 }
+
+func (q *queueImp[T]) Peek() (T, bool) {
+	var val T
+	if q.IsEmpty() {
+		return val, false
+	}
+	return q.queue[0], true
+}
