@@ -30,3 +30,7 @@ func (q *queueImp[T]) Len() int {
 func (q *queueImp[T]) Enqueue(val T) {
 	q.queue = append(q.queue, val)
 }
+
+func (q *queueImp[T]) IsEmpty() bool {
+	return len(q.queue) == 0
+}
