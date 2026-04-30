@@ -6,3 +6,4 @@ examples as the pinnacle of how I can write Go code. I would instead look to the
 better exemplify the patterns and idioms that I learned later in my journey with Go.
 
 - [Pipeline Capstone](concurrency/pipeline_cap/main.go)
+- [Data Structures](datastructures/)

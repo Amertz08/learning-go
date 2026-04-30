@@ -7,6 +7,8 @@ Use cases for queue
 - Request buffering
 - Message passing
 - Breadth-first search
+
+TODO: implement with LinkedList
 */
 
 type Queue[T any] interface {
