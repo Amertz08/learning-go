@@ -40,3 +40,28 @@ func TestQueue_IsEmpty(t *testing.T) {
 		}
 	})
 }
+
+func TestQueueImp_DeQueue(t *testing.T) {
+	t.Run("empty queue", func(t *testing.T) {
+		q := queueImp[int]{}
+		_, ok := q.Dequeue()
+		if ok {
+			t.Errorf("expected false on empty queue")
+		}
+	})
+	t.Run("non empty queue", func(t *testing.T) {
+		q := queueImp[int]{}
+		q.Enqueue(1)
+		q.Enqueue(2)
+		val, ok := q.Dequeue()
+		if !ok {
+			t.Errorf("expected false on non empty queue")
+		}
+		if q.Len() != 1 {
+			t.Errorf("expected len = 1 got: %d", q.Len())
+		}
+		if val != 1 {
+			t.Errorf("expected 1 on val got: %d", val)
+		}
+	})
+}

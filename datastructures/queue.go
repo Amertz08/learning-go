@@ -34,3 +34,13 @@ func (q *queueImp[T]) Enqueue(val T) {
 func (q *queueImp[T]) IsEmpty() bool {
 	return len(q.queue) == 0
 }
+
+func (q *queueImp[T]) Dequeue() (T, bool) {
+	var val T
+	if q.IsEmpty() {
+		return val, false
+	}
+	val = q.queue[0]
+	q.queue = q.queue[1:]
+	return val, true
+}
