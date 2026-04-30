@@ -1,5 +1,14 @@
 package datastructures
 
+/*
+Use cases for queue
+- First in First Out (FIFO)
+- Task scheduling
+- Request buffering
+- Message passing
+- Breadth-first search
+*/
+
 type Queue[T any] interface {
 	// Enqueue adds a value to the back of the queue
 	Enqueue(value T)
