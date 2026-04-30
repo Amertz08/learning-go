@@ -15,6 +15,9 @@ import (
 	2. Implement a fan-out stage to distribute work across multiple goroutines
 	3. Implement a fan-in stage to collect results from multiple goroutines
 	4. Broadcast results to multiple consumers
+
+	TODO
+		- nil channel example
 */
 
 func main() {
