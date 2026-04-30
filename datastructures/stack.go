@@ -1,5 +1,14 @@
 package datastructures
 
+/*
+Use cases for a stack
+- Last in first out (LIFO)
+- Reversing order of elements
+- Undo/Redo operations
+- Expression evaluation (e.g., postfix notation i.e. , reverse polish notation)
+- Function call stack in programming languages
+*/
+
 type Stack[T any] interface {
 	// Push adds a value to the top of the stack
 	Push(value T)
