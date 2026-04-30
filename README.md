@@ -5,4 +5,4 @@ books may not use the best patterns which are introduced in later chapters. I sa
 examples as the pinnacle of how I can write Go code. I would instead look to the following examples that I implemented that
 better exemplify the patterns and idioms that I learned later in my journey with Go.
 
-- [concurrency/pipeline_cap/main.go](Pipeline Capstone)
+- [Pipeline Capstone](concurrency/pipeline_cap/main.go)
