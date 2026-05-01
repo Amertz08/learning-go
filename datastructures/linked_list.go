@@ -50,9 +50,13 @@ func (l *linkedListImpl[T]) PushFront(val T) {
 
 func (l *linkedListImpl[T]) PushBack(val T) {
 	// TODO: we're not actually reassigning prev.next = newBack
-	// TODO: case empty list back == front
-	l.len++
 	l.back = &nodeImpl[T]{Value: val}
+
+	if l.IsEmpty() {
+		l.front = l.back
+	}
+
+	l.len++
 }
 
 func (l *linkedListImpl[T]) Front() (T, bool) {
