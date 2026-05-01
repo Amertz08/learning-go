@@ -51,12 +51,16 @@ func TestLinkedListImpl_Front(t *testing.T) {
 	})
 }
 
-func TestLInkedListImp_PushFront(t *testing.T) {
+func TestLinkedListImp_PushFront(t *testing.T) {
 	t.Run("push a single value", func(t *testing.T) {
 		l := linkedListImpl[int]{}
 
 		exp := 1
 		l.PushFront(exp)
+
+		if l.Len() != 1 {
+			t.Fatalf("expected a len of 1 got: %d", l.Len())
+		}
 
 		front, ok := l.Front()
 		if !ok {
@@ -82,6 +86,25 @@ func TestLInkedListImp_PushFront(t *testing.T) {
 		}
 		if front != exp {
 			t.Fatalf("expected %d, got %d", exp, front)
+		}
+	})
+}
+
+func TestLinkedListImpl_PushBack(t *testing.T) {
+	t.Run("push a single value on an empty list", func(t *testing.T) {
+		l := linkedListImpl[int]{}
+
+		exp := 1
+		l.PushBack(exp)
+
+		if l.Len() != 1 {
+			t.Fatalf("expected a len of 1 got: %d", l.Len())
+		}
+
+		obs := l.Back()
+
+		if obs != exp {
+			t.Errorf("got %d, want %d", obs, exp)
 		}
 	})
 }

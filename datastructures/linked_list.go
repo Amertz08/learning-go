@@ -30,6 +30,7 @@ type nodeImpl[T any] struct {
 
 type linkedListImpl[T any] struct {
 	front *nodeImpl[T]
+	back  *nodeImpl[T]
 	len   int
 }
 
@@ -42,12 +43,21 @@ func (l *linkedListImpl[T]) PushFront(val T) {
 	l.len++
 }
 
+func (l *linkedListImpl[T]) PushBack(val T) {
+	l.len++
+	l.back = &nodeImpl[T]{Value: val}
+}
+
 func (l *linkedListImpl[T]) Front() (T, bool) {
 	var zeroValue T
 	if l.front == nil {
 		return zeroValue, false
 	}
 	return l.front.Value, true
+}
+
+func (l *linkedListImpl[T]) Back() T {
+	return l.back.Value
 }
 
 func (l *linkedListImpl[T]) IsEmpty() bool {
