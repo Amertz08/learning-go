@@ -4,3 +4,8 @@
     fine-grained: more parallelism and more speedup but increased synchronization and communication which can offset any speedup
     course-grained: reduce need for synchronization and communication but decrease speed up
     takeaway: if the inherent nature of the problem is less reliant on synchronization and communication we can do finer grained
+- Loop-level parallelism: The most basic pattern, we're iterating over a loop and instead of doing the calculation synchronously,
+    we can kick off a goroutine for each interation to do the work.
+        Can run into the issue of a loop-carried dependence: when a step in one interation depends on another step in a different
+        iteration in the same loop.
+        In the example we further broke down the task to be done so there were subtasks that could still be ran concurrently.
