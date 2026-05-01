@@ -68,6 +68,7 @@ func chunkStreamLargeFile() {
 	}
 }
 
+// At least in the contrived example this one is actually slower than just streaming directly
 func chunkConcurrentStreamLargeFile() {
 	file, err := os.Open("file_processing/large_file.bin")
 	if err != nil {
