@@ -88,6 +88,9 @@ func TestLinkedListImp_PushFront(t *testing.T) {
 			t.Fatalf("expected %d, got %d", exp, front)
 		}
 	})
+	t.Run("front is pointing at next in line", func(t *testing.T) {
+		// TODO: we need the methods to do this
+	})
 }
 
 func TestLinkedListImpl_PushBack(t *testing.T) {
@@ -109,6 +112,28 @@ func TestLinkedListImpl_PushBack(t *testing.T) {
 		if obs != exp {
 			t.Errorf("got %d, want %d", obs, exp)
 		}
+	})
+	t.Run("push multiple values", func(t *testing.T) {
+		l := linkedListImpl[int]{}
+
+		exp := 1
+		l.PushBack(2)
+		l.PushBack(exp)
+
+		if l.Len() != 2 {
+			t.Fatalf("expected len=2 got %d", l.Len())
+		}
+
+		obs, ok := l.Back()
+		if !ok {
+			t.Fatalf("expected ok=true got false")
+		}
+		if obs != exp {
+			t.Errorf("expected %d got %d", exp, obs)
+		}
+	})
+	t.Run("old back.next points to new back", func(t *testing.T) {
+		// TODO: we do not have the methods to test this yet
 	})
 }
 
@@ -139,6 +164,22 @@ func TestLinkedListImpl_Back(t *testing.T) {
 		}
 		if val != exp {
 			t.Errorf("expected %d got %d", exp, val)
+		}
+	})
+	t.Run("push multiple values", func(t *testing.T) {
+		l := linkedListImpl[int]{}
+
+		exp := 1
+		l.PushBack(2)
+		l.PushBack(exp)
+
+		val, ok := l.Back()
+
+		if !ok {
+			t.Fatalf("expected ok=true got false")
+		}
+		if val != exp {
+			t.Fatalf("expected %d got %d", exp, val)
 		}
 	})
 }
