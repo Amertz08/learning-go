@@ -1,57 +1,62 @@
 package datastructures
 
 /*
-	- Stack implementation (LIFO)
-	  Push and pop from the head in O(1).
-	  No need for a `prev` pointer, so a singly linked list is sufficient and lightweight.
+  - Stack implementation (LIFO)
+    Push and pop from the head in O(1).
+    No need for a `prev` pointer, so a singly linked list is sufficient and lightweight.
 
-	- Queue implementation (FIFO)
-	  With head + tail pointers, you can enqueue at the tail and dequeue from the head in O(1).
-	  No need for bidirectional traversal.
+  - Queue implementation (FIFO)
+    With head + tail pointers, you can enqueue at the tail and dequeue from the head in O(1).
+    No need for bidirectional traversal.
 
-	- Streaming / pipeline processing
-	  When data flows in one direction and you only process forward.
-	  Example: chaining transformations where each node represents a stage.
+  - Streaming / pipeline processing
+    When data flows in one direction and you only process forward.
+    Example: chaining transformations where each node represents a stage.
 
-	- Graph traversal (adjacency lists)
-	  Each vertex can store neighbors as a singly linked list.
-	  Efficient for iterating neighbors without needing backward traversal.
+  - Graph traversal (adjacency lists)
+    Each vertex can store neighbors as a singly linked list.
+    Efficient for iterating neighbors without needing backward traversal.
 
-	- Memory-constrained or simple dynamic collections
-	  When you want minimal overhead per node (only one pointer instead of two).
-	  Useful in embedded or performance-sensitive scenarios where simplicity matters.
+  - Memory-constrained or simple dynamic collections
+    When you want minimal overhead per node (only one pointer instead of two).
+    Useful in embedded or performance-sensitive scenarios where simplicity matters.
 */
-// TODO: go back to returning an actual node.
 type LinkedList[T any] interface {
 	// Insert
 	PushFront(value T)
 	PushBack(value T)
-	InsertAt(index int, value T)
+	//InsertAfter(node LinkedListNode[T], value T) LinkedListNode[T]
 
 	// Remove
-	PopFront() (value T, ok bool)
-	PopBack() (value T, ok bool)
-	RemoveAfter(index int) (value T, ok bool)
+	//PopFront() (value T, ok bool)
+	//PopBack() (value T, ok bool)
+	//RemoveAfter(node LinkedListNode[T]) (value T, ok bool)
 
 	// Access
-	Front() (T, bool)
-	Back() (T, bool)
-	Get(index int) (value T, ok bool)
+	Front() (LinkedListNode[T], bool)
+	Back() (LinkedListNode[T], bool)
 
 	// State
 	Len() int
 	IsEmpty() bool
-	Contains(value T) bool
+}
+
+type LinkedListNode[T any] interface {
+	Value() T
 }
 
 type nodeImpl[T any] struct {
-	Value T
-	Next  *nodeImpl[T]
+	value T
+	next  *nodeImpl[T]
 }
 
-//func NewLinkedList[T any]() LinkedList[T] {
-//	return &linkedListImpl[T]{}
-//}
+func (n *nodeImpl[T]) Value() T {
+	return n.value
+}
+
+func NewLinkedList[T any]() LinkedList[T] {
+	return &linkedListImpl[T]{}
+}
 
 type linkedListImpl[T any] struct {
 	front *nodeImpl[T]
@@ -62,9 +67,9 @@ type linkedListImpl[T any] struct {
 func (l *linkedListImpl[T]) PushFront(val T) {
 	tmp := l.front
 
-	n := &nodeImpl[T]{Value: val}
+	n := &nodeImpl[T]{value: val}
 	l.front = n
-	l.front.Next = tmp
+	l.front.next = tmp
 
 	if l.IsEmpty() {
 		l.back = l.front
@@ -75,7 +80,7 @@ func (l *linkedListImpl[T]) PushFront(val T) {
 
 func (l *linkedListImpl[T]) PushBack(val T) {
 	// TODO: we're not actually reassigning prev.next = newBack
-	l.back = &nodeImpl[T]{Value: val}
+	l.back = &nodeImpl[T]{value: val}
 
 	if l.IsEmpty() {
 		l.front = l.back
@@ -84,20 +89,18 @@ func (l *linkedListImpl[T]) PushBack(val T) {
 	l.len++
 }
 
-func (l *linkedListImpl[T]) Front() (T, bool) {
-	var zeroValue T
+func (l *linkedListImpl[T]) Front() (LinkedListNode[T], bool) {
 	if l.front == nil {
-		return zeroValue, false
+		return nil, false
 	}
-	return l.front.Value, true
+	return l.front, true
 }
 
-func (l *linkedListImpl[T]) Back() (T, bool) {
-	var zeroValue T
+func (l *linkedListImpl[T]) Back() (LinkedListNode[T], bool) {
 	if l.back == nil {
-		return zeroValue, false
+		return nil, false
 	}
-	return l.back.Value, true
+	return l.back, true
 }
 
 func (l *linkedListImpl[T]) IsEmpty() bool {
