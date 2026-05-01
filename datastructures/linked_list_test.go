@@ -26,7 +26,11 @@ func TestLinkedListImpl_Front(t *testing.T) {
 		l := linkedListImpl[int]{}
 		var zeroVal int
 
-		val := l.Front()
+		val, ok := l.Front()
+
+		if ok {
+			t.Errorf("expected false got true")
+		}
 
 		if val != zeroVal {
 			t.Errorf("expected zero val got: %d", val)
@@ -37,7 +41,10 @@ func TestLinkedListImpl_Front(t *testing.T) {
 
 		exp := 1
 		l.PushFront(exp)
-		val := l.Front()
+		val, ok := l.Front()
+		if !ok {
+			t.Errorf("expected true got false")
+		}
 		if val != exp {
 			t.Errorf("got %d, exp %d", val, exp)
 		}
@@ -51,10 +58,10 @@ func TestLInkedListImp_PushFront(t *testing.T) {
 		exp := 1
 		l.PushFront(exp)
 
-		front := l.Front()
-		//if front == nil {
-		//	t.Fatalf("expected a node, got nil")
-		//}
+		front, ok := l.Front()
+		if !ok {
+			t.Fatalf("expected a value from front")
+		}
 		if front != exp {
 			t.Errorf("expected %d, got %d", exp, front)
 		}
@@ -66,18 +73,15 @@ func TestLInkedListImp_PushFront(t *testing.T) {
 		l.PushFront(1)
 		l.PushFront(exp)
 
-		front := l.Front()
-		//if front == nil {
-		//	t.Fatalf("expected a node, got nil")
-		//}
+		front, ok := l.Front()
+		if !ok {
+			t.Fatalf("expected a value from front")
+		}
 		if l.Len() != 2 {
 			t.Fatalf("expected a length of 2 got: %d", l.Len())
 		}
 		if front != exp {
 			t.Fatalf("expected %d, got %d", exp, front)
 		}
-		//if front == nil {
-		//	t.Fatalf("expected front to point at another node, got nil")
-		//}
 	})
 }

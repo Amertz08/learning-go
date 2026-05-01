@@ -11,7 +11,7 @@ type LinkedList[T any] interface {
 	RemoveAfter(index int) (value T, ok bool)
 
 	// Access
-	Front() T
+	Front() (T, bool)
 	Back() T
 
 	// State
@@ -37,12 +37,12 @@ func (l *linkedListImpl[T]) Len() int {
 	return l.len
 }
 
-func (l *linkedListImpl[T]) Front() T {
+func (l *linkedListImpl[T]) Front() (T, bool) {
 	var zeroValue T
 	if l.front == nil {
-		return zeroValue
+		return zeroValue, false
 	}
-	return l.front.Value
+	return l.front.Value, true
 }
 
 func (l *linkedListImpl[T]) PushFront(val T) {
