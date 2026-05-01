@@ -24,6 +24,8 @@ type LinkedList[T any] interface {
 
 type LinkedListNode[T any] interface {
 	Value() T
+	Next() LinkedListNode[T]
+	SetNext(node LinkedListNode[T])
 }
 
 type nodeImpl[T any] struct {
@@ -35,12 +37,25 @@ func (n *nodeImpl[T]) Value() T {
 	return n.val
 }
 
+func (n *nodeImpl[T]) Next() LinkedListNode[T] {
+	return n.next
+}
+
+func (n *nodeImpl[T]) SetNext(node LinkedListNode[T]) {
+	n.next = node
+}
+
 type linkedListImpl[T any] struct {
 	front LinkedListNode[T]
+	len   int
 }
 
 func (l *linkedListImpl[T]) IsEmpty() bool {
 	return l.front == nil
+}
+
+func (l *linkedListImpl[T]) Len() int {
+	return l.len
 }
 
 func (l *linkedListImpl[T]) Front() LinkedListNode[T] {
@@ -48,6 +63,10 @@ func (l *linkedListImpl[T]) Front() LinkedListNode[T] {
 }
 
 func (l *linkedListImpl[T]) PushFront(val T) {
+	tmp := l.front
+
 	n := &nodeImpl[T]{val: val}
 	l.front = n
+	l.front.SetNext(tmp)
+	l.len++
 }
