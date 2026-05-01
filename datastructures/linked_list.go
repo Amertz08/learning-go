@@ -1,5 +1,6 @@
 package datastructures
 
+// TODO: go back to returning an actual node.
 type LinkedList[T any] interface {
 	// Insert
 	PushFront(value T)

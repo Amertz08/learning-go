@@ -4,7 +4,6 @@ import "fmt"
 
 /*
 Asked ChatGPT for an interface, so I knew what methods to implement.
-TODO: remove returning of node and instead return value
 type DoublyLinkedList[T any] interface {
     // Insert
     PushFront(value T)
