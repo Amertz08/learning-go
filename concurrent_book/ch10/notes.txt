@@ -1,0 +1,6 @@
+- Task decomposition: breaking the concurrent execution by the actions to be performed
+- Data decomposition: breaking the concurrent execution by how the data flows through the system
+- Granularity: how big the subtasks or data chunks be when their distributed. fine-grained -> course-grained
+    fine-grained: more parallelism and more speedup but increased synchronization and communication which can offset any speedup
+    course-grained: reduce need for synchronization and communication but decrease speed up
+    takeaway: if the inherent nature of the problem is less reliant on synchronization and communication we can do finer grained
