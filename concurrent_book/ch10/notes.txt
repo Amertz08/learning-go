@@ -1,11 +1,17 @@
 - Task decomposition: breaking the concurrent execution by the actions to be performed
 - Data decomposition: breaking the concurrent execution by how the data flows through the system
-- Granularity: how big the subtasks or data chunks be when their distributed. fine-grained -> course-grained
+- Granularity: how big the subtasks or data chunks be when they're distributed. fine-grained -> course-grained
     fine-grained: more parallelism and more speedup but increased synchronization and communication which can offset any speedup
-    course-grained: reduce need for synchronization and communication but decrease speed up
-    takeaway: if the inherent nature of the problem is less reliant on synchronization and communication we can do finer grained
-- Loop-level parallelism: The most basic pattern, we're iterating over a loop and instead of doing the calculation synchronously,
+    course-grained: reduce the need for synchronization and communication but decrease speed-up.
+    takeaway: if the inherent nature of the problem is less reliant on synchronization and communication, we can do finer grained
+- Loop-level parallelism: The most basic pattern, we're iterating over a loop, and instead of doing the calculation synchronously,
     we can kick off a goroutine for each interation to do the work.
         Can run into the issue of a loop-carried dependence: when a step in one interation depends on another step in a different
         iteration in the same loop.
-        In the example we further broke down the task to be done so there were subtasks that could still be ran concurrently.
+        In the example we further broke down the task to be done, so there were subtasks that could still be ran concurrently.
+- Worker pool: used in cases for an unknown amount of work. Pool of workers than can be fed tasks to do via a work queue.
+    Beneficial if spinning up new workers is expensive (not really the case in Go).
+    Can also be used to limit concurrency for a resource.
+- Pipeline: a series of tasks that have to be executed in a specific order to complete the work
+    throughput rate: is dictated by the slowest step
+    latency is the sum of time it takes to perform each step along the way
