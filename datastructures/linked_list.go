@@ -24,6 +24,10 @@ type nodeImpl[T any] struct {
 	Next  *nodeImpl[T]
 }
 
+//func NewLinkedList[T any]() LinkedList[T] {
+//	return &linkedListImpl[T]{}
+//}
+
 type linkedListImpl[T any] struct {
 	front *nodeImpl[T]
 	len   int
