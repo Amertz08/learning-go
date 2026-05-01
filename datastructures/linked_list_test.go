@@ -1,6 +1,8 @@
 package datastructures
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestLinkedListImp_IsEmpty(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
@@ -96,6 +98,22 @@ func TestLinkedListImp_PushFront(t *testing.T) {
 	})
 	t.Run("front is pointing at next in line", func(t *testing.T) {
 		// TODO: we need the methods to do this
+	})
+}
+
+func TestLinkedListImpl_PopFront(t *testing.T) {
+	t.Run("empty list returns false on ok check", func(t *testing.T) {
+		l := NewLinkedList[int]()
+
+		var exp int
+
+		obs, ok := l.PopFront()
+		if ok {
+			t.Fatalf("expected ok=false got true")
+		}
+		if obs != exp {
+			t.Errorf("expected: %d got %d", exp, obs)
+		}
 	})
 }
 

@@ -28,7 +28,7 @@ type LinkedList[T any] interface {
 	//InsertAfter(node LinkedListNode[T], value T) LinkedListNode[T]
 
 	// Remove
-	//PopFront() (value T, ok bool)
+	PopFront() (value T, ok bool)
 	//PopBack() (value T, ok bool)
 	//RemoveAfter(node LinkedListNode[T]) (value T, ok bool)
 
@@ -87,6 +87,11 @@ func (l *linkedListImpl[T]) PushBack(val T) {
 	}
 
 	l.len++
+}
+
+func (l *linkedListImpl[T]) PopFront() (T, bool) {
+	var zeroVal T
+	return zeroVal, false
 }
 
 func (l *linkedListImpl[T]) Front() (LinkedListNode[T], bool) {
