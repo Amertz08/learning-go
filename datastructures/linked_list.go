@@ -44,6 +44,7 @@ func (l *linkedListImpl[T]) PushFront(val T) {
 }
 
 func (l *linkedListImpl[T]) PushBack(val T) {
+	// TODO: we're not actually reassigning prev.next = newBack
 	l.len++
 	l.back = &nodeImpl[T]{Value: val}
 }
