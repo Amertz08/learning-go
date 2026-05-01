@@ -3,12 +3,15 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"os"
 )
 
+const buffSize = 4096
+
 func main() {
-	streamLargeFile()
+	chunkStreamLargeFile()
 }
 
 func readSmallFile() {
@@ -34,5 +37,28 @@ func streamLargeFile() {
 	}
 	if err := scanner.Err(); err != nil {
 		log.Fatalf("error scanning file: %s", err)
+	}
+}
+
+func chunkStreamLargeFile() {
+	file, err := os.Open("file_processing/large_file.bin")
+	if err != nil {
+		log.Fatalf("error reading large file: %s", err)
+	}
+	defer file.Close()
+
+	buf := make([]byte, buffSize)
+
+	for {
+		n, err := file.Read(buf)
+		if n > 0 {
+			fmt.Println(string(buf[:n]))
+		}
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalf("error reading into buffer: %s", err)
+		}
 	}
 }
