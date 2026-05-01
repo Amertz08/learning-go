@@ -29,11 +29,11 @@ func TestLInkedListImp_PushFront(t *testing.T) {
 		l.PushFront(exp)
 
 		front := l.Front()
-		if front == nil {
-			t.Fatalf("expected a node, got nil")
-		}
-		if front.Value() != exp {
-			t.Errorf("expected %d, got %d", exp, front.Value())
+		//if front == nil {
+		//	t.Fatalf("expected a node, got nil")
+		//}
+		if front != exp {
+			t.Errorf("expected %d, got %d", exp, front)
 		}
 	})
 	t.Run("push multiple values", func(t *testing.T) {
@@ -44,20 +44,17 @@ func TestLInkedListImp_PushFront(t *testing.T) {
 		l.PushFront(exp)
 
 		front := l.Front()
-		if front == nil {
-			t.Fatalf("expected a node, got nil")
-		}
+		//if front == nil {
+		//	t.Fatalf("expected a node, got nil")
+		//}
 		if l.Len() != 2 {
 			t.Fatalf("expected a length of 2 got: %d", l.Len())
 		}
-		if front.Value() != exp {
-			t.Fatalf("expected %d, got %d", exp, front.Value())
+		if front != exp {
+			t.Fatalf("expected %d, got %d", exp, front)
 		}
-		if front.Next() == nil {
-			t.Fatalf("expected front to point at another node, got nil")
-		}
-		if front.Next().Value() != 1 {
-			t.Errorf("expected next value to be 1, got %d", front.Next().Value())
-		}
+		//if front == nil {
+		//	t.Fatalf("expected front to point at another node, got nil")
+		//}
 	})
 }

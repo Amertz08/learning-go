@@ -4,49 +4,28 @@ type LinkedList[T any] interface {
 	// Insert
 	PushFront(value T)
 	PushBack(value T)
-	InsertAfter(node LinkedListNode[T], value T) LinkedListNode[T]
+	InsertAt(index int, value T)
 
 	// Remove
 	PopFront() (value T, ok bool)
-	RemoveAfter(node LinkedListNode[T]) (value T, ok bool)
+	RemoveAfter(index int) (value T, ok bool)
 
 	// Access
-	Front() LinkedListNode[T]
-	Back() LinkedListNode[T]
-
-	// Navigation
-	Next(node LinkedListNode[T]) LinkedListNode[T]
+	Front() T
+	Back() T
 
 	// State
 	Len() int
 	IsEmpty() bool
 }
 
-type LinkedListNode[T any] interface {
-	Value() T
-	Next() LinkedListNode[T]
-	SetNext(node LinkedListNode[T])
-}
-
 type nodeImpl[T any] struct {
-	val  T
-	next LinkedListNode[T]
-}
-
-func (n *nodeImpl[T]) Value() T {
-	return n.val
-}
-
-func (n *nodeImpl[T]) Next() LinkedListNode[T] {
-	return n.next
-}
-
-func (n *nodeImpl[T]) SetNext(node LinkedListNode[T]) {
-	n.next = node
+	Value T
+	Next  *nodeImpl[T]
 }
 
 type linkedListImpl[T any] struct {
-	front LinkedListNode[T]
+	front *nodeImpl[T]
 	len   int
 }
 
@@ -58,15 +37,15 @@ func (l *linkedListImpl[T]) Len() int {
 	return l.len
 }
 
-func (l *linkedListImpl[T]) Front() LinkedListNode[T] {
-	return l.front
+func (l *linkedListImpl[T]) Front() T {
+	return l.front.Value
 }
 
 func (l *linkedListImpl[T]) PushFront(val T) {
 	tmp := l.front
 
-	n := &nodeImpl[T]{val: val}
+	n := &nodeImpl[T]{Value: val}
 	l.front = n
-	l.front.SetNext(tmp)
+	l.front.Next = tmp
 	l.len++
 }
