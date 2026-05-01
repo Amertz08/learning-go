@@ -67,7 +67,14 @@ func TestLinkedListImp_PushFront(t *testing.T) {
 			t.Fatalf("expected a value from front")
 		}
 		if front != exp {
-			t.Errorf("expected %d, got %d", exp, front)
+			t.Fatalf("expected %d, got %d", exp, front)
+		}
+		back, ok := l.Back()
+		if !ok {
+			t.Fatalf("expected a value from the back")
+		}
+		if back != front {
+			t.Errorf("back and front should be the same")
 		}
 	})
 	t.Run("push multiple values", func(t *testing.T) {
