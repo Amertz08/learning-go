@@ -36,18 +36,18 @@ func (n *nodeImpl[T]) Value() T {
 }
 
 type linkedListImpl[T any] struct {
-	head LinkedListNode[T]
+	front LinkedListNode[T]
 }
 
 func (l *linkedListImpl[T]) IsEmpty() bool {
-	return l.head == nil
+	return l.front == nil
 }
 
 func (l *linkedListImpl[T]) Front() LinkedListNode[T] {
-	return l.head
+	return l.front
 }
 
 func (l *linkedListImpl[T]) PushFront(val T) {
 	n := &nodeImpl[T]{val: val}
-	l.head = n
+	l.front = n
 }
