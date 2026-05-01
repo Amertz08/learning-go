@@ -12,7 +12,7 @@ type LinkedList[T any] interface {
 
 	// Access
 	Front() (T, bool)
-	Back() T
+	Back() (T, bool)
 
 	// State
 	Len() int
@@ -56,12 +56,12 @@ func (l *linkedListImpl[T]) Front() (T, bool) {
 	return l.front.Value, true
 }
 
-func (l *linkedListImpl[T]) Back() T {
+func (l *linkedListImpl[T]) Back() (T, bool) {
 	var zeroValue T
 	if l.back == nil {
-		return zeroValue
+		return zeroValue, false
 	}
-	return l.back.Value
+	return l.back.Value, true
 }
 
 func (l *linkedListImpl[T]) IsEmpty() bool {

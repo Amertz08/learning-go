@@ -101,8 +101,11 @@ func TestLinkedListImpl_PushBack(t *testing.T) {
 			t.Fatalf("expected a len of 1 got: %d", l.Len())
 		}
 
-		obs := l.Back()
+		obs, ok := l.Back()
 
+		if !ok {
+			t.Fatalf("expected ok=false got true")
+		}
 		if obs != exp {
 			t.Errorf("got %d, want %d", obs, exp)
 		}
@@ -114,8 +117,11 @@ func TestLinkedListImpl_Back(t *testing.T) {
 		l := linkedListImpl[int]{}
 		var zeroValue int
 
-		val := l.Back()
+		val, ok := l.Back()
 
+		if ok {
+			t.Fatalf("expected ok=false got true")
+		}
 		if val != zeroValue {
 			t.Errorf("expected %d got %d", zeroValue, val)
 		}
@@ -126,8 +132,11 @@ func TestLinkedListImpl_Back(t *testing.T) {
 		exp := 1
 		l.PushBack(exp)
 
-		val := l.Back()
+		val, ok := l.Back()
 
+		if !ok {
+			t.Fatalf("expected ok=true got false")
+		}
 		if val != exp {
 			t.Errorf("expected %d got %d", exp, val)
 		}
