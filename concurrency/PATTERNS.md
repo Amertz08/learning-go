@@ -1,5 +1,7 @@
 # 1️⃣ Pipeline Pattern Problem
 
+This file was generated via ChatGPT.
+
 ## Problem: Streaming Log Processing System
 
 You are building a service that processes a continuous stream of log entries coming from a TCP connection.
