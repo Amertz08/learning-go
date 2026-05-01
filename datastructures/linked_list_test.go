@@ -21,6 +21,29 @@ func TestLinkedListImp_IsEmpty(t *testing.T) {
 	})
 }
 
+func TestLinkedListImpl_Front(t *testing.T) {
+	t.Run("empty list return bool", func(t *testing.T) {
+		l := linkedListImpl[int]{}
+		var zeroVal int
+
+		val := l.Front()
+
+		if val != zeroVal {
+			t.Errorf("expected zero val got: %d", val)
+		}
+	})
+	t.Run("non empty list returns actual value", func(t *testing.T) {
+		l := linkedListImpl[int]{}
+
+		exp := 1
+		l.PushFront(exp)
+		val := l.Front()
+		if val != exp {
+			t.Errorf("got %d, exp %d", val, exp)
+		}
+	})
+}
+
 func TestLInkedListImp_PushFront(t *testing.T) {
 	t.Run("push a single value", func(t *testing.T) {
 		l := linkedListImpl[int]{}

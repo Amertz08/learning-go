@@ -38,6 +38,10 @@ func (l *linkedListImpl[T]) Len() int {
 }
 
 func (l *linkedListImpl[T]) Front() T {
+	var zeroValue T
+	if l.front == nil {
+		return zeroValue
+	}
 	return l.front.Value
 }
 
