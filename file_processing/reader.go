@@ -7,9 +7,9 @@ import (
 )
 
 func main() {
-	data, err := os.ReadFile("small.txt")
+	data, err := os.ReadFile("file_processing/small.txt")
 	if err != nil {
 		log.Fatalf("error occurred reading: %s", err)
 	}
-	fmt.Println(data)
+	fmt.Println(string(data))
 }
