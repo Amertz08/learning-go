@@ -9,8 +9,13 @@ import (
 
 func main() {
 	const pagesToDownload = 30
+	syncDownload(pagesToDownload)
+
+}
+
+func syncDownload(pageCount int) {
 	totalLines := 0
-	for i := 1000; i < 1000+pagesToDownload; i++ {
+	for i := 1000; i < 1000+pageCount; i++ {
 		url := fmt.Sprintf("https://rfc-editor.org/rfc/rfc%d.txt", i)
 		fmt.Println("Downloading", url)
 		resp, _ := http.Get(url)
