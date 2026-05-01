@@ -8,15 +8,18 @@ type LinkedList[T any] interface {
 
 	// Remove
 	PopFront() (value T, ok bool)
+	PopBack() (value T, ok bool)
 	RemoveAfter(index int) (value T, ok bool)
 
 	// Access
 	Front() (T, bool)
 	Back() (T, bool)
+	Get(index int) (value T, ok bool)
 
 	// State
 	Len() int
 	IsEmpty() bool
+	Contains(value T) bool
 }
 
 type nodeImpl[T any] struct {
