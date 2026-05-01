@@ -57,6 +57,10 @@ func (l *linkedListImpl[T]) Front() (T, bool) {
 }
 
 func (l *linkedListImpl[T]) Back() T {
+	var zeroValue T
+	if l.back == nil {
+		return zeroValue
+	}
 	return l.back.Value
 }
 

@@ -108,3 +108,28 @@ func TestLinkedListImpl_PushBack(t *testing.T) {
 		}
 	})
 }
+
+func TestLinkedListImpl_Back(t *testing.T) {
+	t.Run("empty list", func(t *testing.T) {
+		l := linkedListImpl[int]{}
+		var zeroValue int
+
+		val := l.Back()
+
+		if val != zeroValue {
+			t.Errorf("expected %d got %d", zeroValue, val)
+		}
+	})
+	t.Run("one value", func(t *testing.T) {
+		l := linkedListImpl[int]{}
+
+		exp := 1
+		l.PushBack(exp)
+
+		val := l.Back()
+
+		if val != exp {
+			t.Errorf("expected %d got %d", exp, val)
+		}
+	})
+}
