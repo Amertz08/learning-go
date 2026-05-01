@@ -33,12 +33,13 @@ type linkedListImpl[T any] struct {
 	len   int
 }
 
-func (l *linkedListImpl[T]) IsEmpty() bool {
-	return l.front == nil
-}
+func (l *linkedListImpl[T]) PushFront(val T) {
+	tmp := l.front
 
-func (l *linkedListImpl[T]) Len() int {
-	return l.len
+	n := &nodeImpl[T]{Value: val}
+	l.front = n
+	l.front.Next = tmp
+	l.len++
 }
 
 func (l *linkedListImpl[T]) Front() (T, bool) {
@@ -49,11 +50,10 @@ func (l *linkedListImpl[T]) Front() (T, bool) {
 	return l.front.Value, true
 }
 
-func (l *linkedListImpl[T]) PushFront(val T) {
-	tmp := l.front
+func (l *linkedListImpl[T]) IsEmpty() bool {
+	return l.front == nil
+}
 
-	n := &nodeImpl[T]{Value: val}
-	l.front = n
-	l.front.Next = tmp
-	l.len++
+func (l *linkedListImpl[T]) Len() int {
+	return l.len
 }
