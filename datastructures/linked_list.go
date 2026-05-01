@@ -1,5 +1,26 @@
 package datastructures
 
+/*
+	- Stack implementation (LIFO)
+	  Push and pop from the head in O(1).
+	  No need for a `prev` pointer, so a singly linked list is sufficient and lightweight.
+
+	- Queue implementation (FIFO)
+	  With head + tail pointers, you can enqueue at the tail and dequeue from the head in O(1).
+	  No need for bidirectional traversal.
+
+	- Streaming / pipeline processing
+	  When data flows in one direction and you only process forward.
+	  Example: chaining transformations where each node represents a stage.
+
+	- Graph traversal (adjacency lists)
+	  Each vertex can store neighbors as a singly linked list.
+	  Efficient for iterating neighbors without needing backward traversal.
+
+	- Memory-constrained or simple dynamic collections
+	  When you want minimal overhead per node (only one pointer instead of two).
+	  Useful in embedded or performance-sensitive scenarios where simplicity matters.
+*/
 // TODO: go back to returning an actual node.
 type LinkedList[T any] interface {
 	// Insert
