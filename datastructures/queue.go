@@ -30,27 +30,27 @@ type Queue[T any] interface {
 	IsEmpty() bool
 }
 
-type queueImp[T any] struct {
+type sliceQueueImpl[T any] struct {
 	queue []T
 }
 
 func NewSliceQueue[T any]() Queue[T] {
-	return &queueImp[T]{}
+	return &sliceQueueImpl[T]{}
 }
 
-func (q *queueImp[T]) Len() int {
+func (q *sliceQueueImpl[T]) Len() int {
 	return len(q.queue)
 }
 
-func (q *queueImp[T]) Enqueue(val T) {
+func (q *sliceQueueImpl[T]) Enqueue(val T) {
 	q.queue = append(q.queue, val)
 }
 
-func (q *queueImp[T]) IsEmpty() bool {
+func (q *sliceQueueImpl[T]) IsEmpty() bool {
 	return len(q.queue) == 0
 }
 
-func (q *queueImp[T]) Dequeue() (T, bool) {
+func (q *sliceQueueImpl[T]) Dequeue() (T, bool) {
 	var val T
 	if q.IsEmpty() {
 		return val, false
@@ -60,7 +60,7 @@ func (q *queueImp[T]) Dequeue() (T, bool) {
 	return val, true
 }
 
-func (q *queueImp[T]) Peek() (T, bool) {
+func (q *sliceQueueImpl[T]) Peek() (T, bool) {
 	var val T
 	if q.IsEmpty() {
 		return val, false
