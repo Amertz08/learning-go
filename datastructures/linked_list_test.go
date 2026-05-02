@@ -61,10 +61,11 @@ var _ = Describe("We are interacting with a linked list", func() {
 		})
 	})
 	When("a value was added to the front", func() {
-		pushedValue := 1
+		var initialValue int
 
 		BeforeEach(func() {
-			uut.PushFront(pushedValue)
+			initialValue = 1
+			uut.PushFront(initialValue)
 		})
 		It("will no longer be empty", func() {
 			Expect(uut.IsEmpty()).To(BeFalse())
@@ -78,7 +79,7 @@ var _ = Describe("We are interacting with a linked list", func() {
 		})
 		It("will assign the value to the front", func() {
 			observed, _ := uut.Front()
-			Expect(observed.Value()).To(Equal(pushedValue))
+			Expect(observed.Value()).To(Equal(initialValue))
 		})
 		It("will not have an issue returning the value from the back", func() {
 			_, ok := uut.Back()
@@ -86,7 +87,7 @@ var _ = Describe("We are interacting with a linked list", func() {
 		})
 		It("will assign the value to the back", func() {
 			observed, _ := uut.Back()
-			Expect(observed.Value()).To(Equal(pushedValue))
+			Expect(observed.Value()).To(Equal(initialValue))
 		})
 		It("has back and front as the same node", func() {
 			observedBack, _ := uut.Back()
@@ -99,7 +100,7 @@ var _ = Describe("We are interacting with a linked list", func() {
 		})
 		It("will return the value from the front when removed", func() {
 			val, _ := uut.PopFront()
-			Expect(val).To(Equal(pushedValue))
+			Expect(val).To(Equal(initialValue))
 		})
 		It("can remove the value from the back", func() {
 			_, ok := uut.PopBack()
@@ -107,13 +108,14 @@ var _ = Describe("We are interacting with a linked list", func() {
 		})
 		It("will return the value from the back", func() {
 			val, _ := uut.PopBack()
-			Expect(val).To(Equal(pushedValue))
+			Expect(val).To(Equal(initialValue))
 		})
 	})
 	When("a value is added to the back", func() {
-		pushedValue := 1
+		var pushedValue int
 
 		BeforeEach(func() {
+			pushedValue = 1
 			uut.PushBack(pushedValue)
 		})
 		It("will no longer be empty", func() {
@@ -161,9 +163,10 @@ var _ = Describe("We are interacting with a linked list", func() {
 		})
 	})
 	When("there is already an item in the list", func() {
-		initialValue := 1
+		var initialValue int
 
 		BeforeEach(func() {
+			initialValue = 1
 			uut.PushFront(initialValue)
 		})
 		When("another item is pushed to the front", func() {
@@ -202,9 +205,10 @@ var _ = Describe("We are interacting with a linked list", func() {
 			})
 		})
 		When("another item is pushed to the back", func() {
-			secondValue := 2
+			var secondValue int
 
 			BeforeEach(func() {
+				secondValue = 2
 				uut.PushBack(secondValue)
 			})
 
