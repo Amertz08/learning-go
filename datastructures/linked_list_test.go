@@ -280,4 +280,20 @@ func TestLinkedListImpl_PopBack(t *testing.T) {
 			t.Errorf("expected %d got %d", exp, obs)
 		}
 	})
+	t.Run("single item", func(t *testing.T) {
+		l := NewLinkedList[int]()
+		exp := 1
+		l.PushBack(exp)
+
+		obs, ok := l.PopBack()
+		if !ok {
+			t.Fatalf("expected ok=true got false")
+		}
+		if l.Len() != 0 {
+			t.Fatalf("expected len=0 got %d", l.Len())
+		}
+		if obs != exp {
+			t.Errorf("expected %d got %d", exp, obs)
+		}
+	})
 }
