@@ -57,6 +57,55 @@ func (n *doubleLinkedListNodeImpl[T]) Prev() (DoubleLinkedListNode[T], bool) {
 }
 
 type doubleLinkedListImpl[T any] struct {
+	len int
+}
+
+func NewGenericDoubleLinkedList[T any]() DoublyLinkedList[T] {
+	return &doubleLinkedListImpl[T]{}
+}
+
+func (l *doubleLinkedListImpl[T]) Len() int {
+	return l.len
+}
+
+func (l *doubleLinkedListImpl[T]) PushFront(value T) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (l *doubleLinkedListImpl[T]) PushBack(value T) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (l *doubleLinkedListImpl[T]) PopFront() (value T, ok bool) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (l *doubleLinkedListImpl[T]) PopBack() (value T, ok bool) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T, ok bool) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (l *doubleLinkedListImpl[T]) Front() (DoubleLinkedListNode[T], bool) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (l *doubleLinkedListImpl[T]) Back() (DoubleLinkedListNode[T], bool) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (l *doubleLinkedListImpl[T]) IsEmpty() bool {
+	//TODO implement me
+	panic("implement me")
 }
 
 // TODO: make a generic doubly linked list

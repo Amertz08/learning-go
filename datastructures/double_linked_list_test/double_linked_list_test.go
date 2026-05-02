@@ -13,6 +13,29 @@ func TestDoubleLinkedList(t *testing.T) {
 	RunSpecs(t, "Double Linked List")
 }
 
+var _ = Describe("Generic Double Linked List", func() {
+	var uut datastructures.DoublyLinkedList[int]
+
+	BeforeEach(func() {
+		uut = datastructures.NewGenericDoubleLinkedList[int]()
+	})
+
+	When("list is empty", func() {
+		It("will have a length of zero", func() {
+			Expect(uut.Len()).To(Equal(0))
+		})
+		It("will tell you it is empty", func() {
+			Expect(uut.IsEmpty()).To(BeTrue())
+		})
+		It("will return nil for the front", func() {
+			Expect(uut.Front()).To(BeNil())
+		})
+		It("will return nil for the back", func() {
+			Expect(uut.Back()).To(BeNil())
+		})
+	})
+})
+
 var _ = Describe("Double linked list", func() {
 	var uut *datastructures.DoubleLinkedList
 
