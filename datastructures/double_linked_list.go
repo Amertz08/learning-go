@@ -30,6 +30,32 @@ type DoubleLinkedListNode[T any] interface {
 	Prev() (DoubleLinkedListNode[T], bool)
 }
 
+type dllNodeImpl[T any] struct {
+	val  T
+	next DoubleLinkedListNode[T]
+	prev DoubleLinkedListNode[T]
+}
+
+func (n *dllNodeImpl[T]) Value() T {
+	return n.val
+}
+
+func (n *dllNodeImpl[T]) Next() (DoubleLinkedListNode[T], bool) {
+	internal, ok := n.next.(*dllNodeImpl[T])
+	if !ok || internal.next == nil {
+		return nil, false
+	}
+	return internal, true
+}
+
+func (n *dllNodeImpl[T]) Prev() (DoubleLinkedListNode[T], bool) {
+	internal, ok := n.prev.(*dllNodeImpl[T])
+	if !ok || internal.prev == nil {
+		return nil, false
+	}
+	return internal, true
+}
+
 // TODO: make a generic doubly linked list
 type Node struct {
 	Val  int
