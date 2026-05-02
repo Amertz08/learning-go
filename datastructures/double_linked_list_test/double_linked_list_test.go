@@ -27,11 +27,21 @@ var _ = Describe("Generic Double Linked List", func() {
 		It("will tell you it is empty", func() {
 			Expect(uut.IsEmpty()).To(BeTrue())
 		})
-		It("will return nil for the front", func() {
-			Expect(uut.Front()).To(BeNil())
+		It("will fail accessing value from the front", func() {
+			_, ok := uut.Front()
+			Expect(ok).To(BeFalse())
 		})
-		It("will return nil for the back", func() {
-			Expect(uut.Back()).To(BeNil())
+		It("will return a nil from the front", func() {
+			front, _ := uut.Front()
+			Expect(front).To(BeNil())
+		})
+		It("will fail accessing value from the back", func() {
+			_, ok := uut.Back()
+			Expect(ok).To(BeFalse())
+		})
+		It("will return a nil from the back", func() {
+			back, _ := uut.Back()
+			Expect(back).To(BeNil())
 		})
 	})
 })

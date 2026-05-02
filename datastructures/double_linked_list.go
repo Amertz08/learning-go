@@ -68,6 +68,10 @@ func (l *doubleLinkedListImpl[T]) Len() int {
 	return l.len
 }
 
+func (l *doubleLinkedListImpl[T]) IsEmpty() bool {
+	return l.len == 0
+}
+
 func (l *doubleLinkedListImpl[T]) PushFront(value T) {
 	//TODO implement me
 	panic("implement me")
@@ -94,18 +98,11 @@ func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T,
 }
 
 func (l *doubleLinkedListImpl[T]) Front() (DoubleLinkedListNode[T], bool) {
-	//TODO implement me
-	panic("implement me")
+	return nil, false
 }
 
 func (l *doubleLinkedListImpl[T]) Back() (DoubleLinkedListNode[T], bool) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (l *doubleLinkedListImpl[T]) IsEmpty() bool {
-	//TODO implement me
-	panic("implement me")
+	return nil, false
 }
 
 // TODO: make a generic doubly linked list
