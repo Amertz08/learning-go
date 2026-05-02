@@ -201,224 +201,40 @@ var _ = Describe("We are interacting with a linked list", func() {
 				Expect(val).To(Equal(initialValue))
 			})
 		})
+		When("another item is pushed to the back", func() {
+			secondValue := 2
+
+			BeforeEach(func() {
+				uut.PushBack(secondValue)
+			})
+
+			It("will have a length of 2", func() {
+				Expect(uut.Len()).To(Equal(2))
+			})
+			It("will return the initial item as the front", func() {
+				front, _ := uut.Front()
+				Expect(front.Value()).To(Equal(initialValue))
+			})
+			It("will return the second value as the new back", func() {
+				back, _ := uut.Back()
+				Expect(back.Value()).To(Equal(secondValue))
+			})
+			It("can successfully remove the value from the front", func() {
+				_, ok := uut.PopFront()
+				Expect(ok).To(BeTrue())
+			})
+			It("will remove the correct value from the front", func() {
+				val, _ := uut.PopFront()
+				Expect(val).To(Equal(initialValue))
+			})
+			It("can successfully remove the value from the back", func() {
+				_, ok := uut.PopBack()
+				Expect(ok).To(BeTrue())
+			})
+			It("will remove the correct value from the back", func() {
+				val, _ := uut.PopBack()
+				Expect(val).To(Equal(secondValue))
+			})
+		})
 	})
 })
-
-func TestLinkedListImp_PushFront(t *testing.T) {
-	t.Run("push multiple values", func(t *testing.T) {
-		l := NewLinkedList[int]()
-
-		exp := 2
-		l.PushFront(1)
-		l.PushFront(exp)
-
-		front, ok := l.Front()
-		if !ok {
-			t.Fatalf("expected a value from front")
-		}
-		if l.Len() != 2 {
-			t.Fatalf("expected a length of 2 got: %d", l.Len())
-		}
-		if front.Value() != exp {
-			t.Fatalf("expected %d, got %d", exp, front.Value())
-		}
-	})
-	t.Run("front is pointing at next in line", func(t *testing.T) {
-		// TODO: we need the methods to do this
-	})
-}
-
-func TestLinkedListImpl_PopFront(t *testing.T) {
-	t.Run("one value case", func(t *testing.T) {
-		l := NewLinkedList[int]()
-
-		exp := 1
-
-		l.PushFront(exp)
-
-		obs, ok := l.PopFront()
-		if !ok {
-			t.Fatalf("expected ok")
-		}
-		if l.Len() != 0 {
-			t.Fatalf("expected len 1 got: %d", l.Len())
-		}
-		if obs != exp {
-			t.Errorf("expected: %d observed: %d", exp, obs)
-		}
-	})
-	t.Run("new front assigned", func(t *testing.T) {
-		l := NewLinkedList[int]()
-
-		exp := 1
-
-		l.PushFront(2)
-		l.PushFront(exp)
-
-		obs, ok := l.PopFront()
-		if !ok {
-			t.Fatalf("expected ok on pop front")
-		}
-		if obs != exp {
-			t.Fatalf("expected: %d observed: %d", exp, obs)
-		}
-		front, ok := l.Front()
-		if !ok {
-			t.Fatalf("expected ok on front access")
-		}
-		if front.Value() != 2 {
-			t.Fatalf("expected: 2 got %d", front.Value())
-		}
-		if l.Len() != 1 {
-			t.Fatalf("expected len 1 got: %d", l.Len())
-		}
-	})
-}
-
-func TestLinkedListImpl_PushBack(t *testing.T) {
-	t.Run("push a single value on an empty list", func(t *testing.T) {
-		l := NewLinkedList[int]()
-
-		exp := 1
-		l.PushBack(exp)
-
-		if l.Len() != 1 {
-			t.Fatalf("expected a len of 1 got: %d", l.Len())
-		}
-
-		obs, ok := l.Back()
-
-		if !ok {
-			t.Fatalf("expected ok=false got true")
-		}
-		if obs.Value() != exp {
-			t.Fatalf("got %d, want %d", obs.Value(), exp)
-		}
-		front, ok := l.Front()
-		if !ok {
-			t.Fatalf("expected a value at the front")
-		}
-		if front.Value() != obs.Value() {
-			t.Errorf("expected front == back")
-		}
-	})
-	t.Run("push multiple values", func(t *testing.T) {
-		l := NewLinkedList[int]()
-
-		exp := 1
-		l.PushBack(2) // [2]
-		back, ok := l.Back()
-		if !ok {
-			t.Fatalf("could not access back")
-		}
-		l.PushBack(exp) // [2,1]
-
-		if l.Len() != 2 {
-			t.Fatalf("expected len=2 got %d", l.Len())
-		}
-
-		oldBackNextNode, ok := l.Next(back)
-		if !ok {
-			t.Fatalf("could not retrieve next")
-		}
-
-		obs, ok := l.Back()
-		if !ok {
-			t.Fatalf("expected ok=true got false")
-		}
-		if oldBackNextNode != obs {
-			t.Fatalf("expected old back next node to be new back")
-		}
-		if obs.Value() != exp {
-			t.Errorf("expected %d got %d", exp, obs.Value())
-		}
-	})
-}
-
-func TestLinkedListImpl_Back(t *testing.T) {
-	t.Run("one value", func(t *testing.T) {
-		l := NewLinkedList[int]()
-
-		exp := 1
-		l.PushBack(exp)
-
-		val, ok := l.Back()
-
-		if !ok {
-			t.Fatalf("expected ok=true got false")
-		}
-		if val.Value() != exp {
-			t.Errorf("expected %d got %d", exp, val.Value())
-		}
-	})
-	t.Run("push multiple values", func(t *testing.T) {
-		l := NewLinkedList[int]()
-
-		exp := 1
-		l.PushBack(2)
-		l.PushBack(exp)
-
-		val, ok := l.Back()
-
-		if !ok {
-			t.Fatalf("expected ok=true got false")
-		}
-		if val.Value() != exp {
-			t.Fatalf("expected %d got %d", exp, val.Value())
-		}
-	})
-}
-
-func TestLinkedListImpl_PopBack(t *testing.T) {
-	t.Run("single item", func(t *testing.T) {
-		l := NewLinkedList[int]()
-		exp := 1
-		l.PushBack(exp)
-
-		obs, ok := l.PopBack()
-		if !ok {
-			t.Fatalf("expected ok=true got false")
-		}
-		if l.Len() != 0 {
-			t.Fatalf("expected len=0 got %d", l.Len())
-		}
-		if obs != exp {
-			t.Fatalf("expected %d got %d", exp, obs)
-		}
-		front, ok := l.Front()
-		if ok {
-			t.Fatalf("expected ok=true got false on front call")
-		}
-		if front != nil {
-			t.Fatalf("expected front to be nil")
-		}
-	})
-	t.Run("multiple items", func(t *testing.T) {
-		l := NewLinkedList[int]()
-		firstVal := 1
-		secondVal := 2
-		l.PushBack(firstVal)
-		l.PushBack(secondVal)
-
-		obs, ok := l.PopBack()
-		if !ok {
-			t.Fatalf("expected ok=true got false for %d", secondVal)
-		}
-		if obs != secondVal {
-			t.Fatalf("expected %d got %d", secondVal, obs)
-		}
-		if l.Len() != 1 {
-			t.Fatalf("expected len=1 got %d", l.Len())
-		}
-		back, ok := l.Back()
-		if !ok {
-			t.Fatalf("expected ok=true got false for %d", firstVal)
-		}
-		if l.Len() != 1 {
-			t.Fatalf("expected len=1 got %d", l.Len())
-		}
-		if back.Value() != firstVal {
-			t.Fatalf("expected %d got %d", firstVal, obs)
-		}
-	})
-}
