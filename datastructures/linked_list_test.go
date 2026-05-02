@@ -59,7 +59,7 @@ var _ = Describe("We are interacting with a linked list", func() {
 			val, _ := uut.PopBack()
 			Expect(val).To(Equal(zeroVal))
 		})
-		When("adding a value to the front", func() {
+		When("a value was added to the front", func() {
 			pushedValue := 1
 
 			BeforeEach(func() {
@@ -91,6 +91,22 @@ var _ = Describe("We are interacting with a linked list", func() {
 				observedBack, _ := uut.Back()
 				observedFront, _ := uut.Front()
 				Expect(observedFront).To(BeIdenticalTo(observedBack))
+			})
+			It("can remove the value from the front", func() {
+				_, ok := uut.PopFront()
+				Expect(ok).To(BeTrue())
+			})
+			It("will return the value from the front when removed", func() {
+				val, _ := uut.PopFront()
+				Expect(val).To(Equal(pushedValue))
+			})
+			It("can remove the value from the back", func() {
+				_, ok := uut.PopBack()
+				Expect(ok).To(BeTrue())
+			})
+			It("will return the value from the back", func() {
+				val, _ := uut.PopBack()
+				Expect(val).To(Equal(pushedValue))
 			})
 		})
 	})
