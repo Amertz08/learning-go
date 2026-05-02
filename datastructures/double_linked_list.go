@@ -48,7 +48,7 @@ type DoubleLinkedList struct {
 	size  int
 }
 
-func NewDLL() *DoubleLinkedList {
+func NewDoubleLinkedList() *DoubleLinkedList {
 	return &DoubleLinkedList{}
 }
 
