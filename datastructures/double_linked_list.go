@@ -87,6 +87,7 @@ func (dll *DoubleLinkedList) PushEnd(val int) {
 func (dll *DoubleLinkedList) PushFront(val int) {
 	if dll.front == nil {
 		dll.front = &Node{Val: val}
+		dll.back = dll.front
 		dll.size++
 		return
 	}

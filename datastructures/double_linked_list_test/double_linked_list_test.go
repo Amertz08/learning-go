@@ -63,4 +63,30 @@ var _ = Describe("Double linked list", func() {
 			Expect(uut.Remove(initialValue)).ShouldNot(HaveOccurred())
 		})
 	})
+	When("a single value is pushed to the back", func() {
+		var initialValue int
+
+		BeforeEach(func() {
+			initialValue = 2
+			uut.PushEnd(initialValue)
+		})
+
+		It("will have a length of 1", func() {
+			Expect(uut.Size()).To(Equal(1))
+		})
+		It("will tell you it is not empty", func() {
+			Expect(uut.IsEmpty()).To(BeFalse())
+		})
+		It("will return the value from the front", func() {
+			Expect(uut.Front()).ToNot(BeNil())
+			Expect(uut.Front().Val).To(Equal(initialValue))
+		})
+		It("will return the value from the back", func() {
+			Expect(uut.Back()).ToNot(BeNil())
+			Expect(uut.Back().Val).To(Equal(initialValue))
+		})
+		It("will not return an error when you remove the value", func() {
+			Expect(uut.Remove(initialValue)).ShouldNot(HaveOccurred())
+		})
+	})
 })
