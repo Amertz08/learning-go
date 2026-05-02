@@ -3,17 +3,53 @@ package queue_test
 import (
 	"testing"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
 	"github.come/Amertz08/learning-go/datastructures"
 )
 
-func TestQueue_Len(t *testing.T) {
-	t.Run("empty queue", func(t *testing.T) {
-		q := datastructures.NewSliceQueue[int]()
+func TestLinkedList(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Queue")
+}
 
-		if q.Len() != 0 {
-			t.Errorf("expected 0 on empty queue got: %d", q.Len())
-		}
+var _ = Describe("Interacting with a queue", func() {
+	var uut datastructures.Queue[int]
+	var zeroVal int
+
+	BeforeEach(func() {
+		// TODO: swap between types
+		uut = datastructures.NewSliceQueue[int]()
 	})
+
+	When("the queue is empty", func() {
+		It("will have a length of zero", func() {
+			Expect(uut.Len()).To(Equal(0))
+		})
+		It("will tell you it is empty", func() {
+			Expect(uut.IsEmpty()).To(BeTrue())
+		})
+		It("will error when you peek the front", func() {
+			_, ok := uut.Peek()
+			Expect(ok).To(BeFalse())
+		})
+		It("will return a zero value when the front is peeked", func() {
+			val, _ := uut.Peek()
+			Expect(val).To(Equal(zeroVal))
+		})
+		It("will error if a value is dequeued", func() {
+			_, ok := uut.Dequeue()
+			Expect(ok).To(BeFalse())
+		})
+		It("will return a zero value of the item if dequeued", func() {
+			val, _ := uut.Dequeue()
+			Expect(val).To(Equal(zeroVal))
+		})
+	})
+})
+
+func TestQueue_Len(t *testing.T) {
 	t.Run("queue with one item", func(t *testing.T) {
 		q := datastructures.NewSliceQueue[int]()
 
@@ -26,14 +62,6 @@ func TestQueue_Len(t *testing.T) {
 }
 
 func TestQueue_IsEmpty(t *testing.T) {
-	t.Run("empty queue", func(t *testing.T) {
-		q := datastructures.NewSliceQueue[int]()
-
-		ok := q.IsEmpty()
-		if !ok {
-			t.Errorf("expected true got false")
-		}
-	})
 	t.Run("non empty queue", func(t *testing.T) {
 		q := datastructures.NewSliceQueue[int]()
 
@@ -46,13 +74,6 @@ func TestQueue_IsEmpty(t *testing.T) {
 }
 
 func TestQueueImp_DeQueue(t *testing.T) {
-	t.Run("empty queue", func(t *testing.T) {
-		q := datastructures.NewSliceQueue[int]()
-		_, ok := q.Dequeue()
-		if ok {
-			t.Errorf("expected false on empty queue")
-		}
-	})
 	t.Run("non empty queue", func(t *testing.T) {
 		q := datastructures.NewSliceQueue[int]()
 		q.Enqueue(1)
@@ -71,13 +92,6 @@ func TestQueueImp_DeQueue(t *testing.T) {
 }
 
 func TestQueueImp_Peek(t *testing.T) {
-	t.Run("empty queue", func(t *testing.T) {
-		q := datastructures.NewSliceQueue[int]()
-		_, ok := q.Peek()
-		if ok {
-			t.Errorf("expected false on empty queue")
-		}
-	})
 	t.Run("non empty queue", func(t *testing.T) {
 		q := datastructures.NewSliceQueue[int]()
 		q.Enqueue(1)
