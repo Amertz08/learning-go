@@ -83,13 +83,13 @@ func (l *doubleLinkedListImpl[T]) PushBack(value T) {
 }
 
 func (l *doubleLinkedListImpl[T]) PopFront() (value T, ok bool) {
-	//TODO implement me
-	panic("implement me")
+	var zeroVal T
+	return zeroVal, false
 }
 
 func (l *doubleLinkedListImpl[T]) PopBack() (value T, ok bool) {
-	//TODO implement me
-	panic("implement me")
+	var zeroVal T
+	return zeroVal, false
 }
 
 func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T, ok bool) {

@@ -15,6 +15,7 @@ func TestDoubleLinkedList(t *testing.T) {
 
 var _ = Describe("Generic Double Linked List", func() {
 	var uut datastructures.DoublyLinkedList[int]
+	var zeroVal int
 
 	BeforeEach(func() {
 		uut = datastructures.NewGenericDoubleLinkedList[int]()
@@ -42,6 +43,22 @@ var _ = Describe("Generic Double Linked List", func() {
 		It("will return a nil from the back", func() {
 			back, _ := uut.Back()
 			Expect(back).To(BeNil())
+		})
+		It("will fail to pop from the front", func() {
+			_, ok := uut.PopFront()
+			Expect(ok).To(BeFalse())
+		})
+		It("will return zero value when trying to pop the front", func() {
+			val, _ := uut.PopFront()
+			Expect(val).To(Equal(zeroVal))
+		})
+		It("will fail to pop from the back", func() {
+			_, ok := uut.PopBack()
+			Expect(ok).To(BeFalse())
+		})
+		It("will return zero value when trying to pop the back", func() {
+			val, _ := uut.PopBack()
+			Expect(val).To(Equal(zeroVal))
 		})
 	})
 })
