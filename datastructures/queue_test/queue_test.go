@@ -47,64 +47,52 @@ var _ = Describe("Interacting with a queue", func() {
 			Expect(val).To(Equal(zeroVal))
 		})
 	})
+
+	When("a single value is in the queue", func() {
+		var initialValue int
+		BeforeEach(func() {
+			initialValue = 2
+			uut.Enqueue(initialValue)
+		})
+
+		It("will have a length of 1", func() {
+			Expect(uut.Len()).To(Equal(1))
+		})
+		It("will tell you it is not empty", func() {
+			Expect(uut.IsEmpty()).To(BeFalse())
+		})
+		It("can show you the front value", func() {
+			_, ok := uut.Peek()
+			Expect(ok).To(BeTrue())
+		})
+		It("will set the value at the front", func() {
+			val, _ := uut.Peek()
+			Expect(val).To(Equal(initialValue))
+		})
+		It("can remove the value", func() {
+			_, ok := uut.Dequeue()
+			Expect(ok).To(BeTrue())
+		})
+		It("will return the actual value", func() {
+			val, _ := uut.Dequeue()
+			Expect(val).To(Equal(initialValue))
+		})
+		When("a second value is added to the queue", func() {
+			var secondValue int
+
+			BeforeEach(func() {
+				secondValue = 5
+				uut.Enqueue(secondValue)
+			})
+			It("will have a length of 2", func() {
+				Expect(uut.Len()).To(Equal(2))
+			})
+			It("will remove the values in order", func() {
+				firstObserved, _ := uut.Dequeue()
+				secondObserved, _ := uut.Dequeue()
+				Expect(firstObserved).To(Equal(initialValue))
+				Expect(secondObserved).To(Equal(secondValue))
+			})
+		})
+	})
 })
-
-func TestQueue_Len(t *testing.T) {
-	t.Run("queue with one item", func(t *testing.T) {
-		q := datastructures.NewSliceQueue[int]()
-
-		q.Enqueue(1)
-
-		if q.Len() != 1 {
-			t.Errorf("expected 1 on queue got: %d", q.Len())
-		}
-	})
-}
-
-func TestQueue_IsEmpty(t *testing.T) {
-	t.Run("non empty queue", func(t *testing.T) {
-		q := datastructures.NewSliceQueue[int]()
-
-		q.Enqueue(1)
-		ok := q.IsEmpty()
-		if ok {
-			t.Errorf("expected false got true")
-		}
-	})
-}
-
-func TestQueueImp_DeQueue(t *testing.T) {
-	t.Run("non empty queue", func(t *testing.T) {
-		q := datastructures.NewSliceQueue[int]()
-		q.Enqueue(1)
-		q.Enqueue(2)
-		val, ok := q.Dequeue()
-		if !ok {
-			t.Errorf("expected false on non empty queue")
-		}
-		if q.Len() != 1 {
-			t.Errorf("expected len = 1 got: %d", q.Len())
-		}
-		if val != 1 {
-			t.Errorf("expected 1 on val got: %d", val)
-		}
-	})
-}
-
-func TestQueueImp_Peek(t *testing.T) {
-	t.Run("non empty queue", func(t *testing.T) {
-		q := datastructures.NewSliceQueue[int]()
-		q.Enqueue(1)
-		q.Enqueue(2)
-		val, ok := q.Peek()
-		if !ok {
-			t.Errorf("expected false on non empty queue")
-		}
-		if q.Len() != 2 {
-			t.Errorf("expected len = 2 got: %d", q.Len())
-		}
-		if val != 1 {
-			t.Errorf("expected 1 on val got: %d", val)
-		}
-	})
-}
