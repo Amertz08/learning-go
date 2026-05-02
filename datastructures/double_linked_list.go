@@ -59,6 +59,7 @@ func (n *doubleLinkedListNodeImpl[T]) Prev() (DoubleLinkedListNode[T], bool) {
 type doubleLinkedListImpl[T any] struct {
 	len   int
 	front *doubleLinkedListNodeImpl[T]
+	back  *doubleLinkedListNodeImpl[T]
 }
 
 func NewGenericDoubleLinkedList[T any]() DoublyLinkedList[T] {
@@ -76,6 +77,7 @@ func (l *doubleLinkedListImpl[T]) IsEmpty() bool {
 func (l *doubleLinkedListImpl[T]) PushFront(value T) {
 	n := &doubleLinkedListNodeImpl[T]{val: value}
 	l.front = n
+	l.back = n
 	l.len++
 }
 
@@ -104,7 +106,7 @@ func (l *doubleLinkedListImpl[T]) Front() (DoubleLinkedListNode[T], bool) {
 }
 
 func (l *doubleLinkedListImpl[T]) Back() (DoubleLinkedListNode[T], bool) {
-	return nil, false
+	return l.back, false
 }
 
 // TODO: make a generic doubly linked list

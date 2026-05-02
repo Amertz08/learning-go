@@ -81,6 +81,12 @@ var _ = Describe("Generic Double Linked List", func() {
 			Expect(front).ToNot(BeNil())
 			Expect(front.Value()).To(Equal(initialVal))
 		})
+		It("will assign the value to the back", func() {
+			back, _ := uut.Back()
+
+			Expect(back).ToNot(BeNil())
+			Expect(back.Value()).To(Equal(initialVal))
+		})
 	})
 })
 
