@@ -35,6 +35,7 @@ type LinkedList[T any] interface {
 	// Access
 	Front() (LinkedListNode[T], bool)
 	Back() (LinkedListNode[T], bool)
+	Next(node LinkedListNode[T]) (LinkedListNode[T], bool)
 
 	// State
 	Len() int
@@ -79,8 +80,11 @@ func (l *linkedListImpl[T]) PushFront(val T) {
 }
 
 func (l *linkedListImpl[T]) PushBack(val T) {
-	// TODO: we're not actually reassigning prev.next = newBack
+	tmp := l.back
 	l.back = &nodeImpl[T]{value: val}
+	if tmp != nil {
+		tmp.next = l.back
+	}
 
 	if l.IsEmpty() {
 		l.front = l.back
@@ -113,6 +117,14 @@ func (l *linkedListImpl[T]) Back() (LinkedListNode[T], bool) {
 		return nil, false
 	}
 	return l.back, true
+}
+
+func (l *linkedListImpl[T]) Next(node LinkedListNode[T]) (LinkedListNode[T], bool) {
+	internal, ok := node.(*nodeImpl[T])
+	if !ok || internal.next == nil {
+		return nil, false
+	}
+	return internal.next, true
 }
 
 func (l *linkedListImpl[T]) IsEmpty() bool {

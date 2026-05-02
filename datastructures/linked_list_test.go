@@ -192,23 +192,32 @@ func TestLinkedListImpl_PushBack(t *testing.T) {
 		l := NewLinkedList[int]()
 
 		exp := 1
-		l.PushBack(2)
-		l.PushBack(exp)
+		l.PushBack(2) // [2]
+		back, ok := l.Back()
+		if !ok {
+			t.Fatalf("could not access back")
+		}
+		l.PushBack(exp) // [2,1]
 
 		if l.Len() != 2 {
 			t.Fatalf("expected len=2 got %d", l.Len())
+		}
+
+		oldBackNextNode, ok := l.Next(back)
+		if !ok {
+			t.Fatalf("could not retrieve next")
 		}
 
 		obs, ok := l.Back()
 		if !ok {
 			t.Fatalf("expected ok=true got false")
 		}
+		if oldBackNextNode != obs {
+			t.Fatalf("expected old back next node to be new back")
+		}
 		if obs.Value() != exp {
 			t.Errorf("expected %d got %d", exp, obs.Value())
 		}
-	})
-	t.Run("old back.next points to new back", func(t *testing.T) {
-		// TODO: we do not have the methods to test this yet
 	})
 }
 
