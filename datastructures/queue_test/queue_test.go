@@ -1,17 +1,21 @@
-package datastructures
+package queue_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.come/Amertz08/learning-go/datastructures"
+)
 
 func TestQueue_Len(t *testing.T) {
 	t.Run("empty queue", func(t *testing.T) {
-		q := NewSliceQueue[int]()
+		q := datastructures.NewSliceQueue[int]()
 
 		if q.Len() != 0 {
 			t.Errorf("expected 0 on empty queue got: %d", q.Len())
 		}
 	})
 	t.Run("queue with one item", func(t *testing.T) {
-		q := NewSliceQueue[int]()
+		q := datastructures.NewSliceQueue[int]()
 
 		q.Enqueue(1)
 
@@ -23,7 +27,7 @@ func TestQueue_Len(t *testing.T) {
 
 func TestQueue_IsEmpty(t *testing.T) {
 	t.Run("empty queue", func(t *testing.T) {
-		q := NewSliceQueue[int]()
+		q := datastructures.NewSliceQueue[int]()
 
 		ok := q.IsEmpty()
 		if !ok {
@@ -31,7 +35,7 @@ func TestQueue_IsEmpty(t *testing.T) {
 		}
 	})
 	t.Run("non empty queue", func(t *testing.T) {
-		q := NewSliceQueue[int]()
+		q := datastructures.NewSliceQueue[int]()
 
 		q.Enqueue(1)
 		ok := q.IsEmpty()
@@ -43,14 +47,14 @@ func TestQueue_IsEmpty(t *testing.T) {
 
 func TestQueueImp_DeQueue(t *testing.T) {
 	t.Run("empty queue", func(t *testing.T) {
-		q := NewSliceQueue[int]()
+		q := datastructures.NewSliceQueue[int]()
 		_, ok := q.Dequeue()
 		if ok {
 			t.Errorf("expected false on empty queue")
 		}
 	})
 	t.Run("non empty queue", func(t *testing.T) {
-		q := NewSliceQueue[int]()
+		q := datastructures.NewSliceQueue[int]()
 		q.Enqueue(1)
 		q.Enqueue(2)
 		val, ok := q.Dequeue()
@@ -68,14 +72,14 @@ func TestQueueImp_DeQueue(t *testing.T) {
 
 func TestQueueImp_Peek(t *testing.T) {
 	t.Run("empty queue", func(t *testing.T) {
-		q := NewSliceQueue[int]()
+		q := datastructures.NewSliceQueue[int]()
 		_, ok := q.Peek()
 		if ok {
 			t.Errorf("expected false on empty queue")
 		}
 	})
 	t.Run("non empty queue", func(t *testing.T) {
-		q := NewSliceQueue[int]()
+		q := datastructures.NewSliceQueue[int]()
 		q.Enqueue(1)
 		q.Enqueue(2)
 		val, ok := q.Peek()

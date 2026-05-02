@@ -1,12 +1,14 @@
-package datastructures
+package queue_test
 
 import (
 	"testing"
+
+	"github.come/Amertz08/learning-go/datastructures"
 )
 
 func TestLinkedListQueueImpl_Len(t *testing.T) {
 	t.Run("empty queue", func(t *testing.T) {
-		q := NewLinkedListQueue[int]()
+		q := datastructures.NewLinkedListQueue[int]()
 
 		if q.Len() != 0 {
 			t.Errorf("expected len 0 got %d", q.Len())
@@ -16,7 +18,7 @@ func TestLinkedListQueueImpl_Len(t *testing.T) {
 
 func TestLinkedListQueueImpl_Enqueue(t *testing.T) {
 	t.Run("single item adjusts length", func(t *testing.T) {
-		q := NewLinkedListQueue[int]()
+		q := datastructures.NewLinkedListQueue[int]()
 
 		q.Enqueue(1)
 
@@ -28,7 +30,7 @@ func TestLinkedListQueueImpl_Enqueue(t *testing.T) {
 
 func TestLinkedListQueueImpl_Dequeue(t *testing.T) {
 	t.Run("single item", func(t *testing.T) {
-		q := NewLinkedListQueue[int]()
+		q := datastructures.NewLinkedListQueue[int]()
 
 		exp := 1
 		q.Enqueue(exp)
@@ -47,7 +49,7 @@ func TestLinkedListQueueImpl_Dequeue(t *testing.T) {
 
 func TestLinkedListQueueImpl_Peek(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
-		q := NewLinkedListQueue[int]()
+		q := datastructures.NewLinkedListQueue[int]()
 		var zeroVal int
 
 		val, ok := q.Peek()
@@ -59,7 +61,7 @@ func TestLinkedListQueueImpl_Peek(t *testing.T) {
 		}
 	})
 	t.Run("has item", func(t *testing.T) {
-		q := NewLinkedListQueue[int]()
+		q := datastructures.NewLinkedListQueue[int]()
 		exp := 1
 
 		q.Enqueue(exp)
@@ -76,14 +78,14 @@ func TestLinkedListQueueImpl_Peek(t *testing.T) {
 
 func TestLinkedListQueueImpl_IsEmpty(t *testing.T) {
 	t.Run("empty queue", func(t *testing.T) {
-		q := NewLinkedListQueue[int]()
+		q := datastructures.NewLinkedListQueue[int]()
 
 		if !q.IsEmpty() {
 			t.Fatalf("expected IsEmpty=true")
 		}
 	})
 	t.Run("non empty queue", func(t *testing.T) {
-		q := NewLinkedListQueue[int]()
+		q := datastructures.NewLinkedListQueue[int]()
 
 		q.Enqueue(2)
 
