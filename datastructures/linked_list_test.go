@@ -109,6 +109,56 @@ var _ = Describe("We are interacting with a linked list", func() {
 				Expect(val).To(Equal(pushedValue))
 			})
 		})
+		When("a value is added to the back", func() {
+			pushedValue := 1
+
+			BeforeEach(func() {
+				uut.PushBack(pushedValue)
+			})
+			It("will no longer be empty", func() {
+				Expect(uut.IsEmpty()).To(BeFalse())
+			})
+			It("will have a length of one", func() {
+				Expect(uut.Len()).To(Equal(1))
+			})
+			It("will not have an issue returning the value from the front", func() {
+				_, ok := uut.Front()
+				Expect(ok).To(BeTrue())
+			})
+			It("will assign the value to the front", func() {
+				observed, _ := uut.Front()
+				Expect(observed.Value()).To(Equal(pushedValue))
+			})
+			It("will not have an issue returning the value from the back", func() {
+				_, ok := uut.Back()
+				Expect(ok).To(BeTrue())
+			})
+			It("will assign the value to the back", func() {
+				observed, _ := uut.Back()
+				Expect(observed.Value()).To(Equal(pushedValue))
+			})
+			It("has back and front as the same node", func() {
+				observedBack, _ := uut.Back()
+				observedFront, _ := uut.Front()
+				Expect(observedFront).To(BeIdenticalTo(observedBack))
+			})
+			It("can remove the value from the front", func() {
+				_, ok := uut.PopFront()
+				Expect(ok).To(BeTrue())
+			})
+			It("will return the value from the front when removed", func() {
+				val, _ := uut.PopFront()
+				Expect(val).To(Equal(pushedValue))
+			})
+			It("can remove the value from the back", func() {
+				_, ok := uut.PopBack()
+				Expect(ok).To(BeTrue())
+			})
+			It("will return the value from the back", func() {
+				val, _ := uut.PopBack()
+				Expect(val).To(Equal(pushedValue))
+			})
+		})
 	})
 	When("list has one item", func() {
 		BeforeEach(func() {
