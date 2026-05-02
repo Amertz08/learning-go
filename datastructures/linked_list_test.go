@@ -115,6 +115,50 @@ func TestLinkedListImpl_PopFront(t *testing.T) {
 			t.Errorf("expected: %d got %d", exp, obs)
 		}
 	})
+	t.Run("one value case", func(t *testing.T) {
+		l := NewLinkedList[int]()
+
+		exp := 1
+
+		l.PushFront(exp)
+
+		obs, ok := l.PopFront()
+		if !ok {
+			t.Fatalf("expected ok")
+		}
+		if l.Len() != 0 {
+			t.Fatalf("expected len 1 got: %d", l.Len())
+		}
+		if obs != exp {
+			t.Errorf("expected: %d observed: %d", exp, obs)
+		}
+	})
+	t.Run("new front assigned", func(t *testing.T) {
+		l := NewLinkedList[int]()
+
+		exp := 1
+
+		l.PushFront(2)
+		l.PushFront(exp)
+
+		obs, ok := l.PopFront()
+		if !ok {
+			t.Fatalf("expected ok on pop front")
+		}
+		if obs != exp {
+			t.Fatalf("expected: %d observed: %d", exp, obs)
+		}
+		front, ok := l.Front()
+		if !ok {
+			t.Fatalf("expected ok on front access")
+		}
+		if front.Value() != 2 {
+			t.Fatalf("expected: 2 got %d", front.Value())
+		}
+		if l.Len() != 1 {
+			t.Fatalf("expected len 1 got: %d", l.Len())
+		}
+	})
 }
 
 func TestLinkedListImpl_PushBack(t *testing.T) {

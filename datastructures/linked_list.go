@@ -91,7 +91,14 @@ func (l *linkedListImpl[T]) PushBack(val T) {
 
 func (l *linkedListImpl[T]) PopFront() (T, bool) {
 	var zeroVal T
-	return zeroVal, false
+	if l.IsEmpty() {
+		return zeroVal, false
+	}
+	newFront := l.front.next
+	tmp := l.front
+	l.front = newFront
+	l.len--
+	return tmp.Value(), true
 }
 
 func (l *linkedListImpl[T]) Front() (LinkedListNode[T], bool) {
