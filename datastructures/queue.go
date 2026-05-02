@@ -34,6 +34,10 @@ type queueImp[T any] struct {
 	queue []T
 }
 
+func NewSliceQueue[T any]() Queue[T] {
+	return &queueImp[T]{}
+}
+
 func (q *queueImp[T]) Len() int {
 	return len(q.queue)
 }
