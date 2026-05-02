@@ -160,12 +160,46 @@ var _ = Describe("We are interacting with a linked list", func() {
 			})
 		})
 	})
-	When("list has one item", func() {
+	When("there is already an item in the list", func() {
+		initialValue := 1
+
 		BeforeEach(func() {
-			uut.PushFront(1)
+			uut.PushFront(initialValue)
 		})
-		It("IsEmpty will return false", func() {
-			Expect(uut.IsEmpty()).To(BeFalse())
+		When("another item is pushed to the front", func() {
+			secondValue := 2
+
+			BeforeEach(func() {
+				uut.PushFront(secondValue)
+			})
+
+			It("will have a length of 2", func() {
+				Expect(uut.Len()).To(Equal(2))
+			})
+			It("will return the new item as the front", func() {
+				front, _ := uut.Front()
+				Expect(front.Value()).To(Equal(secondValue))
+			})
+			It("will return the initial value as the new back", func() {
+				back, _ := uut.Back()
+				Expect(back.Value()).To(Equal(initialValue))
+			})
+			It("can successfully remove the value from the front", func() {
+				_, ok := uut.PopFront()
+				Expect(ok).To(BeTrue())
+			})
+			It("will remove the correct value from the front", func() {
+				val, _ := uut.PopFront()
+				Expect(val).To(Equal(secondValue))
+			})
+			It("can successfully remove the value from the back", func() {
+				_, ok := uut.PopBack()
+				Expect(ok).To(BeTrue())
+			})
+			It("will remove the correct value from the back", func() {
+				val, _ := uut.PopBack()
+				Expect(val).To(Equal(initialValue))
+			})
 		})
 	})
 })
