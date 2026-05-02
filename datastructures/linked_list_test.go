@@ -31,6 +31,15 @@ var _ = Describe("We are interacting with a linked list", func() {
 			val, _ := uut.Front()
 			Expect(val).To(BeNil())
 		})
+		It("PopFront will return false on ok check", func() {
+			_, ok := uut.PopFront()
+			Expect(ok).To(BeFalse())
+		})
+		It("PopFront will return zero value", func() {
+			var zeroVal int
+			val, _ := uut.PopFront()
+			Expect(val).To(Equal(zeroVal))
+		})
 	})
 	When("list has one item", func() {
 		BeforeEach(func() {
@@ -108,19 +117,6 @@ func TestLinkedListImp_PushFront(t *testing.T) {
 }
 
 func TestLinkedListImpl_PopFront(t *testing.T) {
-	t.Run("empty list returns false on ok check", func(t *testing.T) {
-		l := NewLinkedList[int]()
-
-		var exp int
-
-		obs, ok := l.PopFront()
-		if ok {
-			t.Fatalf("expected ok=false got true")
-		}
-		if obs != exp {
-			t.Errorf("expected: %d got %d", exp, obs)
-		}
-	})
 	t.Run("one value case", func(t *testing.T) {
 		l := NewLinkedList[int]()
 
