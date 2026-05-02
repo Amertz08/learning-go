@@ -21,73 +21,73 @@ var _ = Describe("We are interacting with a linked list", func() {
 	})
 
 	When("the list is empty", func() {
-		It("IsEmpty will return true", func() {
+		It("will tell you it is empty", func() {
 			Expect(uut.IsEmpty()).To(BeTrue())
 		})
-		It("Len returns zero", func() {
+		It("will have a length of zero", func() {
 			Expect(uut.Len()).To(Equal(0))
 		})
-		It("Front will return false on 'ok' check", func() {
+		It("will no be able to correctly return the front node", func() {
 			_, ok := uut.Front()
 			Expect(ok).To(BeFalse())
 		})
-		It("Front will return a nil value", func() {
+		It("will return a nil value for the front node", func() {
 			val, _ := uut.Front()
 			Expect(val).To(BeNil())
 		})
-		It("Back will return false on 'ok' check", func() {
+		It("will not be able to correctly return the back node", func() {
 			_, ok := uut.Back()
 			Expect(ok).To(BeFalse())
 		})
-		It("Back will return a nil value", func() {
+		It("will return a nil value for the back node", func() {
 			val, _ := uut.Back()
 			Expect(val).To(BeNil())
 		})
-		It("PopFront will return false on 'ok' check", func() {
+		It("will not be able to remove the front value", func() {
 			_, ok := uut.PopFront()
 			Expect(ok).To(BeFalse())
 		})
-		It("PopFront will return zero value", func() {
+		It("will return a zero value for the front", func() {
 			val, _ := uut.PopFront()
 			Expect(val).To(Equal(zeroVal))
 		})
-		It("PopBack will return false on 'ok' check", func() {
+		It("will not be able to return the back value", func() {
 			_, ok := uut.PopBack()
 			Expect(ok).To(BeFalse())
 		})
-		It("PopBack will return nil value", func() {
+		It("will return a zero value for the back", func() {
 			val, _ := uut.PopBack()
 			Expect(val).To(Equal(zeroVal))
 		})
-		Context("adding a value with PushFront", func() {
+		When("adding a value to the front", func() {
 			pushedValue := 1
 
 			BeforeEach(func() {
 				uut.PushFront(pushedValue)
 			})
-			It("IsEmpty will return false", func() {
+			It("will no longer be empty", func() {
 				Expect(uut.IsEmpty()).To(BeFalse())
 			})
-			It("Len will return 1", func() {
+			It("will have a length of one", func() {
 				Expect(uut.Len()).To(Equal(1))
 			})
-			It("Front will return true on 'ok' check", func() {
+			It("will not have an issue returning the value from the front", func() {
 				_, ok := uut.Front()
 				Expect(ok).To(BeTrue())
 			})
-			It("Front will return expected value", func() {
+			It("will assign the value to the front", func() {
 				observed, _ := uut.Front()
 				Expect(observed.Value()).To(Equal(pushedValue))
 			})
-			It("Back will return true on 'ok' check", func() {
+			It("will not have an issue returning the value from the back", func() {
 				_, ok := uut.Back()
 				Expect(ok).To(BeTrue())
 			})
-			It("Back will return expected value", func() {
+			It("will assign the value to the back", func() {
 				observed, _ := uut.Back()
 				Expect(observed.Value()).To(Equal(pushedValue))
 			})
-			It("Back and Front are the same node", func() {
+			It("has back and front as the same node", func() {
 				observedBack, _ := uut.Back()
 				observedFront, _ := uut.Front()
 				Expect(observedFront).To(BeIdenticalTo(observedBack))
