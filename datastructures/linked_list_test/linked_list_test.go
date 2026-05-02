@@ -171,9 +171,10 @@ var _ = Describe("We are interacting with a linked list", func() {
 			uut.PushFront(initialValue)
 		})
 		When("another item is pushed to the front", func() {
-			secondValue := 2
+			var secondValue int
 
 			BeforeEach(func() {
+				secondValue = 2
 				uut.PushFront(secondValue)
 			})
 
