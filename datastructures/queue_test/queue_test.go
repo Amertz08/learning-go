@@ -20,7 +20,8 @@ var _ = Describe("Interacting with a queue", func() {
 
 	BeforeEach(func() {
 		// TODO: swap between types
-		uut = datastructures.NewSliceQueue[int]()
+		//uut = datastructures.NewSliceQueue[int]()
+		uut = datastructures.NewLinkedListQueue[int]()
 	})
 
 	When("the queue is empty", func() {

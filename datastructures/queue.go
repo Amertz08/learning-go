@@ -81,7 +81,7 @@ func (q *linkedListQueueImpl[T]) IsEmpty() bool {
 }
 
 func (q *linkedListQueueImpl[T]) Enqueue(val T) {
-	q.queue.PushFront(val)
+	q.queue.PushBack(val)
 }
 
 func (q *linkedListQueueImpl[T]) Dequeue() (T, bool) {
