@@ -88,6 +88,29 @@ var _ = Describe("Generic Double Linked List", func() {
 			Expect(back.Value()).To(Equal(initialVal))
 		})
 	})
+	When("there is already one item in the list", func() {
+		var firstValue int
+
+		BeforeEach(func() {
+			firstValue = 5
+			uut.PushFront(firstValue)
+		})
+		When("a second value is pushed to the front", func() {
+			var secondValue int
+
+			BeforeEach(func() {
+				secondValue = 2
+				uut.PushFront(secondValue)
+			})
+			It("will have a length of 2", func() {
+				Expect(uut.Len()).To(Equal(2))
+			})
+			It("will return the new item as the front", func() {
+				front, _ := uut.Front()
+				Expect(front.Value()).To(Equal(secondValue))
+			})
+		})
+	})
 })
 
 var _ = Describe("Double linked list", func() {
