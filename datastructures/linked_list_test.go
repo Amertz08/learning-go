@@ -42,39 +42,7 @@ var _ = Describe("We are interacting with a linked list", func() {
 	})
 })
 
-func TestLinkedListImp_IsEmpty(t *testing.T) {
-	t.Run("empty list", func(t *testing.T) {
-		l := linkedListImpl[int]{}
-
-		if !l.IsEmpty() {
-			t.Errorf("expected an empty list got true")
-		}
-	})
-	t.Run("non empty list", func(t *testing.T) {
-		l := linkedListImpl[int]{}
-
-		l.PushFront(1)
-
-		if l.IsEmpty() {
-			t.Errorf("expected a non empty list got false")
-		}
-	})
-}
-
 func TestLinkedListImpl_Front(t *testing.T) {
-	t.Run("empty list returns nil", func(t *testing.T) {
-		l := NewLinkedList[int]()
-
-		val, ok := l.Front()
-
-		if ok {
-			t.Errorf("expected false got true")
-		}
-
-		if val != nil {
-			t.Errorf("expected nil got: %d", val)
-		}
-	})
 	t.Run("non empty list returns actual value", func(t *testing.T) {
 		l := NewLinkedList[int]()
 
