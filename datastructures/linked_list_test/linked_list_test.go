@@ -1,10 +1,11 @@
-package datastructures
+package linked_list_test
 
 import (
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.come/Amertz08/learning-go/datastructures"
 )
 
 func TestLinkedList(t *testing.T) {
@@ -13,11 +14,11 @@ func TestLinkedList(t *testing.T) {
 }
 
 var _ = Describe("We are interacting with a linked list", func() {
-	var uut LinkedList[int]
+	var uut datastructures.LinkedList[int]
 	var zeroVal int
 
 	BeforeEach(func() {
-		uut = NewLinkedList[int]()
+		uut = datastructures.NewLinkedList[int]()
 	})
 
 	When("the list is empty", func() {
