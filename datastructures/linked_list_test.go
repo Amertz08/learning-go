@@ -59,6 +59,40 @@ var _ = Describe("We are interacting with a linked list", func() {
 			val, _ := uut.PopBack()
 			Expect(val).To(Equal(zeroVal))
 		})
+		Context("adding a value with PushFront", func() {
+			pushedValue := 1
+
+			BeforeEach(func() {
+				uut.PushFront(pushedValue)
+			})
+			It("IsEmpty will return false", func() {
+				Expect(uut.IsEmpty()).To(BeFalse())
+			})
+			It("Len will return 1", func() {
+				Expect(uut.Len()).To(Equal(1))
+			})
+			It("Front will return true on 'ok' check", func() {
+				_, ok := uut.Front()
+				Expect(ok).To(BeTrue())
+			})
+			It("Front will return expected value", func() {
+				observed, _ := uut.Front()
+				Expect(observed.Value()).To(Equal(pushedValue))
+			})
+			It("Back will return true on 'ok' check", func() {
+				_, ok := uut.Back()
+				Expect(ok).To(BeTrue())
+			})
+			It("Back will return expected value", func() {
+				observed, _ := uut.Back()
+				Expect(observed.Value()).To(Equal(pushedValue))
+			})
+			It("Back and Front are the same node", func() {
+				observedBack, _ := uut.Back()
+				observedFront, _ := uut.Front()
+				Expect(observedFront).To(BeIdenticalTo(observedBack))
+			})
+		})
 	})
 	When("list has one item", func() {
 		BeforeEach(func() {
@@ -70,48 +104,7 @@ var _ = Describe("We are interacting with a linked list", func() {
 	})
 })
 
-func TestLinkedListImpl_Front(t *testing.T) {
-	t.Run("non empty list returns actual value", func(t *testing.T) {
-		l := NewLinkedList[int]()
-
-		exp := 1
-		l.PushFront(exp)
-		val, ok := l.Front()
-		if !ok {
-			t.Errorf("expected true got false")
-		}
-		if val.Value() != exp {
-			t.Errorf("expected: %d got %d", exp, val.Value())
-		}
-	})
-}
-
 func TestLinkedListImp_PushFront(t *testing.T) {
-	t.Run("push a single value", func(t *testing.T) {
-		l := NewLinkedList[int]()
-
-		exp := 1
-		l.PushFront(exp)
-
-		if l.Len() != 1 {
-			t.Fatalf("expected a len of 1 got: %d", l.Len())
-		}
-
-		front, ok := l.Front()
-		if !ok {
-			t.Fatalf("expected a value from front")
-		}
-		if front.Value() != exp {
-			t.Fatalf("expected %d, got %d", exp, front)
-		}
-		back, ok := l.Back()
-		if !ok {
-			t.Fatalf("expected a value from the back")
-		}
-		if back.Value() != front.Value() {
-			t.Errorf("back and front should be the same")
-		}
-	})
 	t.Run("push multiple values", func(t *testing.T) {
 		l := NewLinkedList[int]()
 
