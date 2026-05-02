@@ -293,7 +293,42 @@ func TestLinkedListImpl_PopBack(t *testing.T) {
 			t.Fatalf("expected len=0 got %d", l.Len())
 		}
 		if obs != exp {
-			t.Errorf("expected %d got %d", exp, obs)
+			t.Fatalf("expected %d got %d", exp, obs)
+		}
+		front, ok := l.Front()
+		if ok {
+			t.Fatalf("expected ok=true got false on front call")
+		}
+		if front != nil {
+			t.Fatalf("expected front to be nil")
+		}
+	})
+	t.Run("multiple items", func(t *testing.T) {
+		l := NewLinkedList[int]()
+		firstVal := 1
+		secondVal := 2
+		l.PushBack(firstVal)
+		l.PushBack(secondVal)
+
+		obs, ok := l.PopBack()
+		if !ok {
+			t.Fatalf("expected ok=true got false for %d", secondVal)
+		}
+		if obs != secondVal {
+			t.Fatalf("expected %d got %d", secondVal, obs)
+		}
+		if l.Len() != 1 {
+			t.Fatalf("expected len=1 got %d", l.Len())
+		}
+		back, ok := l.Back()
+		if !ok {
+			t.Fatalf("expected ok=true got false for %d", firstVal)
+		}
+		if l.Len() != 1 {
+			t.Fatalf("expected len=1 got %d", l.Len())
+		}
+		if back.Value() != firstVal {
+			t.Fatalf("expected %d got %d", firstVal, obs)
 		}
 	})
 }

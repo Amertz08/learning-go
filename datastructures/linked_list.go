@@ -110,8 +110,20 @@ func (l *linkedListImpl[T]) PopBack() (T, bool) {
 	if l.IsEmpty() {
 		return zeroVal, false
 	}
+	result := l.front
+	if l.Len() == 1 {
+		l.front = nil
+		l.back = nil
+	} else {
+		for result.next.next != nil {
+			result = result.next
+		}
+		l.back = result
+		result = result.next
+	}
 	l.len--
-	return l.back.Value(), true
+
+	return result.Value(), true
 }
 
 func (l *linkedListImpl[T]) Front() (LinkedListNode[T], bool) {
