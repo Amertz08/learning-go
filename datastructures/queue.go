@@ -7,8 +7,6 @@ Use cases for queue
 - Request buffering
 - Message passing
 - Breadth-first search
-
-TODO: implement with LinkedList
 */
 
 type Queue[T any] interface {
@@ -66,4 +64,35 @@ func (q *sliceQueueImpl[T]) Peek() (T, bool) {
 		return val, false
 	}
 	return q.queue[0], true
+}
+
+type linkedListQueueImpl[T any] struct {
+	queue LinkedList[T]
+}
+
+func NewLinkedListQueue[T any]() Queue[T] {
+	return &linkedListQueueImpl[T]{queue: NewLinkedList[T]()}
+}
+
+func (q *linkedListQueueImpl[T]) Len() int { return q.queue.Len() }
+
+func (q *linkedListQueueImpl[T]) IsEmpty() bool {
+	return q.queue.IsEmpty()
+}
+
+func (q *linkedListQueueImpl[T]) Enqueue(val T) {
+	q.queue.PushFront(val)
+}
+
+func (q *linkedListQueueImpl[T]) Dequeue() (T, bool) {
+	return q.queue.PopFront()
+}
+
+func (q *linkedListQueueImpl[T]) Peek() (T, bool) {
+	var val T
+	n, ok := q.queue.Front()
+	if !ok {
+		return val, ok
+	}
+	return n.Value(), ok
 }
