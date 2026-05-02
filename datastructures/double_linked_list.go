@@ -7,8 +7,8 @@ type DoublyLinkedList[T any] interface {
 	// Insert
 	PushFront(value T)
 	PushBack(value T)
-	InsertAfter(node DoubleLinkedListNode[T], value T) DoubleLinkedListNode[T]
-	InsertBefore(node DoubleLinkedListNode[T], value T) DoubleLinkedListNode[T]
+	//InsertAfter(node DoubleLinkedListNode[T], value T) DoubleLinkedListNode[T]
+	//InsertBefore(node DoubleLinkedListNode[T], value T) DoubleLinkedListNode[T]
 
 	// Remove
 	PopFront() (value T, ok bool)
