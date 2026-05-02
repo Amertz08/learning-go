@@ -52,7 +52,7 @@ func NewDoubleLinkedList() *DoubleLinkedList {
 	return &DoubleLinkedList{}
 }
 
-func (dll *DoubleLinkedList) Size() int {
+func (dll *DoubleLinkedList) Len() int {
 	return dll.size
 }
 
@@ -69,7 +69,7 @@ func (dll *DoubleLinkedList) Back() *Node {
 	return dll.back
 }
 
-func (dll *DoubleLinkedList) PushEnd(val int) {
+func (dll *DoubleLinkedList) PushBack(val int) {
 	if dll.front == nil {
 		dll.front = &Node{Val: val}
 		dll.back = dll.front

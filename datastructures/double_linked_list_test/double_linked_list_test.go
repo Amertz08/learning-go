@@ -22,7 +22,7 @@ var _ = Describe("Double linked list", func() {
 
 	When("list is empty", func() {
 		It("will have a length of zero", func() {
-			Expect(uut.Size()).To(Equal(0))
+			Expect(uut.Len()).To(Equal(0))
 		})
 		It("will tell you it is empty", func() {
 			Expect(uut.IsEmpty()).To(BeTrue())
@@ -46,7 +46,7 @@ var _ = Describe("Double linked list", func() {
 		})
 
 		It("will have a length of 1", func() {
-			Expect(uut.Size()).To(Equal(1))
+			Expect(uut.Len()).To(Equal(1))
 		})
 		It("will tell you it is not empty", func() {
 			Expect(uut.IsEmpty()).To(BeFalse())
@@ -68,11 +68,11 @@ var _ = Describe("Double linked list", func() {
 
 		BeforeEach(func() {
 			initialValue = 2
-			uut.PushEnd(initialValue)
+			uut.PushBack(initialValue)
 		})
 
 		It("will have a length of 1", func() {
-			Expect(uut.Size()).To(Equal(1))
+			Expect(uut.Len()).To(Equal(1))
 		})
 		It("will tell you it is not empty", func() {
 			Expect(uut.IsEmpty()).To(BeFalse())
