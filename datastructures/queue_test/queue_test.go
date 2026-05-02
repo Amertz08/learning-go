@@ -9,19 +9,30 @@ import (
 	"github.come/Amertz08/learning-go/datastructures"
 )
 
-func TestLinkedList(t *testing.T) {
+func TestQueue(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Queue")
 }
 
 var _ = Describe("Interacting with a queue", func() {
+	Describe("Slice based queue", func() {
+		QueueBehaviorTests(func() datastructures.Queue[int] {
+			return datastructures.NewSliceQueue[int]()
+		})
+	})
+	Describe("Linked list based queue", func() {
+		QueueBehaviorTests(func() datastructures.Queue[int] {
+			return datastructures.NewLinkedListQueue[int]()
+		})
+	})
+})
+
+func QueueBehaviorTests(newQueue func() datastructures.Queue[int]) {
 	var uut datastructures.Queue[int]
 	var zeroVal int
 
 	BeforeEach(func() {
-		// TODO: swap between types
-		//uut = datastructures.NewSliceQueue[int]()
-		uut = datastructures.NewLinkedListQueue[int]()
+		uut = newQueue()
 	})
 
 	When("the queue is empty", func() {
@@ -96,4 +107,4 @@ var _ = Describe("Interacting with a queue", func() {
 			})
 		})
 	})
-})
+}
