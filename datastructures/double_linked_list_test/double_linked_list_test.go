@@ -61,6 +61,27 @@ var _ = Describe("Generic Double Linked List", func() {
 			Expect(val).To(Equal(zeroVal))
 		})
 	})
+	When("a value is pushed to the front", func() {
+		var initialVal int
+
+		BeforeEach(func() {
+			initialVal = 5
+			uut.PushFront(initialVal)
+		})
+
+		It("will have a length of 1", func() {
+			Expect(uut.Len()).To(Equal(1))
+		})
+		It("will not be empty", func() {
+			Expect(uut.IsEmpty()).To(BeFalse())
+		})
+		It("will assign the value to the front", func() {
+			front, _ := uut.Front()
+
+			Expect(front).ToNot(BeNil())
+			Expect(front.Value()).To(Equal(initialVal))
+		})
+	})
 })
 
 var _ = Describe("Double linked list", func() {

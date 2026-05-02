@@ -57,7 +57,8 @@ func (n *doubleLinkedListNodeImpl[T]) Prev() (DoubleLinkedListNode[T], bool) {
 }
 
 type doubleLinkedListImpl[T any] struct {
-	len int
+	len   int
+	front *doubleLinkedListNodeImpl[T]
 }
 
 func NewGenericDoubleLinkedList[T any]() DoublyLinkedList[T] {
@@ -73,8 +74,9 @@ func (l *doubleLinkedListImpl[T]) IsEmpty() bool {
 }
 
 func (l *doubleLinkedListImpl[T]) PushFront(value T) {
-	//TODO implement me
-	panic("implement me")
+	n := &doubleLinkedListNodeImpl[T]{val: value}
+	l.front = n
+	l.len++
 }
 
 func (l *doubleLinkedListImpl[T]) PushBack(value T) {
@@ -98,7 +100,7 @@ func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T,
 }
 
 func (l *doubleLinkedListImpl[T]) Front() (DoubleLinkedListNode[T], bool) {
-	return nil, false
+	return l.front, false
 }
 
 func (l *doubleLinkedListImpl[T]) Back() (DoubleLinkedListNode[T], bool) {
