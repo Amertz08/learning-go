@@ -14,6 +14,7 @@ func TestLinkedList(t *testing.T) {
 
 var _ = Describe("We are interacting with a linked list", func() {
 	var uut LinkedList[int]
+	var zeroVal int
 
 	BeforeEach(func() {
 		uut = NewLinkedList[int]()
@@ -42,13 +43,20 @@ var _ = Describe("We are interacting with a linked list", func() {
 			val, _ := uut.Back()
 			Expect(val).To(BeNil())
 		})
-		It("PopFront will return false on ok check", func() {
+		It("PopFront will return false on 'ok' check", func() {
 			_, ok := uut.PopFront()
 			Expect(ok).To(BeFalse())
 		})
 		It("PopFront will return zero value", func() {
-			var zeroVal int
 			val, _ := uut.PopFront()
+			Expect(val).To(Equal(zeroVal))
+		})
+		It("PopBack will return false on 'ok' check", func() {
+			_, ok := uut.PopBack()
+			Expect(ok).To(BeFalse())
+		})
+		It("PopBack will return nil value", func() {
+			val, _ := uut.PopBack()
 			Expect(val).To(Equal(zeroVal))
 		})
 	})
@@ -269,18 +277,6 @@ func TestLinkedListImpl_Back(t *testing.T) {
 }
 
 func TestLinkedListImpl_PopBack(t *testing.T) {
-	t.Run("empty list", func(t *testing.T) {
-		l := NewLinkedList[int]()
-		var exp int
-
-		obs, ok := l.PopBack()
-		if ok {
-			t.Fatalf("expected ok=false got true")
-		}
-		if obs != exp {
-			t.Errorf("expected %d got %d", exp, obs)
-		}
-	})
 	t.Run("single item", func(t *testing.T) {
 		l := NewLinkedList[int]()
 		exp := 1
