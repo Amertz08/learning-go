@@ -13,6 +13,8 @@ type DoublyLinkedList[T any] interface {
 
     // Remove
     Remove(node Node[T]) T
+	PopFront() (T, bool)
+	PopBack() (T, bool)
 
     // Access
     Front() Node[T]
