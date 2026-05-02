@@ -2,38 +2,33 @@ package datastructures
 
 import "fmt"
 
-/*
-Asked ChatGPT for an interface, so I knew what methods to implement.
+// Asked ChatGPT for an interface, so I knew what methods to implement.
 type DoublyLinkedList[T any] interface {
-    // Insert
-    PushFront(value T)
-    PushBack(value T)
-    InsertBefore(node Node[T], value T) Node[T]
-    InsertAfter(node Node[T], value T) Node[T]
+	// Insert
+	PushFront(value T)
+	PushBack(value T)
+	InsertAfter(node DoubleLinkedListNode[T], value T) DoubleLinkedListNode[T]
+	InsertBefore(node DoubleLinkedListNode[T], value T) DoubleLinkedListNode[T]
 
-    // Remove
-    Remove(node Node[T]) T
-	PopFront() (T, bool)
-	PopBack() (T, bool)
+	// Remove
+	PopFront() (value T, ok bool)
+	PopBack() (value T, ok bool)
+	Remove(node DoubleLinkedListNode[T]) (value T, ok bool)
 
-    // Access
-    Front() Node[T]
-    Back() Node[T]
-	Get(idx int) Node[T]
+	// Access
+	Front() (DoubleLinkedListNode[T], bool)
+	Back() (DoubleLinkedListNode[T], bool)
 
-    // Navigation
-    Next(node Node[T]) Node[T]
-    Prev(node Node[T]) Node[T]
-
-    // State
-    Len() int // Done
-    IsEmpty() bool
+	// State
+	Len() int
+	IsEmpty() bool
 }
 
-type Node[T any] interface {
-    Value() T
+type DoubleLinkedListNode[T any] interface {
+	Value() T
+	Next() (DoubleLinkedListNode[T], bool)
+	Prev() (DoubleLinkedListNode[T], bool)
 }
-*/
 
 // TODO: make a generic doubly linked list
 type Node struct {
