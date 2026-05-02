@@ -29,7 +29,7 @@ type LinkedList[T any] interface {
 
 	// Remove
 	PopFront() (value T, ok bool)
-	//PopBack() (value T, ok bool)
+	PopBack() (value T, ok bool)
 	//RemoveAfter(node LinkedListNode[T]) (value T, ok bool)
 
 	// Access
@@ -103,6 +103,11 @@ func (l *linkedListImpl[T]) PopFront() (T, bool) {
 	l.front = newFront
 	l.len--
 	return tmp.Value(), true
+}
+
+func (l *linkedListImpl[T]) PopBack() (T, bool) {
+	var zeroVal T
+	return zeroVal, false
 }
 
 func (l *linkedListImpl[T]) Front() (LinkedListNode[T], bool) {
