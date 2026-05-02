@@ -23,12 +23,23 @@ var _ = Describe("We are interacting with a linked list", func() {
 		It("IsEmpty will return true", func() {
 			Expect(uut.IsEmpty()).To(BeTrue())
 		})
-		It("Front will return ok=false", func() {
+		It("Len returns zero", func() {
+			Expect(uut.Len()).To(Equal(0))
+		})
+		It("Front will return false on 'ok' check", func() {
 			_, ok := uut.Front()
 			Expect(ok).To(BeFalse())
 		})
 		It("Front will return a nil value", func() {
 			val, _ := uut.Front()
+			Expect(val).To(BeNil())
+		})
+		It("Back will return false on 'ok' check", func() {
+			_, ok := uut.Back()
+			Expect(ok).To(BeFalse())
+		})
+		It("Back will return a nil value", func() {
+			val, _ := uut.Back()
 			Expect(val).To(BeNil())
 		})
 		It("PopFront will return false on ok check", func() {
@@ -224,18 +235,6 @@ func TestLinkedListImpl_PushBack(t *testing.T) {
 }
 
 func TestLinkedListImpl_Back(t *testing.T) {
-	t.Run("empty list", func(t *testing.T) {
-		l := NewLinkedList[int]()
-
-		val, ok := l.Back()
-
-		if ok {
-			t.Fatalf("expected ok=false got true")
-		}
-		if val != nil {
-			t.Errorf("expected nil got %v", val)
-		}
-	})
 	t.Run("one value", func(t *testing.T) {
 		l := NewLinkedList[int]()
 
