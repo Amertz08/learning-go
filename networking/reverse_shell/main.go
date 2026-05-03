@@ -15,10 +15,14 @@ func main() {
 		log.Fatalf("encountered error starting server: %s", err)
 	}
 	for {
+		fmt.Println("accepting connections")
 		conn, err := serv.Accept()
 		if err != nil {
 			log.Fatalf("encountered an error accepting connections: %s", err)
 		}
+		defer serv.Close()
+		fmt.Println("accepted connection")
+
 		go func(c net.Conn) {
 			defer c.Close()
 
@@ -28,18 +32,18 @@ func main() {
 			fmt.Printf("GOT: %s\n", msg)
 
 			vals := parse(string(msg))
-
-			var out strings.Builder
-			cmd := exec.Command(vals[0], vals[1:]...)
-			cmd.Stdout = &out
-			if cmdErr := cmd.Run(); cmdErr != nil {
-				fmt.Println(cmdErr)
-				c.Write([]byte(fmt.Sprintf("%s", cmdErr)))
-			} else {
-				fmt.Println(out.String())
-				c.Write([]byte(out.String()))
+			if len(vals) > 0 {
+				var out strings.Builder
+				cmd := exec.Command(vals[0], vals[1:]...)
+				cmd.Stdout = &out
+				if cmdErr := cmd.Run(); cmdErr != nil {
+					fmt.Println(cmdErr)
+					c.Write([]byte(fmt.Sprintf("%s", cmdErr)))
+				} else {
+					fmt.Println(out.String())
+					c.Write([]byte(out.String()))
+				}
 			}
-
 		}(conn)
 	}
 }
