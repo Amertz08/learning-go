@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"net/http"
+	"net"
 	"os"
 	"regexp"
+	"sync"
 )
 
 func main() {
@@ -17,21 +17,43 @@ func main() {
 	url := os.Args[1]
 	fmt.Println(url)
 
-	if !hasScheme(url) {
-		url = "http://" + url
-	}
+	//if !hasScheme(url) {
+	//	url = "http://" + url
+	//}
 
-	resp, err := http.Get(url)
+	addresses, err := net.LookupHost(url)
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(1)
 	}
-	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println(err)
+	results := make(chan addrLookup)
+
+	var wg sync.WaitGroup
+	for _, addr := range addresses {
+		wg.Add(1)
+		go func(a string) {
+			defer wg.Done()
+			name, _ := net.LookupAddr(a)
+			lookup := addrLookup{addr: a, names: name}
+			results <- lookup
+		}(addr)
+
 	}
-	fmt.Println(string(body))
+
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	for r := range results {
+		fmt.Println(r)
+	}
+}
+
+type addrLookup struct {
+	addr  string
+	names []string
 }
 
 func hasScheme(url string) bool {
