@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -20,11 +21,18 @@ func main() {
 	//if !hasScheme(url) {
 	//	url = "http://" + url
 	//}
+	if err := lookupNet(url); err != nil {
+		fmt.Println("hit error", err)
+		os.Exit(1)
+	}
+}
 
+// lookupNet makes some calls in the root 'net' package
+func lookupNet(url string) error {
 	addresses, err := net.LookupHost(url)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		return errors.New("failed host lookup")
 	}
 
 	results := make(chan addrLookupResult)
@@ -34,8 +42,8 @@ func main() {
 		wg.Add(1)
 		go func(a string) {
 			defer wg.Done()
-			name, _ := net.LookupAddr(a)
-			lookup := addrLookupResult{addr: a, names: name}
+			name, e := net.LookupAddr(a)
+			lookup := addrLookupResult{addr: a, names: name, err: e}
 			results <- lookup
 		}(addr)
 
@@ -51,23 +59,24 @@ func main() {
 	}
 	cname, err := net.LookupCNAME(url)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return errors.New("failed CNAME lookup")
 	}
 	fmt.Println(cname)
 	txt, err := net.LookupTXT(url)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		return errors.New("failed TXT lookup")
 	}
 	for _, t := range txt {
 		fmt.Println(t)
 	}
+	return nil
 }
 
 type addrLookupResult struct {
 	addr  string
 	names []string
+	err   error
 }
 
 func hasScheme(url string) bool {
