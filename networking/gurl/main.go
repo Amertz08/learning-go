@@ -43,7 +43,7 @@ func main() {
 func httpGet(ctx context.Context, url string) error {
 	/*
 		TODO
-			- user agent support
+			- header support
 			- can download as a file
 			- timeout support
 			- max redirects
