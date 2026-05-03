@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 )
 
 func main() {
@@ -15,6 +16,11 @@ func main() {
 	}
 	url := os.Args[1]
 	fmt.Println(url)
+
+	if !hasScheme(url) {
+		url = "http://" + url
+	}
+
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println(err)
@@ -25,5 +31,10 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(body)
+	fmt.Println(string(body))
+}
+
+func hasScheme(url string) bool {
+	matched, _ := regexp.MatchString("^http://.*$", url)
+	return matched
 }
