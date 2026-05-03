@@ -27,8 +27,10 @@ func main() {
 			msg := buff[:size]
 			fmt.Printf("GOT: %s\n", msg)
 
+			vals := parse(string(msg))
+
 			var out strings.Builder
-			cmd := exec.Command(string(msg))
+			cmd := exec.Command(vals[0], vals[1:]...)
 			cmd.Stdout = &out
 			if cmdErr := cmd.Run(); cmdErr != nil {
 				fmt.Println(cmdErr)
@@ -40,4 +42,15 @@ func main() {
 
 		}(conn)
 	}
+}
+
+func parse(input string) []string {
+	inputList := strings.Split(input, " ")
+	var cleaned []string
+	for _, v := range inputList {
+		if v != "" {
+			cleaned = append(cleaned, v)
+		}
+	}
+	return cleaned
 }
