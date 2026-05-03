@@ -25,6 +25,8 @@ type DoublyLinkedList[T any] interface {
 	//	node implemenation which should also use the concrete node implementation for it's
 	// 	pointers. Given they would be concret there is no need to convert the type and thus no
 	//	need for the 'ok' check. Given these were generate by ChatGPT they could be wrong.
+	//	At least according to ChatGPT this is perfectly fine and how I implemented the methods
+	//	is the same as what it generated when asked.
 	Front() (DoubleLinkedListNode[T], bool)
 	Back() (DoubleLinkedListNode[T], bool)
 
@@ -50,19 +52,17 @@ func (n *doubleLinkedListNodeImpl[T]) Value() T {
 }
 
 func (n *doubleLinkedListNodeImpl[T]) Next() (DoubleLinkedListNode[T], bool) {
-	found := false
 	if n.next != nil {
-		found = true
+		return n.next, true
 	}
-	return n.next, found
+	return n.next, false
 }
 
 func (n *doubleLinkedListNodeImpl[T]) Prev() (DoubleLinkedListNode[T], bool) {
-	found := false
 	if n.prev != nil {
-		found = true
+		return n.prev, true
 	}
-	return n.prev, found
+	return n.prev, false
 }
 
 type doubleLinkedListImpl[T any] struct {
@@ -156,19 +156,17 @@ func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T,
 }
 
 func (l *doubleLinkedListImpl[T]) Front() (DoubleLinkedListNode[T], bool) {
-	exists := false
 	if l.front != nil {
-		exists = true
+		return l.front, true
 	}
-	return l.front, exists
+	return l.front, false
 }
 
 func (l *doubleLinkedListImpl[T]) Back() (DoubleLinkedListNode[T], bool) {
-	exists := false
 	if l.back != nil {
-		exists = true
+		return l.back, true
 	}
-	return l.back, exists
+	return l.back, false
 }
 
 // TODO: make a generic doubly linked list
