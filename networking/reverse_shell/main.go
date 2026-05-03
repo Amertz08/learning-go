@@ -9,6 +9,16 @@ import (
 	"strings"
 )
 
+/*
+TODO: there is a weird issue
+ 1. start client/server
+ 2. send a command via the client
+ 3. restart client
+ 4. send a command via the client
+ 5. observe command does nothing/server will say 'accepted connection'
+ 6. send another command
+ 7. observe command works
+*/
 func main() {
 	var host, port string
 
