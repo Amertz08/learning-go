@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -9,7 +10,17 @@ import (
 )
 
 func main() {
-	serv, err := net.Listen("tcp", ":8080")
+	var host, port string
+
+	flag.StringVar(&host, "host", "localhost", "host to connect back to")
+	flag.StringVar(&port, "port", "8080", "port to connect back to")
+
+	flag.Parse()
+
+	target := host + ":" + port
+	fmt.Println("listening on: ", target)
+
+	serv, err := net.Listen("tcp", target)
 	defer serv.Close()
 	if err != nil {
 		log.Fatalf("encountered error starting server: %s", err)
