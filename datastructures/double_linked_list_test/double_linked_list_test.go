@@ -239,33 +239,34 @@ var _ = Describe("Generic Double Linked List", func() {
 				Expect(prev).To(BeIdenticalTo(front))
 			})
 		})
-		When("there are multiple items on the list", func() {
-			var firstFrontVal, secondFrontVal int
+	})
+	When("there are multiple items on the list", func() {
+		var firstFrontVal, secondFrontVal int
+		BeforeEach(func() {
+			firstFrontVal, secondFrontVal = 1, 3
+			uut.PushFront(firstFrontVal)
+			uut.PushFront(secondFrontVal)
+
+			Expect(uut.Len()).To(Equal(2))
+		})
+		When("a value is removed from the front", func() {
+			var removedVal int
 			BeforeEach(func() {
-				firstFrontVal, secondFrontVal = 1, 3
-				uut.PushFront(firstFrontVal)
-				uut.PushFront(secondFrontVal)
+				removedVal, _ = uut.PopFront()
 			})
-			When("a value is removed from the front", func() {
-				var removedVal int
-				BeforeEach(func() {
-					removedVal, _ = uut.PopFront()
-					uut.PopFront()
-				})
 
-				It("will remove the proper value", func() {
-					Expect(removedVal).To(Equal(secondFrontVal))
-				})
-				It("will have a length of 1", func() {
-					Expect(uut.Len()).To(Equal(1))
-				})
-				It("will reassign the new front nodes previous pointer to nil", func() {
-					front, _ := uut.Front()
+			It("will remove the proper value", func() {
+				Expect(removedVal).To(Equal(secondFrontVal))
+			})
+			It("will have a length of 1", func() {
+				Expect(uut.Len()).To(Equal(1))
+			})
+			It("will reassign the new front nodes previous pointer to nil", func() {
+				front, _ := uut.Front()
 
-					Expect(front).ToNot(BeNil())
-					prev, _ := front.Prev()
-					Expect(prev).To(BeNil())
-				})
+				Expect(front).ToNot(BeNil())
+				prev, _ := front.Prev()
+				Expect(prev).To(BeNil())
 			})
 		})
 	})
