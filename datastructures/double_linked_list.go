@@ -42,7 +42,7 @@ func (n *doubleLinkedListNodeImpl[T]) Value() T {
 
 func (n *doubleLinkedListNodeImpl[T]) Next() (DoubleLinkedListNode[T], bool) {
 	internal, ok := n.next.(*doubleLinkedListNodeImpl[T])
-	if !ok || internal.next == nil {
+	if !ok || internal == nil {
 		return nil, false
 	}
 	return internal, true
@@ -50,7 +50,7 @@ func (n *doubleLinkedListNodeImpl[T]) Next() (DoubleLinkedListNode[T], bool) {
 
 func (n *doubleLinkedListNodeImpl[T]) Prev() (DoubleLinkedListNode[T], bool) {
 	internal, ok := n.prev.(*doubleLinkedListNodeImpl[T])
-	if !ok || internal.prev == nil {
+	if !ok || internal == nil {
 		return nil, false
 	}
 	return internal, true
@@ -75,9 +75,23 @@ func (l *doubleLinkedListImpl[T]) IsEmpty() bool {
 }
 
 func (l *doubleLinkedListImpl[T]) PushFront(value T) {
-	n := &doubleLinkedListNodeImpl[T]{val: value}
-	l.front = n
-	l.back = n
+	newFront := &doubleLinkedListNodeImpl[T]{val: value}
+
+	// get the old front and swap it around if we can
+	oldFront := l.front
+	if oldFront != nil {
+		oldFront.prev = newFront
+	}
+
+	// reassign the front to the new node
+	l.front = newFront
+	l.front.next = oldFront
+
+	// If the list was empty, front == back
+	if l.IsEmpty() {
+		l.back = newFront
+	}
+
 	l.len++
 }
 

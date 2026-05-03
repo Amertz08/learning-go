@@ -109,6 +109,23 @@ var _ = Describe("Generic Double Linked List", func() {
 				front, _ := uut.Front()
 				Expect(front.Value()).To(Equal(secondValue))
 			})
+			It("will set the old front to be the next node on the new front", func() {
+				front, _ := uut.Front()
+				initialNode, _ := front.Next()
+				Expect(initialNode).ToNot(BeNil())
+				Expect(initialNode.Value()).To(Equal(firstValue))
+			})
+			It("will set the new front to be the prev on the next node", func() {
+				front, _ := uut.Front()
+				initialNode, _ := front.Next()
+				Expect(initialNode).ToNot(BeNil())
+				obsFront, _ := initialNode.Prev()
+				Expect(obsFront).To(BeIdenticalTo(front))
+			})
+			It("will return the first value as the back", func() {
+				back, _ := uut.Back()
+				Expect(back.Value()).To(Equal(firstValue))
+			})
 		})
 	})
 })
