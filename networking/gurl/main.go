@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net"
+	"net/http"
 	"os"
 	"regexp"
 	"sync"
@@ -29,13 +31,36 @@ func main() {
 	url := os.Args[1]
 	fmt.Println(url)
 
-	//if !hasScheme(url) {
-	//	url = "http://" + url
-	//}
-	if err := lookupNet(ctx, url); err != nil {
+	if !hasScheme(url) {
+		url = "http://" + url
+	}
+	if err := httpGet(ctx, url); err != nil {
 		fmt.Println("hit error", err)
 		os.Exit(1)
 	}
+}
+
+func httpGet(ctx context.Context, url string) error {
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return errors.New("error creating request")
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return errors.New("error sending request")
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return errors.New("error reading response body")
+	}
+	fmt.Println(string(body))
+
+	return nil
 }
 
 // lookupNet makes some calls in the root 'net' package
