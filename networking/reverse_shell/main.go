@@ -31,9 +31,10 @@ func main() {
 			msg := buff[:size]
 			fmt.Printf("GOT: %s\n", msg)
 
+			var out strings.Builder
 			vals := parse(string(msg))
+
 			if len(vals) > 0 {
-				var out strings.Builder
 				cmd := exec.Command(vals[0], vals[1:]...)
 				cmd.Stdout = &out
 				if cmdErr := cmd.Run(); cmdErr != nil {
@@ -48,6 +49,7 @@ func main() {
 	}
 }
 
+// parse cleans the input and returns it as a list of strings
 func parse(input string) []string {
 	inputList := strings.Split(input, " ")
 	var cleaned []string
