@@ -27,8 +27,8 @@ func main() {
 
 	flag.Parse()
 
-	target := host + ":" + port
-	fmt.Println("listening on: ", target)
+	target := net.JoinHostPort(host, port)
+	fmt.Println("listening on:", target)
 
 	serv, err := net.Listen("tcp", target)
 	defer serv.Close()
