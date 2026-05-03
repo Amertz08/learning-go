@@ -35,6 +35,9 @@ type LinkedList[T any] interface {
 	// Access
 	Front() (LinkedListNode[T], bool)
 	Back() (LinkedListNode[T], bool)
+	// TODO: revist this part of the implementation
+	//		I am not sure I like this interface
+	// 		Also we do not have any tests for it
 	Next(node LinkedListNode[T]) (LinkedListNode[T], bool)
 
 	// State
