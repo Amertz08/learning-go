@@ -91,6 +91,16 @@ var _ = Describe("Generic Double Linked List", func() {
 			Expect(back).ToNot(BeNil())
 			Expect(back.Value()).To(Equal(initialVal))
 		})
+		It("will not be able to get the next value", func() {
+			front, _ := uut.Front()
+			_, ok := front.Next()
+			Expect(ok).To(BeFalse())
+		})
+		It("will not be able to get the prev value", func() {
+			front, _ := uut.Front()
+			_, ok := front.Prev()
+			Expect(ok).To(BeFalse())
+		})
 	})
 	When("a value is pushed to the back", func() {
 		var initialValue int
@@ -143,15 +153,21 @@ var _ = Describe("Generic Double Linked List", func() {
 			})
 			It("will set the old front to be the next node on the new front", func() {
 				front, _ := uut.Front()
-				initialNode, _ := front.Next()
+				initialNode, ok := front.Next()
+
+				Expect(ok).To(BeTrue())
 				Expect(initialNode).ToNot(BeNil())
 				Expect(initialNode.Value()).To(Equal(firstValue))
 			})
 			It("will set the new front to be the prev on the next node", func() {
 				front, _ := uut.Front()
-				initialNode, _ := front.Next()
+				initialNode, ok := front.Next()
+
+				Expect(ok).To(BeTrue())
 				Expect(initialNode).ToNot(BeNil())
-				obsFront, _ := initialNode.Prev()
+
+				obsFront, ok := initialNode.Prev()
+				Expect(ok).To(BeTrue())
 				Expect(obsFront).To(BeIdenticalTo(front))
 			})
 			It("will return the first value as the back", func() {

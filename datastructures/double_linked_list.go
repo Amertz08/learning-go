@@ -42,13 +42,19 @@ func (n *doubleLinkedListNodeImpl[T]) Value() T {
 }
 
 func (n *doubleLinkedListNodeImpl[T]) Next() (DoubleLinkedListNode[T], bool) {
-	// todo deal with bool returns
-	return n.next, true
+	found := false
+	if n.next != nil {
+		found = true
+	}
+	return n.next, found
 }
 
 func (n *doubleLinkedListNodeImpl[T]) Prev() (DoubleLinkedListNode[T], bool) {
-	// todo deal with bool returns
-	return n.prev, false
+	found := false
+	if n.prev != nil {
+		found = true
+	}
+	return n.prev, found
 }
 
 type doubleLinkedListImpl[T any] struct {
