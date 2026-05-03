@@ -49,6 +49,20 @@ func main() {
 	for r := range results {
 		fmt.Println(r)
 	}
+	cname, err := net.LookupCNAME(url)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(cname)
+	txt, err := net.LookupTXT(url)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	for _, t := range txt {
+		fmt.Println(t)
+	}
 }
 
 type addrLookup struct {
