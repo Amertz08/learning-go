@@ -45,6 +45,8 @@ func httpGet(ctx context.Context, url string) error {
 		TODO
 			- user agent support
 			- can download as a file
+			- timeout support
+			- max redirects
 	*/
 	client := &http.Client{}
 
