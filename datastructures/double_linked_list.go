@@ -17,6 +17,14 @@ type DoublyLinkedList[T any] interface {
 
 	// Access
 	// TODO: I am not understanding why we need to return an 'ok' here.
+	//	The existence of an 'ok' on here and the node methods seems to imply
+	//	that the underlying variables we interact with on the concrete implemenation
+	//	should have the interface as it's type. If that were the case then we would
+	// 	need to do a type conversion in order to act on the concrete implemenation
+	//	variables. However to my understanding the concrete list should use the concrete
+	//	node implemenation which should also use the concrete node implementation for it's
+	// 	pointers. Given they would be concret there is no need to convert the type and thus no
+	//	need for the 'ok' check. Given these were generate by ChatGPT they could be wrong.
 	Front() (DoubleLinkedListNode[T], bool)
 	Back() (DoubleLinkedListNode[T], bool)
 
