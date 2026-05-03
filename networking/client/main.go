@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -23,6 +24,7 @@ func main() {
 
 		if inputScanner.Scan() {
 			msg = inputScanner.Text()
+			msg = strings.Trim(msg, " ")
 			fmt.Println("input: ", msg)
 			conn.Write([]byte(msg))
 		}
