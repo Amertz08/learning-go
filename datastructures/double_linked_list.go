@@ -122,11 +122,19 @@ func (l *doubleLinkedListImpl[T]) PopFront() (value T, ok bool) {
 	if l.IsEmpty() {
 		return zeroVal, false
 	}
-	node := l.front
-	l.front = nil
+
+	// Get what we're going to return and reassign the new front
+	oldFront := l.front
+	newFront := oldFront.next
+	l.front = newFront
+
+	// If there is a node we need to have it point to nil
+	if l.front != nil {
+		l.front.prev = nil
+	}
 
 	l.len--
-	return node.Value(), true
+	return oldFront.Value(), true
 }
 
 func (l *doubleLinkedListImpl[T]) PopBack() (value T, ok bool) {
