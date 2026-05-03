@@ -27,7 +27,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	results := make(chan addrLookup)
+	results := make(chan addrLookupResult)
 
 	var wg sync.WaitGroup
 	for _, addr := range addresses {
@@ -35,7 +35,7 @@ func main() {
 		go func(a string) {
 			defer wg.Done()
 			name, _ := net.LookupAddr(a)
-			lookup := addrLookup{addr: a, names: name}
+			lookup := addrLookupResult{addr: a, names: name}
 			results <- lookup
 		}(addr)
 
@@ -65,7 +65,7 @@ func main() {
 	}
 }
 
-type addrLookup struct {
+type addrLookupResult struct {
 	addr  string
 	names []string
 }
