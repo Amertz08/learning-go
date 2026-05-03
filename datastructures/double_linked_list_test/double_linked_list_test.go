@@ -75,6 +75,10 @@ var _ = Describe("Generic Double Linked List", func() {
 		It("will not be empty", func() {
 			Expect(uut.IsEmpty()).To(BeFalse())
 		})
+		It("can get the node from the front", func() {
+			_, ok := uut.Front()
+			Expect(ok).To(BeTrue())
+		})
 		It("will assign the value to the front", func() {
 			front, _ := uut.Front()
 
@@ -86,6 +90,34 @@ var _ = Describe("Generic Double Linked List", func() {
 
 			Expect(back).ToNot(BeNil())
 			Expect(back.Value()).To(Equal(initialVal))
+		})
+	})
+	When("a value is pushed to the back", func() {
+		var initialValue int
+
+		BeforeEach(func() {
+			initialValue = 5
+			uut.PushBack(initialValue)
+		})
+		It("will have a length of 1", func() {
+			Expect(uut.Len()).To(Equal(1))
+		})
+		It("will no longer be empty", func() {
+			Expect(uut.IsEmpty()).To(BeFalse())
+		})
+		It("can access the back", func() {
+			_, ok := uut.Back()
+			Expect(ok).To(BeTrue())
+		})
+		It("will set back to the value pushed", func() {
+			back, _ := uut.Back()
+			Expect(back).ToNot(BeNil())
+			Expect(back.Value()).To(Equal(initialValue))
+		})
+		It("will set front to the value pushed", func() {
+			front, _ := uut.Front()
+			Expect(front).ToNot(BeNil())
+			Expect(front.Value()).To(Equal(initialValue))
 		})
 	})
 	When("there is already one item in the list", func() {
@@ -125,6 +157,21 @@ var _ = Describe("Generic Double Linked List", func() {
 			It("will return the first value as the back", func() {
 				back, _ := uut.Back()
 				Expect(back.Value()).To(Equal(firstValue))
+			})
+		})
+		When("a second value is pushed to the back", func() {
+			var secondValue int
+			BeforeEach(func() {
+				secondValue = 2
+				uut.PushBack(secondValue)
+			})
+			It("will return the second value as the back", func() {
+				back, _ := uut.Back()
+				Expect(back).ToNot(BeNil())
+				Expect(back.Value()).To(Equal(secondValue))
+			})
+			It("will have a length of 2", func() {
+				Expect(uut.Len()).To(Equal(2))
 			})
 		})
 	})

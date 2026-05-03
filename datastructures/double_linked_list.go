@@ -16,6 +16,7 @@ type DoublyLinkedList[T any] interface {
 	Remove(node DoubleLinkedListNode[T]) (value T, ok bool)
 
 	// Access
+	// TODO: I am not understanding why we need to return an 'ok' here.
 	Front() (DoubleLinkedListNode[T], bool)
 	Back() (DoubleLinkedListNode[T], bool)
 
@@ -32,8 +33,8 @@ type DoubleLinkedListNode[T any] interface {
 
 type doubleLinkedListNodeImpl[T any] struct {
 	val  T
-	next DoubleLinkedListNode[T]
-	prev DoubleLinkedListNode[T]
+	next *doubleLinkedListNodeImpl[T]
+	prev *doubleLinkedListNodeImpl[T]
 }
 
 func (n *doubleLinkedListNodeImpl[T]) Value() T {
@@ -41,19 +42,11 @@ func (n *doubleLinkedListNodeImpl[T]) Value() T {
 }
 
 func (n *doubleLinkedListNodeImpl[T]) Next() (DoubleLinkedListNode[T], bool) {
-	internal, ok := n.next.(*doubleLinkedListNodeImpl[T])
-	if !ok || internal == nil {
-		return nil, false
-	}
-	return internal, true
+	return n.next, true
 }
 
 func (n *doubleLinkedListNodeImpl[T]) Prev() (DoubleLinkedListNode[T], bool) {
-	internal, ok := n.prev.(*doubleLinkedListNodeImpl[T])
-	if !ok || internal == nil {
-		return nil, false
-	}
-	return internal, true
+	return n.prev, false
 }
 
 type doubleLinkedListImpl[T any] struct {
@@ -84,8 +77,8 @@ func (l *doubleLinkedListImpl[T]) PushFront(value T) {
 	}
 
 	// reassign the front to the new node
+	newFront.next = oldFront
 	l.front = newFront
-	l.front.next = oldFront
 
 	// If the list was empty, front == back
 	if l.IsEmpty() {
@@ -96,8 +89,14 @@ func (l *doubleLinkedListImpl[T]) PushFront(value T) {
 }
 
 func (l *doubleLinkedListImpl[T]) PushBack(value T) {
-	//TODO implement me
-	panic("implement me")
+	n := &doubleLinkedListNodeImpl[T]{val: value}
+
+	if l.IsEmpty() {
+		l.front = n
+	}
+
+	l.back = n
+	l.len++
 }
 
 func (l *doubleLinkedListImpl[T]) PopFront() (value T, ok bool) {
@@ -116,11 +115,19 @@ func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T,
 }
 
 func (l *doubleLinkedListImpl[T]) Front() (DoubleLinkedListNode[T], bool) {
-	return l.front, false
+	exists := false
+	if l.front != nil {
+		exists = true
+	}
+	return l.front, exists
 }
 
 func (l *doubleLinkedListImpl[T]) Back() (DoubleLinkedListNode[T], bool) {
-	return l.back, false
+	exists := false
+	if l.back != nil {
+		exists = true
+	}
+	return l.back, exists
 }
 
 // TODO: make a generic doubly linked list
