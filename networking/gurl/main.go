@@ -10,6 +10,13 @@ import (
 	"sync"
 )
 
+/*
+TODO
+	- Basic HTTP client
+	- Ability to send concurrent HTTP requests
+	- can download as a file
+*/
+
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -33,6 +40,7 @@ func main() {
 
 // lookupNet makes some calls in the root 'net' package
 func lookupNet(ctx context.Context, url string) error {
+	// TODO: print prettier
 	addresses, err := net.LookupHost(url)
 	if err != nil {
 		fmt.Println(err)
