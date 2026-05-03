@@ -119,7 +119,14 @@ func (l *doubleLinkedListImpl[T]) PushBack(value T) {
 
 func (l *doubleLinkedListImpl[T]) PopFront() (value T, ok bool) {
 	var zeroVal T
-	return zeroVal, false
+	if l.IsEmpty() {
+		return zeroVal, false
+	}
+	node := l.front
+	l.front = nil
+
+	l.len--
+	return node.Value(), true
 }
 
 func (l *doubleLinkedListImpl[T]) PopBack() (value T, ok bool) {
