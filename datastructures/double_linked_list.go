@@ -156,6 +156,9 @@ func (l *doubleLinkedListImpl[T]) PopBack() (value T, ok bool) {
 	oldBack := l.back
 	l.back = nil
 
+	// TODO: not complete
+	//		case: multiple values and we need to reassign the back
+
 	l.len--
 	return oldBack.Value(), true
 }
