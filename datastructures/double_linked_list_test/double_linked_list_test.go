@@ -149,6 +149,10 @@ var _ = Describe("Generic Double Linked List", func() {
 			_, ok := uut.PopBack()
 			Expect(ok).To(BeTrue())
 		})
+		It("will return the value when removed from the front", func() {
+			val, _ := uut.PopBack()
+			Expect(val).To(Equal(firstValue))
+		})
 		When("the value is removed from the front", func() {
 			var removedVal int
 			var preOk bool
@@ -189,6 +193,10 @@ var _ = Describe("Generic Double Linked List", func() {
 			})
 			It("will tell you it is empty", func() {
 				Expect(uut.IsEmpty()).To(BeTrue())
+			})
+			It("cannot return the back", func() {
+				_, ok := uut.Back()
+				Expect(ok).To(BeFalse())
 			})
 		})
 		When("a second value is pushed to the front", func() {

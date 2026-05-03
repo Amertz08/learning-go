@@ -141,6 +141,9 @@ func (l *doubleLinkedListImpl[T]) PopFront() (value T, ok bool) {
 		l.front.prev = nil
 	}
 
+	// We do not need to do oldFront.next = nil as there are no more references to the node itself
+	// and the node will be cleaned up by the garbage collector
+
 	l.len--
 	return oldFront.Value(), true
 }
@@ -150,8 +153,11 @@ func (l *doubleLinkedListImpl[T]) PopBack() (value T, ok bool) {
 	if l.IsEmpty() {
 		return zeroVal, false
 	}
+	oldBack := l.back
+	l.back = nil
+
 	l.len--
-	return l.back.val, true
+	return oldBack.Value(), true
 }
 
 func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T, ok bool) {
