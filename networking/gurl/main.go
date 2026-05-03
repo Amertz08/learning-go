@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -10,6 +11,9 @@ import (
 )
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	fmt.Println(os.Args)
 	if len(os.Args) == 1 {
 		fmt.Println("no URL provided")
@@ -21,14 +25,14 @@ func main() {
 	//if !hasScheme(url) {
 	//	url = "http://" + url
 	//}
-	if err := lookupNet(url); err != nil {
+	if err := lookupNet(ctx, url); err != nil {
 		fmt.Println("hit error", err)
 		os.Exit(1)
 	}
 }
 
 // lookupNet makes some calls in the root 'net' package
-func lookupNet(url string) error {
+func lookupNet(ctx context.Context, url string) error {
 	addresses, err := net.LookupHost(url)
 	if err != nil {
 		fmt.Println(err)
@@ -40,12 +44,17 @@ func lookupNet(url string) error {
 	var wg sync.WaitGroup
 	for _, addr := range addresses {
 		wg.Add(1)
-		go func(a string) {
+		go func(ctx context.Context, a string) {
 			defer wg.Done()
 			name, e := net.LookupAddr(a)
 			lookup := addrLookupResult{addr: a, names: name, err: e}
+			select {
+			case results <- lookup:
+			case <-ctx.Done():
+				return
+			}
 			results <- lookup
-		}(addr)
+		}(ctx, addr)
 
 	}
 
