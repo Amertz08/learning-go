@@ -14,9 +14,9 @@ import (
 
 /*
 TODO
-	- Basic HTTP client
+	- CLI interface
 	- Ability to send concurrent HTTP requests
-	- can download as a file
+	- Testing
 */
 
 func main() {
@@ -41,6 +41,11 @@ func main() {
 }
 
 func httpGet(ctx context.Context, url string) error {
+	/*
+		TODO
+			- user agent support
+			- can download as a file
+	*/
 	client := &http.Client{}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
