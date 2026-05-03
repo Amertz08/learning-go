@@ -32,8 +32,10 @@ func main() {
 			cmd.Stdout = &out
 			if cmdErr := cmd.Run(); cmdErr != nil {
 				fmt.Println(cmdErr)
+				c.Write([]byte(fmt.Sprintf("%s", cmdErr)))
 			} else {
 				fmt.Println(out.String())
+				c.Write([]byte(out.String()))
 			}
 
 		}(conn)

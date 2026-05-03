@@ -13,7 +13,7 @@ func main() {
 	var msg string
 	for {
 		fmt.Print("what to send?: ")
-		scanner := bufio.NewScanner(os.Stdin)
+		inputScanner := bufio.NewScanner(os.Stdin)
 
 		conn, err := net.Dial("tcp", ":8080")
 		if err != nil {
@@ -21,10 +21,14 @@ func main() {
 		}
 		defer conn.Close()
 
-		if scanner.Scan() {
-			msg = scanner.Text()
-			fmt.Printf("input: %s\n", msg)
+		if inputScanner.Scan() {
+			msg = inputScanner.Text()
+			fmt.Println("input: ", msg)
 			conn.Write([]byte(msg))
+		}
+		responseScanner := bufio.NewScanner(conn)
+		for responseScanner.Scan() {
+			fmt.Println(responseScanner.Text())
 		}
 	}
 
