@@ -35,6 +35,6 @@ func main() {
 }
 
 func hasScheme(url string) bool {
-	matched, _ := regexp.MatchString("^http://.*$", url)
+	matched, _ := regexp.MatchString("^http://|https://.*$", url)
 	return matched
 }

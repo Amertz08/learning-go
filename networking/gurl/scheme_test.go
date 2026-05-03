@@ -18,5 +18,6 @@ var _ = Describe("has scheme checks", func() {
 	},
 		Entry("no scheme", "hello", false),
 		Entry("http schema", "http://hello", true),
+		Entry("https schema", "https://hello", true),
 	)
 })
