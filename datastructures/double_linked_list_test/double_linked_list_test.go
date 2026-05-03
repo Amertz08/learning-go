@@ -165,13 +165,31 @@ var _ = Describe("Generic Double Linked List", func() {
 				secondValue = 2
 				uut.PushBack(secondValue)
 			})
+			It("will have a length of 2", func() {
+				Expect(uut.Len()).To(Equal(2))
+			})
 			It("will return the second value as the back", func() {
 				back, _ := uut.Back()
 				Expect(back).ToNot(BeNil())
 				Expect(back.Value()).To(Equal(secondValue))
 			})
-			It("will have a length of 2", func() {
-				Expect(uut.Len()).To(Equal(2))
+			It("will set the front nodes next pointer to the new back", func() {
+				front, _ := uut.Front()
+				back, _ := uut.Back()
+
+				Expect(front).ToNot(BeNil())
+				next, _ := front.Next()
+				Expect(back).ToNot(BeNil())
+				Expect(next).To(BeIdenticalTo(back))
+			})
+			It("will set the backs previous pointer to the front", func() {
+				front, _ := uut.Front()
+				back, _ := uut.Back()
+
+				Expect(front).ToNot(BeNil())
+				Expect(back).ToNot(BeNil())
+				prev, _ := back.Prev()
+				Expect(prev).To(BeIdenticalTo(front))
 			})
 		})
 	})

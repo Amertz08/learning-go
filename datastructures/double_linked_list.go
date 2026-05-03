@@ -42,10 +42,12 @@ func (n *doubleLinkedListNodeImpl[T]) Value() T {
 }
 
 func (n *doubleLinkedListNodeImpl[T]) Next() (DoubleLinkedListNode[T], bool) {
+	// todo deal with bool returns
 	return n.next, true
 }
 
 func (n *doubleLinkedListNodeImpl[T]) Prev() (DoubleLinkedListNode[T], bool) {
+	// todo deal with bool returns
 	return n.prev, false
 }
 
@@ -89,13 +91,23 @@ func (l *doubleLinkedListImpl[T]) PushFront(value T) {
 }
 
 func (l *doubleLinkedListImpl[T]) PushBack(value T) {
-	n := &doubleLinkedListNodeImpl[T]{val: value}
+	newBack := &doubleLinkedListNodeImpl[T]{val: value}
 
-	if l.IsEmpty() {
-		l.front = n
+	// get whatever is the current back and set it's next to the new one
+	oldBack := l.back
+	if oldBack != nil {
+		oldBack.next = newBack
 	}
 
-	l.back = n
+	// reassign the back and point to whatever was there prior
+	l.back = newBack
+	l.back.prev = oldBack
+
+	// If the list was empty, front == back
+	if l.IsEmpty() {
+		l.front = newBack
+	}
+
 	l.len++
 }
 
