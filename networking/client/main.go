@@ -20,7 +20,6 @@ func main() {
 		if err != nil {
 			log.Fatalf("encountered an error trying to connect: %s", err)
 		}
-		defer conn.Close()
 
 		if inputScanner.Scan() {
 			msg = inputScanner.Text()
@@ -28,10 +27,12 @@ func main() {
 			fmt.Println("input: ", msg)
 			conn.Write([]byte(msg))
 		}
+
 		responseScanner := bufio.NewScanner(conn)
 		for responseScanner.Scan() {
 			fmt.Println(responseScanner.Text())
 		}
+		conn.Close()
 	}
 
 }
