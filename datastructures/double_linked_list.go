@@ -147,7 +147,11 @@ func (l *doubleLinkedListImpl[T]) PopFront() (value T, ok bool) {
 
 func (l *doubleLinkedListImpl[T]) PopBack() (value T, ok bool) {
 	var zeroVal T
-	return zeroVal, false
+	if l.IsEmpty() {
+		return zeroVal, false
+	}
+	l.len--
+	return l.back.val, true
 }
 
 func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T, ok bool) {
