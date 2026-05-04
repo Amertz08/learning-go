@@ -19,6 +19,7 @@ import (
 	TODO
 		- nil channel example
 		- refactor out the creation of output channel and handling of select
+		- testing
 */
 
 func main() {
