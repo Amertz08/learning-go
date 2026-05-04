@@ -2,6 +2,7 @@ package datastructures
 
 import "testing"
 
+// TODO: rewrite using Ginkgo
 func TestStackImp_Len(t *testing.T) {
 	t.Run("should return 0 for empty stack", func(t *testing.T) {
 		stack := NewStack[int]()

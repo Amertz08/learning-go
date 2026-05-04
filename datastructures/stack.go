@@ -7,6 +7,8 @@ Use cases for a stack
 - Undo/Redo operations
 - Expression evaluation (e.g., postfix notation i.e. , reverse polish notation)
 - Function call stack in programming languages
+
+TODO: could do a linked list implementation as well
 */
 
 type Stack[T any] interface {
