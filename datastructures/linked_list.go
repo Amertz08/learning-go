@@ -30,6 +30,7 @@ type LinkedList[T any] interface {
 	// Remove
 	PopFront() (value T, ok bool)
 	PopBack() (value T, ok bool)
+	// TODO: implement
 	//RemoveAfter(node LinkedListNode[T]) (value T, ok bool)
 
 	// Access
