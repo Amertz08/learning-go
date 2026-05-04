@@ -68,3 +68,28 @@ func (s *stackSliceImpl[T]) Peek() (T, bool) {
 	val = s.items[len(s.items)-1]
 	return val, true
 }
+
+type stackLinkedListImpl[T any] struct {
+	items LinkedList[T]
+}
+
+func NewStackLinkedList[T any]() Stack[T] {
+	return &stackLinkedListImpl[T]{items: NewLinkedList[T]()}
+}
+
+func (s *stackLinkedListImpl[T]) Len() int {
+	return s.items.Len()
+}
+func (s *stackLinkedListImpl[T]) Push(value T) {
+	panic("implement me")
+}
+
+func (s *stackLinkedListImpl[T]) Pop() (T, bool) {
+	panic("implement me")
+}
+
+func (s *stackLinkedListImpl[T]) Peek() (T, bool) {
+	panic("implement me")
+}
+
+func (s *stackLinkedListImpl[T]) IsEmpty() bool { return false }
