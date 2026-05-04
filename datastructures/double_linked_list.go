@@ -154,10 +154,13 @@ func (l *doubleLinkedListImpl[T]) PopBack() (value T, ok bool) {
 		return zeroVal, false
 	}
 	oldBack := l.back
-	l.back = nil
+	newBack := oldBack.prev
+	l.back = newBack
 
-	// TODO: not complete
-	//		case: multiple values and we need to reassign the back
+	// If the new back exists we need to point it's next to nil
+	if l.back != nil {
+		l.back.next = nil
+	}
 
 	l.len--
 	return oldBack.Value(), true

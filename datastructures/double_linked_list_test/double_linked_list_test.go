@@ -300,6 +300,24 @@ var _ = Describe("Generic Double Linked List", func() {
 				Expect(prev).To(BeNil())
 			})
 		})
+		When("a value is removed from the back", func() {
+			var removedVal int
+			BeforeEach(func() {
+				removedVal, _ = uut.PopBack()
+			})
+			It("will remove the proper value", func() {
+				Expect(removedVal).To(Equal(firstFrontVal))
+			})
+			It("will have a length of 1", func() {
+				Expect(uut.Len()).To(Equal(1))
+			})
+			It("will reassign the new back nodes next pointer to nil", func() {
+				back, _ := uut.Back()
+				Expect(back).ToNot(BeNil())
+				next, _ := back.Next()
+				Expect(next).To(BeNil())
+			})
+		})
 	})
 })
 
