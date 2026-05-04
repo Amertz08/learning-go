@@ -32,7 +32,7 @@ type stackSliceImpl[T any] struct {
 	items []T
 }
 
-func NewStack[T any]() Stack[T] {
+func NewSliceStack[T any]() Stack[T] {
 	return &stackSliceImpl[T]{}
 }
 
@@ -67,28 +67,28 @@ func (s *stackSliceImpl[T]) Peek() (T, bool) {
 	return val, true
 }
 
-type stackLinkedListImpl[T any] struct {
+type linkedListStackImpl[T any] struct {
 	items LinkedList[T]
 }
 
-func NewStackLinkedList[T any]() Stack[T] {
-	return &stackLinkedListImpl[T]{items: NewLinkedList[T]()}
+func NewLinkedListStack[T any]() Stack[T] {
+	return &linkedListStackImpl[T]{items: NewLinkedList[T]()}
 }
 
-func (s *stackLinkedListImpl[T]) Len() int {
+func (s *linkedListStackImpl[T]) Len() int {
 	return s.items.Len()
 }
-func (s *stackLinkedListImpl[T]) IsEmpty() bool { return s.items.IsEmpty() }
+func (s *linkedListStackImpl[T]) IsEmpty() bool { return s.items.IsEmpty() }
 
-func (s *stackLinkedListImpl[T]) Push(value T) {
+func (s *linkedListStackImpl[T]) Push(value T) {
 	s.items.PushFront(value)
 }
 
-func (s *stackLinkedListImpl[T]) Pop() (T, bool) {
+func (s *linkedListStackImpl[T]) Pop() (T, bool) {
 	return s.items.PopFront()
 }
 
-func (s *stackLinkedListImpl[T]) Peek() (T, bool) {
+func (s *linkedListStackImpl[T]) Peek() (T, bool) {
 	node, ok := s.items.Front()
 	if !ok {
 		var val T

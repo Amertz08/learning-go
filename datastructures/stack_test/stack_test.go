@@ -16,12 +16,12 @@ func TestStack(t *testing.T) {
 var _ = Describe("Interacting with a stack", func() {
 	Describe("Slice based stack", func() {
 		StackBehaviorTests(func() datastructures.Stack[int] {
-			return datastructures.NewStack[int]()
+			return datastructures.NewSliceStack[int]()
 		})
 	})
 	Describe("Linked list based stack", func() {
 		StackBehaviorTests(func() datastructures.Stack[int] {
-			return datastructures.NewStackLinkedList[int]()
+			return datastructures.NewLinkedListStack[int]()
 		})
 	})
 })
