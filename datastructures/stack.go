@@ -30,27 +30,27 @@ type Stack[T any] interface {
 	IsEmpty() bool
 }
 
-type stackImp[T any] struct {
+type stackSliceImpl[T any] struct {
 	items []T
 }
 
 func NewStack[T any]() Stack[T] {
-	return &stackImp[T]{}
+	return &stackSliceImpl[T]{}
 }
 
-func (s *stackImp[T]) Len() int {
+func (s *stackSliceImpl[T]) Len() int {
 	return len(s.items)
 }
 
-func (s *stackImp[T]) Push(value T) {
+func (s *stackSliceImpl[T]) Push(value T) {
 	s.items = append(s.items, value)
 }
 
-func (s *stackImp[T]) IsEmpty() bool {
+func (s *stackSliceImpl[T]) IsEmpty() bool {
 	return len(s.items) == 0
 }
 
-func (s *stackImp[T]) Pop() (T, bool) {
+func (s *stackSliceImpl[T]) Pop() (T, bool) {
 	var val T
 	if s.IsEmpty() {
 		return val, false
@@ -60,7 +60,7 @@ func (s *stackImp[T]) Pop() (T, bool) {
 	return val, true
 }
 
-func (s *stackImp[T]) Peek() (T, bool) {
+func (s *stackSliceImpl[T]) Peek() (T, bool) {
 	var val T
 	if s.IsEmpty() {
 		return val, false
