@@ -13,10 +13,23 @@ func TestStack(t *testing.T) {
 	RunSpecs(t, "Stack Suite")
 }
 
-var _ = Describe("Stack", func() {
+var _ = Describe("Interacting with a stack", func() {
+	Describe("Slice based stack", func() {
+		StackBehaviorTests(func() datastructures.Stack[int] {
+			return datastructures.NewStack[int]()
+		})
+	})
+	Describe("Linked list based stack", func() {
+		StackBehaviorTests(func() datastructures.Stack[int] {
+			return datastructures.NewStackLinkedList[int]()
+		})
+	})
+})
+
+func StackBehaviorTests(newStack func() datastructures.Stack[int]) {
 	var uut datastructures.Stack[int]
 	BeforeEach(func() {
-		uut = datastructures.NewStack[int]()
+		uut = newStack()
 	})
 	When("the stack is empty", func() {
 		It("should have a length of 0", func() {
@@ -102,4 +115,4 @@ var _ = Describe("Stack", func() {
 			Expect(val).To(Equal(firstValue))
 		})
 	})
-})
+}

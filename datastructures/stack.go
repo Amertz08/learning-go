@@ -7,8 +7,6 @@ Use cases for a stack
 - Undo/Redo operations
 - Expression evaluation (e.g., postfix notation i.e. , reverse polish notation)
 - Function call stack in programming languages
-
-TODO: could do a linked list implementation as well
 */
 
 type Stack[T any] interface {
@@ -80,16 +78,21 @@ func NewStackLinkedList[T any]() Stack[T] {
 func (s *stackLinkedListImpl[T]) Len() int {
 	return s.items.Len()
 }
+func (s *stackLinkedListImpl[T]) IsEmpty() bool { return s.items.IsEmpty() }
+
 func (s *stackLinkedListImpl[T]) Push(value T) {
-	panic("implement me")
+	s.items.PushFront(value)
 }
 
 func (s *stackLinkedListImpl[T]) Pop() (T, bool) {
-	panic("implement me")
+	return s.items.PopFront()
 }
 
 func (s *stackLinkedListImpl[T]) Peek() (T, bool) {
-	panic("implement me")
+	node, ok := s.items.Front()
+	if !ok {
+		var val T
+		return val, false
+	}
+	return node.Value(), true
 }
-
-func (s *stackLinkedListImpl[T]) IsEmpty() bool { return false }
