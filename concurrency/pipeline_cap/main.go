@@ -134,7 +134,7 @@ func FanOut(ctx context.Context, workers int, buffSize int, in <-chan int, pipeF
 func FanIn(ctx context.Context, inChans []<-chan int) <-chan int {
 	output := make(chan int)
 
-	// A wait group is needed here because we're creating the output channel in the scope of this function
+	// A wait group is needed here because we're creating the output channel in the scope of this function,
 	// and it needs to close the output channel when it's goroutines are done.
 	var wg sync.WaitGroup
 	for _, ch := range inChans {
