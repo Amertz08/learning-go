@@ -165,8 +165,18 @@ func (l *doubleLinkedListImpl[T]) PopBack() (value T, ok bool) {
 }
 
 func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T, ok bool) {
-	//TODO implement me
-	panic("implement me")
+	var zeroVal T
+
+	// Not really sure how you could get here on an empty list given
+	// there is no public method for creating a node. Have this JIC.
+	if l.IsEmpty() {
+		return zeroVal, false
+	}
+	if l.Len() == 1 {
+		return l.PopFront()
+	}
+	// TODO: rest of implementation
+	return zeroVal, false
 }
 
 func (l *doubleLinkedListImpl[T]) Front() (DoubleLinkedListNode[T], bool) {

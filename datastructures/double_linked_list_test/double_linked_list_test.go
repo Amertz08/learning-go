@@ -101,6 +101,12 @@ var _ = Describe("Generic Double Linked List", func() {
 			_, ok := front.Prev()
 			Expect(ok).To(BeFalse())
 		})
+		It("can remove the node", func() {
+			node, _ := uut.Front()
+			val, ok := uut.Remove(node)
+			Expect(ok).To(BeTrue())
+			Expect(val).To(Equal(initialVal))
+		})
 	})
 	When("a value is pushed to the back", func() {
 		var initialValue int
