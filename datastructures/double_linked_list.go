@@ -175,8 +175,19 @@ func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T,
 	if l.Len() == 1 {
 		return l.PopFront()
 	}
-	// TODO: rest of implementation
-	return zeroVal, false
+
+	// TODO tests
+	//prev, _ := node.Prev()
+	//p, _ := prev.(*doubleLinkedListNodeImpl[T])
+	//next, _ := node.Next()
+	//n, _ := next.(*doubleLinkedListNodeImpl[T])
+	//if p != nil {
+	//	p.next = n
+	//}
+	//if n != nil {
+	//	n.prev = p
+	//}
+	return node.Value(), false
 }
 
 func (l *doubleLinkedListImpl[T]) Front() (DoubleLinkedListNode[T], bool) {
