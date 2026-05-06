@@ -29,7 +29,7 @@ func main() {
 	initialInput := GenerateValues(ctx, 100)
 
 	// Pipeline starts here
-	squaredResults := FanIn(ctx, FanOut(ctx, 4, 0, initialInput, SquareValues))
+	squaredResults := FanIn(ctx, NewFanOut(ctx, 4, 0, initialInput, NewSquareValues))
 	out := PrintValues("printer1")(ctx, 100, squaredResults)
 
 	// TODO: pipeline after broadcast
@@ -78,6 +78,22 @@ func RunPipeLineFunc(
 	return output
 }
 
+func NewFanOut(
+	ctx context.Context,
+	workers, buffSize int,
+	inChan <-chan int,
+	pipeFunc NewPipelineFunc,
+) []<-chan int {
+	output := make([]<-chan int, workers)
+
+	// A wait group is not needed here as the pipeFunc will close the output channel when done
+	for i := 0; i < workers; i++ {
+		output[i] = RunPipeLineFunc(ctx, buffSize, pipeFunc, inChan)
+	}
+	return output
+
+}
+
 type PipeLineFuncConfig struct {
 	Func       PipeLineFunc
 	BufferSize int
@@ -101,6 +117,11 @@ func GenerateValues(ctx context.Context, buffSize int) <-chan int {
 	}()
 
 	return output
+}
+
+func NewSquareValues(ctx context.Context, input int) int {
+	time.Sleep(1 * time.Second)
+	return input * input
 }
 
 // SquareValues reads integers from the input channel, squares them, and sends the results to the output channel.
