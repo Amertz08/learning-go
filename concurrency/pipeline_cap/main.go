@@ -29,7 +29,7 @@ func main() {
 	initialInput := GenerateValues(ctx, 100)
 
 	// Pipeline starts here
-	squaredResults := FanIn(ctx, NewFanOut(ctx, 4, 0, initialInput, NewSquareValues))
+	squaredResults := FanIn(ctx, FanOut(ctx, 4, 0, initialInput, SquareValues))
 	out := PrintValues("printer1")(ctx, 100, squaredResults)
 
 	// TODO: pipeline after broadcast
@@ -78,7 +78,8 @@ func RunPipeLineFunc(
 	return output
 }
 
-func NewFanOut(
+// FanOut will kick off multiple workers to process the input channel with the given pipeline function
+func FanOut(
 	ctx context.Context,
 	workers, buffSize int,
 	inChan <-chan int,
@@ -119,33 +120,10 @@ func GenerateValues(ctx context.Context, buffSize int) <-chan int {
 	return output
 }
 
-func NewSquareValues(ctx context.Context, input int) int {
+// SquareValues just squares the input value
+func SquareValues(ctx context.Context, input int) int {
 	time.Sleep(1 * time.Second)
 	return input * input
-}
-
-// SquareValues reads integers from the input channel, squares them, and sends the results to the output channel.
-func SquareValues(ctx context.Context, buffSize int, input <-chan int) <-chan int {
-	output := make(chan int, buffSize)
-
-	go func() {
-		defer close(output)
-		for {
-			select {
-			case val, ok := <-input:
-				if !ok {
-					return
-				}
-				// Make this slower than the input to demonstrate pipeline bottlenecks
-				time.Sleep(1 * time.Second)
-				output <- val * val
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
-
-	return output
 }
 
 // PrintValues takes a name and returns a PipeLineFunc that logs channel values with the given name prefix.
@@ -167,23 +145,6 @@ func PrintValues(name string) PipeLineFunc {
 
 		return output
 	}
-}
-
-// FanOut will kick off multiple workers to process the input channel with the given pipeline function
-func FanOut(
-	ctx context.Context,
-	workers int,
-	buffSize int,
-	in <-chan int,
-	pipeFunc PipeLineFunc,
-) []<-chan int {
-	output := make([]<-chan int, workers)
-
-	// A wait group is not needed here as the pipeFunc will close the output channel when done
-	for i := 0; i < workers; i++ {
-		output[i] = pipeFunc(ctx, buffSize, in)
-	}
-	return output
 }
 
 // FanIn will combine multiple input channels into a single output channel
