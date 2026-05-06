@@ -86,6 +86,9 @@ func chunkConcurrentStreamLargeFile() {
 	//		Because if there is a remainder there is 1 more chunk left
 	//		I generated a 1GB file and thus no remainder
 	chunkCount := fileSize / buffSize
+	if fileSize%buffSize > 0 {
+		chunkCount++
+	}
 
 	var wg sync.WaitGroup
 	for i := int64(0); i < chunkCount; i++ {
