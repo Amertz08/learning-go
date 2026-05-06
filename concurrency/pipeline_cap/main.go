@@ -49,6 +49,35 @@ func main() {
 // PipeLineFunc represents a function that takes a context and an input channel and returns an output channel.
 type PipeLineFunc func(ctx context.Context, buffSize int, in <-chan int) <-chan int
 
+type NewPipelineFunc func(ctx context.Context, input int) int
+
+func RunPipeLineFunc(
+	ctx context.Context,
+	pipeFunc NewPipelineFunc,
+	buffSize int,
+	inputChan <-chan int,
+) <-chan int {
+	output := make(chan int, buffSize)
+
+	go func() {
+		defer close(output)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case val, ok := <-inputChan:
+				if !ok {
+					return
+				}
+				output <- pipeFunc(ctx, val)
+			}
+		}
+	}()
+
+	return output
+}
+
 type PipeLineFuncConfig struct {
 	Func       PipeLineFunc
 	BufferSize int
@@ -120,7 +149,13 @@ func PrintValues(name string) PipeLineFunc {
 }
 
 // FanOut will kick off multiple workers to process the input channel with the given pipeline function
-func FanOut(ctx context.Context, workers int, buffSize int, in <-chan int, pipeFunc PipeLineFunc) []<-chan int {
+func FanOut(
+	ctx context.Context,
+	workers int,
+	buffSize int,
+	in <-chan int,
+	pipeFunc PipeLineFunc,
+) []<-chan int {
 	output := make([]<-chan int, workers)
 
 	// A wait group is not needed here as the pipeFunc will close the output channel when done
@@ -161,7 +196,11 @@ func FanIn(ctx context.Context, inChans []<-chan int) <-chan int {
 }
 
 // Broadcast will multiplex a message from an input channel across many pipeline functions
-func Broadcast(ctx context.Context, inCh <-chan int, pipeLineFuncConfigs ...PipeLineFuncConfig) []<-chan int {
+func Broadcast(
+	ctx context.Context,
+	inCh <-chan int,
+	pipeLineFuncConfigs ...PipeLineFuncConfig,
+) []<-chan int {
 	newInputs := make([]chan int, len(pipeLineFuncConfigs))
 	outputChans := make([]<-chan int, len(pipeLineFuncConfigs))
 	// Make sure to close all input channels when done
