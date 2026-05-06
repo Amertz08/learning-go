@@ -30,7 +30,7 @@ func main() {
 
 	// Pipeline starts here
 	squaredResults := FanIn(ctx, FanOut(ctx, 4, 0, initialInput, SquareValues))
-	out := PrintValues("printer1")(ctx, 100, squaredResults)
+	out := RunPipeLineFunc(ctx, 100, NewPrintFunc("printer1"), squaredResults)
 
 	// TODO: pipeline after broadcast
 	confs := []PipeLineFuncConfig{
@@ -124,6 +124,13 @@ func GenerateValues(ctx context.Context, buffSize int) <-chan int {
 func SquareValues(ctx context.Context, input int) int {
 	time.Sleep(1 * time.Second)
 	return input * input
+}
+
+func NewPrintFunc(name string) NewPipelineFunc {
+	return func(ctx context.Context, input int) int {
+		fmt.Printf("%s: %d\n", name, input)
+		return input
+	}
 }
 
 // PrintValues takes a name and returns a PipeLineFunc that logs channel values with the given name prefix.
