@@ -53,8 +53,8 @@ type NewPipelineFunc func(ctx context.Context, input int) int
 
 func RunPipeLineFunc(
 	ctx context.Context,
-	pipeFunc NewPipelineFunc,
 	buffSize int,
+	pipeFunc NewPipelineFunc,
 	inputChan <-chan int,
 ) <-chan int {
 	output := make(chan int, buffSize)
