@@ -30,7 +30,7 @@ func main() {
 
 	// Pipeline starts here
 	squaredResults := FanIn(ctx, 0, FanOut(ctx, 4, 0, initialInput, SquareValues))
-	out := RunPipeLineFunc(ctx, 100, PrintValue("printer1"), squaredResults)
+	out := RunPipelineFunc(ctx, 100, PrintValue("printer1"), squaredResults)
 
 	// TODO: pipeline after broadcast
 	newConfs := []PipelineFuncConfig{
@@ -53,8 +53,8 @@ func main() {
 // PipelineFunc is a function that is the unit of work for any step in the pipeline
 type PipelineFunc func(ctx context.Context, input int) int
 
-// RunPipeLineFunc handles running PipelineFunc and the lifecycle of their output channel
-func RunPipeLineFunc(
+// RunPipelineFunc handles running PipelineFunc and the lifecycle of their output channel
+func RunPipelineFunc(
 	ctx context.Context,
 	buffSize int,
 	pipeFunc PipelineFunc,
@@ -92,7 +92,7 @@ func FanOut(
 
 	// A wait group is not needed here as the pipeFunc will close the output channel when done
 	for i := 0; i < workers; i++ {
-		output[i] = RunPipeLineFunc(ctx, buffSize, pipeFunc, inChan)
+		output[i] = RunPipelineFunc(ctx, buffSize, pipeFunc, inChan)
 	}
 	return output
 
@@ -202,7 +202,7 @@ func Broadcast(
 						newInputs[i] = make(chan int, cap(inCh))
 					}
 					newInputs[i] <- val
-					outputChans[i] = RunPipeLineFunc(ctx, conf.BufferSize, conf.Func, newInputs[i])
+					outputChans[i] = RunPipelineFunc(ctx, conf.BufferSize, conf.Func, newInputs[i])
 				}
 			case <-ctx.Done():
 				return
