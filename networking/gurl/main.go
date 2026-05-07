@@ -94,11 +94,8 @@ func main() {
 	}
 }
 
+// httpGet supports HTTP get requests with assorted options
 func httpGet(ctx context.Context, url string, opts getOptions) error {
-	/*
-		TODO
-			- can download as a file
-	*/
 	client := &http.Client{
 		Timeout: time.Duration(opts.timeout) * time.Second,
 	}
