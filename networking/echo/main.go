@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -80,6 +81,7 @@ func main() {
 func echoConn(conn net.Conn) error {
 	// Made sense to close here as this function is the unit of work for the connection
 	defer conn.Close()
+	time.Sleep(200 * time.Millisecond)
 
 	buff := make([]byte, 1024)
 	size, readErr := conn.Read(buff)
