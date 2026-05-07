@@ -27,7 +27,6 @@ const (
 	lookupCommand = "lookup"
 )
 
-// TODO: some type of validation
 type headerFlags map[string]string
 
 func (h *headerFlags) String() string {
