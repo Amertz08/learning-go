@@ -20,6 +20,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("encountered an error trying to connect: %s", err)
 		}
+		defer conn.Close()
 
 		if inputScanner.Scan() {
 			msg = inputScanner.Text()
@@ -32,7 +33,6 @@ func main() {
 		for responseScanner.Scan() {
 			fmt.Println(responseScanner.Text())
 		}
-		conn.Close()
 	}
 
 }
