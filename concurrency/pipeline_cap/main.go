@@ -40,6 +40,7 @@ func main() {
 
 	outs := Broadcast(ctx, out, newConfs...)
 
+	// block until drained
 	for _, o := range outs {
 		<-o
 	}
