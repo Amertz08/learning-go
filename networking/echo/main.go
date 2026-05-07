@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"sync"
@@ -14,6 +16,8 @@ func main() {
 
 	workerCount := 5
 	port := 8080
+
+	fmt.Printf("starting server on port %d\n", port)
 
 	server, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
@@ -36,6 +40,7 @@ func main() {
 					fmt.Println("connection error", connErr)
 					continue
 				}
+				fmt.Println("client connected")
 				connChan <- conn
 			}
 		}
@@ -56,6 +61,10 @@ func main() {
 						return
 					}
 					if readErr := echoConn(conn); readErr != nil {
+						if errors.Is(readErr, io.EOF) {
+							fmt.Println("client disconnected")
+							continue
+						}
 						fmt.Println("error reading connection", readErr)
 						continue
 					}
