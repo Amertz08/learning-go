@@ -55,7 +55,7 @@ func main() {
 			os.Exit(1)
 		}
 	default:
-		fmt.Println("invalid command", cmd)
+		fmt.Println("invalid command. expected get|lookup", cmd)
 		os.Exit(1)
 	}
 }
