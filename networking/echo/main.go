@@ -47,7 +47,6 @@ func main() {
 		go func(ctx context.Context) {
 			defer wg.Done()
 			for {
-				// TODO: this feels like we're going to have a busy loop.
 				select {
 				case <-ctx.Done():
 					return
