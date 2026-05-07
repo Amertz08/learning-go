@@ -42,11 +42,13 @@ func (h *headerFlags) Set(value string) error {
 	return nil
 }
 
+// TODO: concurrency and file output do not really make sense together
 type getOptions struct {
 	timeout      int
 	headers      headerFlags
 	maxRedirects int
 	fileName     string
+	concurrency  int
 }
 
 func main() {
@@ -61,6 +63,7 @@ func main() {
 		"sets max redirects: 0 will disable redirects",
 	)
 	getCmd.StringVar(&getOpts.fileName, "output", "", "downloads as file")
+	getCmd.IntVar(&getOpts.concurrency, "concurrency", 1, "number of concurrent requests")
 
 	lookupCmd := flag.NewFlagSet(lookupCommand, flag.ExitOnError)
 
@@ -77,10 +80,18 @@ func main() {
 	switch cmd {
 	case getCommand:
 		getCmd.Parse(os.Args[3:])
-		if err := httpGet(ctx, url, getOpts); err != nil {
-			fmt.Println("hit error", err)
-			os.Exit(1)
+		var wg sync.WaitGroup
+		for i := 0; i < getOpts.concurrency; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				if err := httpGet(ctx, url, getOpts); err != nil {
+					fmt.Println("hit error", err)
+					return
+				}
+			}()
 		}
+		wg.Wait()
 	case lookupCommand:
 		lookupCmd.Parse(os.Args[3:])
 		if err := lookupNet(ctx, url); err != nil {
