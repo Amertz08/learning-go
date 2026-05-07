@@ -225,11 +225,10 @@ func Consolidate(
 	go func() {
 		defer close(output)
 		for {
-			// This is to highlight how nil channels work. If an upstream channel is closed you will still read the
+			// This is to highlight how nil channels work. If an upstream channel is closed, you will still read the
 			// zero value for that channel and can cause an infinite loop given the channel is always ready.
-			// To combat this set the channel to nil and it will effectively remove it from the case statement.
-			// We then have to make sure we have some default case with an exit strategy in order to actually
-			// leave the loop.
+			// To combat this, set the channel to nil, and it will effectively remove it from the case statement.
+			// We then have to make sure we have some default case with an exit strategy to actually leave the loop.
 			select {
 			case <-ctx.Done():
 				return
@@ -249,7 +248,7 @@ func Consolidate(
 				if rightChan == nil && leftChan == nil {
 					return
 				}
-				// do something so if both channels close we're not in a busy loop
+				// do something, so if both channels close, we're not in a busy loop
 				time.Sleep(1 * time.Second)
 			}
 		}
