@@ -12,9 +12,12 @@ import (
 )
 
 func main() {
+	// create a context and listen for CTRL+C for cancellation
 	ctx := context.Background()
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
+
+	// Build server
 	server := http.NewServeMux()
 	server.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hello"))
@@ -35,7 +38,10 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		// block until main context is ended
 		<-ctx.Done()
+
+		// create a shutdown context with a timeout to begin graceful shutdown
 		shutdownCtx := context.Background()
 		shutdownCtx, cancel := context.WithTimeout(shutdownCtx, 10*time.Second)
 		defer cancel()
