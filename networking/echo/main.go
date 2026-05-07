@@ -25,17 +25,21 @@ func main() {
 	connChan := make(chan net.Conn)
 
 	// Start listening goroutine
-	// TODO: how does this goroutine end
-	go func() {
+	go func(ctx context.Context) {
 		for {
-			conn, connErr := server.Accept()
-			if connErr != nil {
-				fmt.Println("connection error", connErr)
-				continue
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				conn, connErr := server.Accept()
+				if connErr != nil {
+					fmt.Println("connection error", connErr)
+					continue
+				}
+				connChan <- conn
 			}
-			connChan <- conn
 		}
-	}()
+	}(ctx)
 
 	var wg sync.WaitGroup
 	for i := 0; i < workerCount; i++ {
