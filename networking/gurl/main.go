@@ -53,7 +53,7 @@ type getOptions struct {
 func main() {
 	getCmd := flag.NewFlagSet(getCommand, flag.ExitOnError)
 	getOpts := getOptions{}
-	getCmd.IntVar(&getOpts.timeout, "timeout", 0, "sets HTTP timeout")
+	getCmd.IntVar(&getOpts.timeout, "timeout", 0, "sets HTTP timeout in milliseconds")
 	getCmd.Var(&getOpts.headers, "header", "sets headers")
 	getCmd.IntVar(
 		&getOpts.maxRedirects,
@@ -96,8 +96,12 @@ func main() {
 
 // httpGet supports HTTP get requests with assorted options
 func httpGet(ctx context.Context, url string, opts getOptions) error {
+	/*
+		TODO:
+			- cookie support
+	*/
 	client := &http.Client{
-		Timeout: time.Duration(opts.timeout) * time.Second,
+		Timeout: time.Duration(opts.timeout) * time.Millisecond,
 	}
 	if opts.maxRedirects == 0 {
 		client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
