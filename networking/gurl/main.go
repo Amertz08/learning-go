@@ -18,7 +18,7 @@ import (
 /*
 	Purpose of this app is to learn the `net` package and some of it's sub packages as well as `flag`
 TODO
-	- Ability to send concurrent HTTP requests
+	- POST/PUT/PATCH/UPDATE
 	- Testing
 */
 
