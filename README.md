@@ -8,6 +8,7 @@ better exemplify the patterns and idioms that I learned later in my journey with
 - [Pipeline Capstone](concurrency/pipeline_cap/main.go)
 - [Data Structures](datastructures/)
 - [Remote Shell](networking/reverse_shell)
+- [gURL](networking/gurl)
 
 
 ## AI Stuff
