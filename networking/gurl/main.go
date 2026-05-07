@@ -42,13 +42,19 @@ func (h *headerFlags) Set(value string) error {
 	return nil
 }
 
-// TODO: concurrency and file output do not really make sense together
 type getOptions struct {
 	timeout      int
 	headers      headerFlags
 	maxRedirects int
 	fileName     string
 	concurrency  int
+}
+
+func (o *getOptions) Validate() error {
+	if o.fileName != "" && o.concurrency > 1 {
+		return errors.New("cannot have concurrency and file output")
+	}
+	return nil
 }
 
 func main() {
@@ -80,6 +86,12 @@ func main() {
 	switch cmd {
 	case getCommand:
 		getCmd.Parse(os.Args[3:])
+
+		if err := getOpts.Validate(); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
 		var wg sync.WaitGroup
 		for i := 0; i < getOpts.concurrency; i++ {
 			wg.Add(1)
