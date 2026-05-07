@@ -25,6 +25,7 @@ func main() {
 	connChan := make(chan net.Conn)
 
 	// Start listening goroutine
+	// TODO: how does this goroutine end
 	go func() {
 		for {
 			conn, connErr := server.Accept()
