@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 )
@@ -26,14 +27,32 @@ const (
 	lookupCommand = "lookup"
 )
 
+// TODO: some type of validation
+type headerFlags map[string]string
+
+func (h *headerFlags) String() string {
+	return fmt.Sprintf("%v", *h)
+}
+
+func (h *headerFlags) Set(value string) error {
+	kv := strings.SplitN(value, "=", 2)
+	if len(kv) != 2 {
+		return fmt.Errorf("invalid format, use key=value")
+	}
+	(*h)[kv[0]] = kv[1]
+	return nil
+}
+
 type getOptions struct {
 	timeout int
+	headers headerFlags
 }
 
 func main() {
 	getCmd := flag.NewFlagSet(getCommand, flag.ExitOnError)
 	getOpts := getOptions{}
 	getCmd.IntVar(&getOpts.timeout, "timeout", 0, "sets HTTP timeout")
+	getCmd.Var(&getOpts.headers, "header", "sets headers")
 
 	lookupCmd := flag.NewFlagSet(lookupCommand, flag.ExitOnError)
 
@@ -69,7 +88,6 @@ func main() {
 func httpGet(ctx context.Context, url string, opts getOptions) error {
 	/*
 		TODO
-			- header support
 			- can download as a file
 			- max redirects
 	*/
@@ -80,6 +98,9 @@ func httpGet(ctx context.Context, url string, opts getOptions) error {
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return errors.New("error creating request")
+	}
+	for k, v := range opts.headers {
+		req.Header.Set(k, v)
 	}
 
 	resp, err := client.Do(req)
