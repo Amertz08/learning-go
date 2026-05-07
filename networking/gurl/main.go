@@ -44,8 +44,9 @@ func (h *headerFlags) Set(value string) error {
 }
 
 type getOptions struct {
-	timeout int
-	headers headerFlags
+	timeout      int
+	headers      headerFlags
+	maxRedirects int
 }
 
 func main() {
@@ -53,6 +54,12 @@ func main() {
 	getOpts := getOptions{}
 	getCmd.IntVar(&getOpts.timeout, "timeout", 0, "sets HTTP timeout")
 	getCmd.Var(&getOpts.headers, "header", "sets headers")
+	getCmd.IntVar(
+		&getOpts.maxRedirects,
+		"max-redirects",
+		-1,
+		"sets max redirects: 0 will disable redirects",
+	)
 
 	lookupCmd := flag.NewFlagSet(lookupCommand, flag.ExitOnError)
 
@@ -89,10 +96,22 @@ func httpGet(ctx context.Context, url string, opts getOptions) error {
 	/*
 		TODO
 			- can download as a file
-			- max redirects
 	*/
 	client := &http.Client{
 		Timeout: time.Duration(opts.timeout) * time.Second,
+	}
+	if opts.maxRedirects == 0 {
+		client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}
+	}
+	if opts.maxRedirects > 0 {
+		client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+			if len(via) >= opts.maxRedirects { // Custom limit of 20
+				return errors.New(fmt.Sprintf("stopped after %d redirects", opts.maxRedirects))
+			}
+			return nil
+		}
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
