@@ -188,10 +188,13 @@ func lookupNet(ctx context.Context, url string) error {
 	var wg sync.WaitGroup
 	for _, addr := range addresses {
 		wg.Add(1)
+
 		go func(ctx context.Context, a string) {
 			defer wg.Done()
+
 			name, e := net.LookupAddr(a)
 			lookup := addrLookupResult{addr: a, names: name, err: e}
+
 			select {
 			case results <- lookup:
 			case <-ctx.Done():
@@ -199,7 +202,6 @@ func lookupNet(ctx context.Context, url string) error {
 			}
 			results <- lookup
 		}(ctx, addr)
-
 	}
 
 	go func() {
@@ -210,11 +212,13 @@ func lookupNet(ctx context.Context, url string) error {
 	for r := range results {
 		fmt.Println(r)
 	}
+
 	cname, err := net.LookupCNAME(url)
 	if err != nil {
 		return errors.New("failed CNAME lookup")
 	}
 	fmt.Println(cname)
+
 	txt, err := net.LookupTXT(url)
 	if err != nil {
 		fmt.Println(err)
