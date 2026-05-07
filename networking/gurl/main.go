@@ -15,21 +15,27 @@ import (
 )
 
 /*
+	Purpose of this app is to learn the `net` package and some of it's sub packages as well as `flag`
 TODO
 	- Ability to send concurrent HTTP requests
 	- Testing
 */
+
+const (
+	getCommand    = "get"
+	lookupCommand = "lookup"
+)
 
 type getOptions struct {
 	timeout int
 }
 
 func main() {
-	getCmd := flag.NewFlagSet("get", flag.ExitOnError)
+	getCmd := flag.NewFlagSet(getCommand, flag.ExitOnError)
 	getOpts := getOptions{}
 	getCmd.IntVar(&getOpts.timeout, "timeout", 0, "sets HTTP timeout")
 
-	lookupCmd := flag.NewFlagSet("lookup", flag.ExitOnError)
+	lookupCmd := flag.NewFlagSet(lookupCommand, flag.ExitOnError)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -42,13 +48,13 @@ func main() {
 	url := os.Args[2]
 
 	switch cmd {
-	case "get":
+	case getCommand:
 		getCmd.Parse(os.Args[3:])
 		if err := httpGet(ctx, url, getOpts); err != nil {
 			fmt.Println("hit error", err)
 			os.Exit(1)
 		}
-	case "lookup":
+	case lookupCommand:
 		lookupCmd.Parse(os.Args[3:])
 		if err := lookupNet(ctx, url); err != nil {
 			fmt.Println("lookup error", err)
