@@ -97,10 +97,27 @@ func main() {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				if err := httpGet(ctx, url, getOpts); err != nil {
+
+				data, err := httpGet(ctx, url, getOpts)
+				if err != nil {
 					fmt.Println("hit error", err)
 					return
 				}
+				if getOpts.fileName != "" {
+					f, err := os.Open(getOpts.fileName)
+					if err != nil {
+						fmt.Printf("error opening file: %s\n", getOpts.fileName)
+						os.Exit(1)
+					}
+					defer f.Close()
+
+					_, err = f.Write(data)
+					if err != nil {
+						fmt.Printf("error writing file: %s\n", getOpts.fileName)
+						os.Exit(1)
+					}
+				}
+				fmt.Println(string(data))
 			}()
 		}
 		wg.Wait()
@@ -117,7 +134,7 @@ func main() {
 }
 
 // httpGet supports HTTP get requests with assorted options
-func httpGet(ctx context.Context, url string, opts getOptions) error {
+func httpGet(ctx context.Context, url string, opts getOptions) ([]byte, error) {
 	/*
 		TODO:
 			- cookie support
@@ -141,7 +158,7 @@ func httpGet(ctx context.Context, url string, opts getOptions) error {
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
-		return errors.New("error creating request")
+		return nil, errors.New("error creating request")
 	}
 	for k, v := range opts.headers {
 		req.Header.Set(k, v)
@@ -149,29 +166,15 @@ func httpGet(ctx context.Context, url string, opts getOptions) error {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return errors.New("error sending request")
+		return nil, errors.New("error sending request")
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return errors.New("error reading response body")
+		return nil, errors.New("error reading response body")
 	}
-	if opts.fileName != "" {
-		f, err := os.Open(opts.fileName)
-		if err != nil {
-			return errors.New(fmt.Sprintf("error opening file: %s", opts.fileName))
-		}
-		defer f.Close()
-
-		_, err = f.Write(body)
-		if err != nil {
-			return errors.New(fmt.Sprintf("error writing file: %s", opts.fileName))
-		}
-	}
-	fmt.Println(string(body))
-
-	return nil
+	return body, nil
 }
 
 // lookupNet makes some calls in the root 'net' package
