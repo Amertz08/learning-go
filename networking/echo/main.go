@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"os"
@@ -8,6 +9,9 @@ import (
 )
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	workerCount := 5
 	port := 8080
 
@@ -18,36 +22,62 @@ func main() {
 	}
 	defer server.Close()
 
+	connChan := make(chan net.Conn)
+
+	// Start listening goroutine
+	go func() {
+		for {
+			conn, connErr := server.Accept()
+			if connErr != nil {
+				fmt.Println("connection error", connErr)
+				continue
+			}
+			connChan <- conn
+		}
+	}()
+
 	var wg sync.WaitGroup
 	for i := 0; i < workerCount; i++ {
 		wg.Add(1)
-		go func() {
-			// TODO: the way this is written goroutines will end after 'workerCount' errors.
-			// 		We want the goroutines to be a pool that operations on the connection and regardless
-			//		of outcome stay alive. I think we might need to move the accepting/closing of the connection
-			// 		into a different goroutine or back into the main goroutine and push the connections over a channel.
+		go func(ctx context.Context) {
 			defer wg.Done()
-			conn, threadErr := server.Accept()
-			if threadErr != nil {
-				fmt.Println("error establishing connection", err)
-				return
+			for {
+				// TODO: this feels like we're going to have a busy loop.
+				select {
+				case <-ctx.Done():
+					return
+				case conn, ok := <-connChan:
+					if !ok {
+						connChan = nil
+						return
+					}
+					if readErr := echoConn(conn); readErr != nil {
+						fmt.Println("error reading connection", readErr)
+						continue
+					}
+				}
 			}
-			defer conn.Close()
-
-			buff := make([]byte, 1024)
-			size, threadErr := conn.Read(buff)
-			if threadErr != nil {
-				fmt.Println("error reading buffer")
-				return
-			}
-			msg := buff[:size]
-			fmt.Printf("Got: %s\n", msg)
-
-			_, threadErr = conn.Write(buff)
-			if threadErr != nil {
-				fmt.Println("error writing back to client", err)
-				return
-			}
-		}()
+		}(ctx)
 	}
+
+	wg.Wait()
+}
+
+func echoConn(conn net.Conn) error {
+	defer conn.Close()
+
+	buff := make([]byte, 1024)
+	size, readErr := conn.Read(buff)
+	if readErr != nil {
+		return readErr
+	}
+
+	msg := buff[:size]
+	fmt.Printf("GOT: %s\n", msg)
+
+	_, writeErr := conn.Write(msg)
+	if writeErr != nil {
+		return writeErr
+	}
+	return nil
 }
