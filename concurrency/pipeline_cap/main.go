@@ -46,8 +46,10 @@ func main() {
 	}
 }
 
+// PipelineFunc is a function that is the unit of work for any step in the pipeline
 type PipelineFunc func(ctx context.Context, input int) int
 
+// RunPipeLineFunc handles running PipelineFunc and the lifecycle of their output channel
 func RunPipeLineFunc(
 	ctx context.Context,
 	buffSize int,
@@ -92,6 +94,7 @@ func FanOut(
 
 }
 
+// PipelineFuncConfig is used to configure functions executed by Broadcast
 type PipelineFuncConfig struct {
 	Func       PipelineFunc
 	BufferSize int
@@ -123,6 +126,7 @@ func SquareValues(ctx context.Context, input int) int {
 	return input * input
 }
 
+// PrintValue simply prints the value from the channel with a name prefix and passes the value along
 func PrintValue(name string) PipelineFunc {
 	return func(ctx context.Context, input int) int {
 		fmt.Printf("%s: %d\n", name, input)
