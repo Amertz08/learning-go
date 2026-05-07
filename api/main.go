@@ -19,6 +19,7 @@ func main() {
 
 	httpServer := newServer("localhost", "8080")
 
+	// start the web server
 	go func() {
 		fmt.Println("starting server")
 		if err := httpServer.ListenAndServe(); err != nil {
