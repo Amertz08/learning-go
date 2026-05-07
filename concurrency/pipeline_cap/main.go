@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"sync"
 	"time"
 )
@@ -28,7 +29,7 @@ func main() {
 	initialInput := GenerateValues(ctx, 100)
 
 	// Pipeline starts here
-	squaredResults := FanIn(ctx, FanOut(ctx, 4, 0, initialInput, SquareValues))
+	squaredResults := FanIn(ctx, 0, FanOut(ctx, 4, 0, initialInput, SquareValues))
 	out := RunPipeLineFunc(ctx, 100, PrintValue("printer1"), squaredResults)
 
 	// TODO: pipeline after broadcast
@@ -39,10 +40,14 @@ func main() {
 
 	outs := Broadcast(ctx, out, newConfs...)
 
+	// TODO: doesn't appear to be working
+	finalOut := Consolidate(ctx, 0, outs[0], outs[1], PrintValue("Final printer"))
+
 	// block until drained
 	for _, o := range outs {
 		<-o
 	}
+	<-finalOut
 }
 
 // PipelineFunc is a function that is the unit of work for any step in the pipeline
@@ -128,14 +133,16 @@ func SquareValues(ctx context.Context, input int) int {
 // PrintValue simply prints the value from the channel with a name prefix and passes the value along
 func PrintValue(name string) PipelineFunc {
 	return func(ctx context.Context, input int) int {
+		n := (rand.Intn(10) + 1) * 10
+		time.Sleep(time.Duration(n) * time.Millisecond)
 		fmt.Printf("%s: %d\n", name, input)
 		return input
 	}
 }
 
 // FanIn will combine multiple input channels into a single output channel
-func FanIn(ctx context.Context, inChans []<-chan int) <-chan int {
-	output := make(chan int)
+func FanIn(ctx context.Context, buffSize int, inChans []<-chan int) <-chan int {
+	output := make(chan int, buffSize)
 
 	// A wait group is needed here because we're creating the output channel in the scope of this function,
 	// and it needs to close the output channel when it's goroutines are done.
@@ -204,4 +211,43 @@ func Broadcast(
 	}()
 
 	return outputChans
+}
+
+// Consolidate will listen to 2 different channels and execute the same function across both
+func Consolidate(
+	ctx context.Context,
+	buffSize int,
+	leftChan <-chan int,
+	rightChan <-chan int,
+	pipeFunc PipelineFunc,
+) <-chan int {
+	output := make(chan int, buffSize)
+	go func() {
+		defer close(output)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case val, ok := <-leftChan:
+				if !ok {
+					leftChan = nil
+					break
+				}
+				output <- pipeFunc(ctx, val)
+			case val, ok := <-rightChan:
+				if !ok {
+					rightChan = nil
+					break
+				}
+				output <- pipeFunc(ctx, val)
+			default:
+				if rightChan == nil && leftChan == nil {
+					return
+				}
+				// do something so if both channels close we're not in a busy loop
+				time.Sleep(1 * time.Second)
+			}
+		}
+	}()
+	return output
 }
