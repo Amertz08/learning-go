@@ -47,6 +47,7 @@ type getOptions struct {
 	timeout      int
 	headers      headerFlags
 	maxRedirects int
+	fileName     string
 }
 
 func main() {
@@ -60,6 +61,7 @@ func main() {
 		-1,
 		"sets max redirects: 0 will disable redirects",
 	)
+	getCmd.StringVar(&getOpts.fileName, "output", "", "downloads as file")
 
 	lookupCmd := flag.NewFlagSet(lookupCommand, flag.ExitOnError)
 
@@ -131,6 +133,18 @@ func httpGet(ctx context.Context, url string, opts getOptions) error {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return errors.New("error reading response body")
+	}
+	if opts.fileName != "" {
+		f, err := os.Open(opts.fileName)
+		if err != nil {
+			return errors.New(fmt.Sprintf("error opening file: %s", opts.fileName))
+		}
+		defer f.Close()
+
+		_, err = f.Write(body)
+		if err != nil {
+			return errors.New(fmt.Sprintf("error writing file: %s", opts.fileName))
+		}
 	}
 	fmt.Println(string(body))
 
