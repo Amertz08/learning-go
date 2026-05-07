@@ -30,31 +30,28 @@ func main() {
 
 	// Pipeline starts here
 	squaredResults := FanIn(ctx, FanOut(ctx, 4, 0, initialInput, SquareValues))
-	out := RunPipeLineFunc(ctx, 100, NewPrintFunc("printer1"), squaredResults)
+	out := RunPipeLineFunc(ctx, 100, PrintValue("printer1"), squaredResults)
 
 	// TODO: pipeline after broadcast
-	confs := []PipeLineFuncConfig{
-		{PrintValues("printer2"), 0},
-		{PrintValues("printer3"), 0},
+	newConfs := []PipelineFuncConfig{
+		{PrintValue("printer2"), 0},
+		{PrintValue("printer3"), 0},
 	}
 
 	// TODO: not actually printing values
-	outs := Broadcast(ctx, out, confs...)
+	outs := Broadcast(ctx, out, newConfs...)
 
 	for _, o := range outs {
 		<-o
 	}
 }
 
-// PipeLineFunc represents a function that takes a context and an input channel and returns an output channel.
-type PipeLineFunc func(ctx context.Context, buffSize int, in <-chan int) <-chan int
-
-type NewPipelineFunc func(ctx context.Context, input int) int
+type PipelineFunc func(ctx context.Context, input int) int
 
 func RunPipeLineFunc(
 	ctx context.Context,
 	buffSize int,
-	pipeFunc NewPipelineFunc,
+	pipeFunc PipelineFunc,
 	inputChan <-chan int,
 ) <-chan int {
 	output := make(chan int, buffSize)
@@ -83,7 +80,7 @@ func FanOut(
 	ctx context.Context,
 	workers, buffSize int,
 	inChan <-chan int,
-	pipeFunc NewPipelineFunc,
+	pipeFunc PipelineFunc,
 ) []<-chan int {
 	output := make([]<-chan int, workers)
 
@@ -95,8 +92,8 @@ func FanOut(
 
 }
 
-type PipeLineFuncConfig struct {
-	Func       PipeLineFunc
+type PipelineFuncConfig struct {
+	Func       PipelineFunc
 	BufferSize int
 }
 
@@ -126,31 +123,10 @@ func SquareValues(ctx context.Context, input int) int {
 	return input * input
 }
 
-func NewPrintFunc(name string) NewPipelineFunc {
+func PrintValue(name string) PipelineFunc {
 	return func(ctx context.Context, input int) int {
 		fmt.Printf("%s: %d\n", name, input)
 		return input
-	}
-}
-
-// PrintValues takes a name and returns a PipeLineFunc that logs channel values with the given name prefix.
-func PrintValues(name string) PipeLineFunc {
-	return func(ctx context.Context, buffSize int, input <-chan int) <-chan int {
-		output := make(chan int, buffSize)
-
-		go func() {
-			defer close(output)
-			for val := range input {
-				select {
-				case <-ctx.Done():
-					return
-				default:
-					fmt.Printf("%s: %d\n", name, val)
-				}
-			}
-		}()
-
-		return output
 	}
 }
 
@@ -188,7 +164,7 @@ func FanIn(ctx context.Context, inChans []<-chan int) <-chan int {
 func Broadcast(
 	ctx context.Context,
 	inCh <-chan int,
-	pipeLineFuncConfigs ...PipeLineFuncConfig,
+	pipeLineFuncConfigs ...PipelineFuncConfig,
 ) []<-chan int {
 	newInputs := make([]chan int, len(pipeLineFuncConfigs))
 	outputChans := make([]<-chan int, len(pipeLineFuncConfigs))
@@ -216,7 +192,7 @@ func Broadcast(
 						newInputs[i] = make(chan int, cap(inCh))
 					}
 					newInputs[i] <- val
-					outputChans[i] = conf.Func(ctx, conf.BufferSize, newInputs[i])
+					outputChans[i] = RunPipeLineFunc(ctx, conf.BufferSize, conf.Func, newInputs[i])
 				}
 			case <-ctx.Done():
 				return
