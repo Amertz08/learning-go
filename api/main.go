@@ -17,15 +17,7 @@ func main() {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
-	// Build server
-	server := http.NewServeMux()
-	server.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("hello"))
-	}))
-	httpServer := &http.Server{
-		Addr:    net.JoinHostPort("localhost", "8080"),
-		Handler: server,
-	}
+	httpServer := newServer()
 
 	go func() {
 		fmt.Println("starting server")
@@ -50,4 +42,16 @@ func main() {
 		}
 	}()
 	wg.Wait()
+}
+
+func newServer() *http.Server {
+	server := http.NewServeMux()
+	server.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("hello"))
+	}))
+	httpServer := &http.Server{
+		Addr:    net.JoinHostPort("localhost", "8080"),
+		Handler: server,
+	}
+	return httpServer
 }
