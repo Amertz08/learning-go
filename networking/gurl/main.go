@@ -110,7 +110,7 @@ func httpGet(ctx context.Context, url string, opts getOptions) error {
 	}
 	if opts.maxRedirects > 0 {
 		client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-			if len(via) >= opts.maxRedirects { // Custom limit of 20
+			if len(via) >= opts.maxRedirects {
 				return errors.New(fmt.Sprintf("stopped after %d redirects", opts.maxRedirects))
 			}
 			return nil
