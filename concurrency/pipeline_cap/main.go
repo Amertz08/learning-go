@@ -38,7 +38,6 @@ func main() {
 		{PrintValue("printer3"), 0},
 	}
 
-	// TODO: not actually printing values
 	outs := Broadcast(ctx, out, newConfs...)
 
 	for _, o := range outs {
