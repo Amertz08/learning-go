@@ -46,6 +46,7 @@ func main() {
 		}
 	}(ctx)
 
+	// Server worker pool
 	var wg sync.WaitGroup
 	for i := 0; i < workerCount; i++ {
 		wg.Add(1)
@@ -77,6 +78,7 @@ func main() {
 }
 
 func echoConn(conn net.Conn) error {
+	// Made sense to close here as this function is the unit of work for the connection
 	defer conn.Close()
 
 	buff := make([]byte, 1024)
