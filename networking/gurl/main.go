@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"net"
@@ -10,45 +11,65 @@ import (
 	"os"
 	"regexp"
 	"sync"
+	"time"
 )
 
 /*
 TODO
-	- CLI interface
 	- Ability to send concurrent HTTP requests
 	- Testing
 */
 
+type getOptions struct {
+	timeout int
+}
+
 func main() {
+	getCmd := flag.NewFlagSet("get", flag.ExitOnError)
+	getOpts := getOptions{}
+	getCmd.IntVar(&getOpts.timeout, "timeout", 0, "sets HTTP timeout")
+
+	lookupCmd := flag.NewFlagSet("lookup", flag.ExitOnError)
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	fmt.Println(os.Args)
-	if len(os.Args) == 1 {
-		fmt.Println("no URL provided")
+	if len(os.Args) < 3 {
+		fmt.Println("expected get|lookup <url>")
 		os.Exit(1)
 	}
-	url := os.Args[1]
-	fmt.Println(url)
+	cmd := os.Args[1]
+	url := os.Args[2]
 
-	if !hasScheme(url) {
-		url = "http://" + url
-	}
-	if err := httpGet(ctx, url); err != nil {
-		fmt.Println("hit error", err)
+	switch cmd {
+	case "get":
+		getCmd.Parse(os.Args[3:])
+		if err := httpGet(ctx, url, getOpts); err != nil {
+			fmt.Println("hit error", err)
+			os.Exit(1)
+		}
+	case "lookup":
+		lookupCmd.Parse(os.Args[3:])
+		if err := lookupNet(ctx, url); err != nil {
+			fmt.Println("lookup error", err)
+			os.Exit(1)
+		}
+	default:
+		fmt.Println("invalid command", cmd)
 		os.Exit(1)
 	}
 }
 
-func httpGet(ctx context.Context, url string) error {
+func httpGet(ctx context.Context, url string, opts getOptions) error {
 	/*
 		TODO
 			- header support
 			- can download as a file
-			- timeout support
 			- max redirects
 	*/
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: time.Duration(opts.timeout) * time.Second,
+	}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
