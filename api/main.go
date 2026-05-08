@@ -48,9 +48,7 @@ func newServer(host, port string) *http.Server {
 		}
 		var data reqBody
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-			writeJSONResponse(w, http.StatusInternalServerError, map[string]string{
-				"error": "could not decode request",
-			})
+			writeErrorResponse(w, "could not decode request")
 			return
 		}
 		writeJSONResponse(w, http.StatusOK, data)
@@ -69,6 +67,12 @@ func writeJSONResponse(w http.ResponseWriter, status int, data any) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+}
+
+func writeErrorResponse(w http.ResponseWriter, message string) {
+	writeJSONResponse(w, http.StatusInternalServerError, map[string]string{
+		"error": message,
+	})
 }
 
 // gracefulShutDown handles graceful shutdown of the server
