@@ -37,9 +37,9 @@ func initContext() (context.Context, context.CancelFunc) {
 
 func newServer(host, port string) *http.Server {
 	mux := http.NewServeMux()
-	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hello"))
-	}))
+	})
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(host, port),
 		Handler: mux,
