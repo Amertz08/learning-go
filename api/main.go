@@ -27,10 +27,7 @@ func main() {
 		}
 	}()
 
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go gracefulShutDown(ctx, &wg, httpServer)
-	wg.Wait()
+	gracefulShutDown(ctx, httpServer)
 }
 
 func newServer(host, port string) *http.Server {
@@ -46,17 +43,24 @@ func newServer(host, port string) *http.Server {
 }
 
 // gracefulShutDown handles graceful shutdown of the server
-func gracefulShutDown(ctx context.Context, wg *sync.WaitGroup, server *http.Server) {
-	defer wg.Done()
+func gracefulShutDown(ctx context.Context, server *http.Server) {
+	var wg sync.WaitGroup
+	wg.Add(1)
 
-	// block until main context ends
-	<-ctx.Done()
+	go func() {
+		defer wg.Done()
 
-	// create a shutdown context with a timeout to begin graceful shutdown
-	shutdownCtx := context.Background()
-	shutdownCtx, cancel := context.WithTimeout(shutdownCtx, 10*time.Second)
-	defer cancel()
-	if err := server.Shutdown(shutdownCtx); err != nil {
-		fmt.Fprintf(os.Stderr, "error shutting down http server: %s\n", err)
-	}
+		// block until main context ends
+		<-ctx.Done()
+
+		// create a shutdown context with a timeout to begin graceful shutdown
+		shutdownCtx := context.Background()
+		shutdownCtx, cancel := context.WithTimeout(shutdownCtx, 10*time.Second)
+		defer cancel()
+		if err := server.Shutdown(shutdownCtx); err != nil {
+			fmt.Fprintf(os.Stderr, "error shutting down http server: %s\n", err)
+		}
+	}()
+
+	wg.Wait()
 }
