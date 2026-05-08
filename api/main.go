@@ -12,9 +12,7 @@ import (
 )
 
 func main() {
-	// create a context and listen for CTRL+C for cancellation
-	ctx := context.Background()
-	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
+	ctx, cancel := initContext()
 	defer cancel()
 
 	httpServer := newServer("localhost", "8080")
@@ -28,6 +26,13 @@ func main() {
 	}()
 
 	gracefulShutDown(ctx, httpServer)
+}
+
+// initContext creates a context and cancel function that listens for an interrupt signal
+func initContext() (context.Context, context.CancelFunc) {
+	ctx := context.Background()
+	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
+	return ctx, cancel
 }
 
 func newServer(host, port string) *http.Server {
