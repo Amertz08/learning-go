@@ -23,7 +23,7 @@ var _ = Describe("Interacting with API", func() {
 		server = newServer("localhost", "8080")
 	})
 	It("has valid request", func() {
-		request := newGETRequest("/", nil)
+		request := newRequest("GET", "/", nil, map[string]string{"a": "B"})
 		recorder := httptest.NewRecorder()
 
 		server.Handler.ServeHTTP(recorder, request)
@@ -32,33 +32,26 @@ var _ = Describe("Interacting with API", func() {
 		Expect(body).To(Equal("hello"))
 	})
 	It("try body request", func() {
-		request := newBodyRequest("POST", "/", nil)
+		request := newRequest("POST", "/", nil, nil)
 
 		Expect(request).ToNot(BeNil())
 	})
 	It("actual body", func() {
-		request := newBodyRequest("POST", "/", map[string]string{
-			"a": "b",
-		})
+		request := newRequest("POST", "/", map[string]string{"a": "b"}, nil)
 		Expect(request).ToNot(BeNil())
 	})
 })
 
-func newGETRequest(path string, params map[string]string) *http.Request {
-	request, _ := http.NewRequest("GET", path, nil)
-	q := request.URL.Query()
-	for k, v := range params {
-		q.Add(k, v)
-	}
-	request.URL.RawQuery = q.Encode()
-	return request
-}
-
-func newBodyRequest(method, path string, params map[string]string) *http.Request {
+func newRequest(method, path string, bodyParams, queryParams map[string]string) *http.Request {
 	form := url.Values{}
-	for k, v := range params {
+	for k, v := range bodyParams {
 		form.Add(k, v)
 	}
 	request, _ := http.NewRequest(method, path, strings.NewReader(form.Encode()))
+	q := request.URL.Query()
+	for k, v := range queryParams {
+		q.Add(k, v)
+	}
+	request.URL.RawQuery = q.Encode()
 	return request
 }
