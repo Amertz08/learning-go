@@ -48,19 +48,27 @@ func newServer(host, port string) *http.Server {
 		}
 		var data reqBody
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			writeJSONResponse(w, http.StatusInternalServerError, map[string]string{
+				"error": "could not decode request",
+			})
 			return
 		}
-		if err := json.NewEncoder(w).Encode(data); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
+		writeJSONResponse(w, http.StatusOK, data)
 	})
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(host, port),
 		Handler: mux,
 	}
 	return httpServer
+}
+
+func writeJSONResponse(w http.ResponseWriter, status int, data any) {
+	w.Header().Set("content-type", "application/json")
+	w.WriteHeader(status)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 // gracefulShutDown handles graceful shutdown of the server
