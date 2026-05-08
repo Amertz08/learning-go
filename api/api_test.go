@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -18,27 +19,33 @@ func TestAPI(t *testing.T) {
 
 var _ = Describe("Interacting with API", func() {
 	var server *http.Server
+	var recorder *httptest.ResponseRecorder
 
 	BeforeEach(func() {
 		server = newServer("localhost", "8080")
+		recorder = httptest.NewRecorder()
 	})
-	It("has valid request", func() {
-		request := newRequest("GET", "/", nil, map[string]string{"a": "B"})
-		recorder := httptest.NewRecorder()
+	Context("calling the sum endpoint", func() {
+		When("submitting a valid create request", func() {
+			It("can decode the response", func() {
+				request := newRequest("POST", "/sum", map[string]string{"a": "1", "b": "2"}, nil)
 
-		server.Handler.ServeHTTP(recorder, request)
+				server.Handler.ServeHTTP(recorder, request)
 
-		body := recorder.Body.String()
-		Expect(body).To(Equal("hello"))
-	})
-	It("try body request", func() {
-		request := newRequest("POST", "/", nil, nil)
+				type responseBody struct {
+					Sum int `json:"sum"`
+				}
+				var obs responseBody
+				json.NewDecoder(recorder.Body).Decode(&obs)
+				Expect(obs.Sum).To(Equal(3))
+			})
+		})
+		When("submitting an invalid create request", func() {
 
-		Expect(request).ToNot(BeNil())
-	})
-	It("actual body", func() {
-		request := newRequest("POST", "/", map[string]string{"a": "b"}, nil)
-		Expect(request).ToNot(BeNil())
+		})
+		When("server errors occur", func() {
+
+		})
 	})
 })
 

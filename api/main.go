@@ -41,17 +41,21 @@ func newServer(host, port string) *http.Server {
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hello"))
 	})
-	mux.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("POST /sum", func(w http.ResponseWriter, r *http.Request) {
 		type reqBody struct {
-			A string `json:"a"`
-			B string `json:"b"`
+			A int `json:"a"`
+			B int `json:"b"`
+		}
+		type responseBody struct {
+			Sum int `json:"sum"`
 		}
 		var data reqBody
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 			writeErrorResponse(w, "could not decode request")
 			return
 		}
-		writeJSONResponse(w, http.StatusOK, data)
+		resp := &responseBody{Sum: data.A + data.B}
+		writeJSONResponse(w, http.StatusOK, resp)
 	})
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(host, port),
