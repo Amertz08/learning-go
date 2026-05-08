@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
@@ -37,8 +38,23 @@ func initContext() (context.Context, context.CancelFunc) {
 
 func newServer(host, port string) *http.Server {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hello"))
+	})
+	mux.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
+		type reqBody struct {
+			A string `json:"a"`
+			B string `json:"b"`
+		}
+		var data reqBody
+		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if err := json.NewEncoder(w).Encode(data); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	})
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(host, port),
