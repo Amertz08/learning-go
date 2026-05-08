@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -27,8 +26,7 @@ var _ = Describe("Interacting with API", func() {
 
 		server.Handler.ServeHTTP(recorder, request)
 
-		body, err := io.ReadAll(recorder.Body)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(body).To(Equal([]byte("hello")))
+		body := recorder.Body.String()
+		Expect(body).To(Equal("hello"))
 	})
 })
