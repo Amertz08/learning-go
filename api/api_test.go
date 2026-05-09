@@ -12,6 +12,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.come/Amertz08/learning-go/api/internal/handlers"
 )
 
 func TestAPI(t *testing.T) {
@@ -82,17 +83,17 @@ var _ = Describe("Interacting with API", func() {
 		})
 	})
 	Context("calling the sum endpoint", func() {
-		var newSumRequest func(*SumRequest) *http.Request
+		var newSumRequest func(*handlers.SumRequest) *http.Request
 
 		BeforeEach(func() {
-			newSumRequest = func(d *SumRequest) *http.Request {
-				return newRequest[SumRequest]("POST", "/sum", d, nil)
+			newSumRequest = func(d *handlers.SumRequest) *http.Request {
+				return newRequest[handlers.SumRequest]("POST", "/sum", d, nil)
 			}
 		})
 
 		When("submitting a valid create request", func() {
 			It("will return 200", func() {
-				data := &SumRequest{A: new(int), B: new(int)}
+				data := &handlers.SumRequest{A: new(int), B: new(int)}
 				*data.A = 1
 				*data.B = 2
 				request := newSumRequest(data)
@@ -102,27 +103,27 @@ var _ = Describe("Interacting with API", func() {
 				Expect(recorder.Code).To(Equal(http.StatusOK))
 			})
 			It("will return the correct sum", func() {
-				data := &SumRequest{A: new(int), B: new(int)}
+				data := &handlers.SumRequest{A: new(int), B: new(int)}
 				*data.A = 1
 				*data.B = 2
 				request := newSumRequest(data)
 
 				server.Handler.ServeHTTP(recorder, request)
 
-				obs := decodeResponse[SumResponse](recorder.Body)
+				obs := decodeResponse[handlers.SumResponse](recorder.Body)
 				Expect(obs.Sum).To(Equal(3))
 			})
 		})
 		When("submitting an invalid create request", func() {
 			It("will return a 400", func() {
-				request := newSumRequest(&SumRequest{})
+				request := newSumRequest(&handlers.SumRequest{})
 
 				server.Handler.ServeHTTP(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
 			})
 			It("will return a message", func() {
-				request := newSumRequest(&SumRequest{})
+				request := newSumRequest(&handlers.SumRequest{})
 
 				server.Handler.ServeHTTP(recorder, request)
 
