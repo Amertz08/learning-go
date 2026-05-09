@@ -2,11 +2,20 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
 type ErrorResponse struct {
 	Error string `json:"error"`
+}
+
+func decodeRequest[T any](r *http.Request) (T, error) {
+	var data T
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		return data, fmt.Errorf("error decoding: %w", err)
+	}
+	return data, nil
 }
 
 func writeJSONResponse(w http.ResponseWriter, status int, data any) {

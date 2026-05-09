@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -49,12 +48,13 @@ func NewSumHandler(serv SumService) *SumHandler {
 }
 
 func (s *SumHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	var data SumRequest
+	data, err := decodeRequest[SumRequest](r)
 
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		writeServerErrorResponse(w, "could not decode request")
+	if err != nil {
+		writeServerErrorResponse(w, "cannot decode request")
 		return
 	}
+
 	if !data.Valid() {
 		writeClientErrorResponse(w, "missing parameters")
 		return
