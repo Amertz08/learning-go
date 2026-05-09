@@ -47,7 +47,7 @@ func NewSumHandler(serv SumService) *SumHandler {
 	}
 }
 
-func (s *SumHandler) Handle(w http.ResponseWriter, r *http.Request) {
+func (s *SumHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	data, err := decodeRequest[SumRequest](r)
 
 	if err != nil {

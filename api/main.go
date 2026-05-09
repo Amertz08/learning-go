@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.come/Amertz08/learning-go/api/internal/handlers"
+	"github.come/Amertz08/learning-go/api/internal/middleware"
 	"github.come/Amertz08/learning-go/api/internal/services"
 )
 
@@ -42,10 +43,11 @@ func initContext() (context.Context, context.CancelFunc) {
 func newServer(host, port string) *http.Server {
 	mux := http.NewServeMux()
 
-	sumHandler := handlers.NewSumHandler(services.Sum)
+	//sumHandler := handlers.NewSumHandler(services.Sum)
+	sumHandler := middleware.CoolMiddleware(handlers.NewSumHandler(services.Sum))
 
 	mux.HandleFunc("GET /", handlers.IndexHandler)
-	mux.HandleFunc("POST /sum", sumHandler.Handle)
+	mux.Handle("POST /sum", sumHandler)
 
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(host, port),
