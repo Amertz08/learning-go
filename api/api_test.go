@@ -29,7 +29,8 @@ var _ = Describe("Interacting with API", func() {
 	Context("calling the sum endpoint", func() {
 		When("submitting a valid create request", func() {
 			It("can decode the response", func() {
-				request := newRequest("POST", "/sum", map[string]int{"a": 1, "b": 2}, nil)
+				data := SumRequest{A: 1, B: 2}
+				request := newRequest[SumRequest]("POST", "/sum", &data, nil)
 
 				server.Handler.ServeHTTP(recorder, request)
 
@@ -49,17 +50,17 @@ var _ = Describe("Interacting with API", func() {
 
 // newRequest creates a request. If bodyParams provided it will encode as JSON. If queryParams provided
 // it will properly URL encode them.
-func newRequest(method, path string, bodyParams any, queryParams map[string]string) *http.Request {
+func newRequest[T any](method, path string, bodyParams *T, queryParams map[string]string) *http.Request {
 	GinkgoHelper()
-	var body io.Reader
+
+	var buff bytes.Buffer
 	if bodyParams != nil {
-		jsonData, err := json.Marshal(bodyParams)
-		if err != nil {
-			Fail(fmt.Sprintf("failed to marshall JSON %s\n", err))
+		if err := json.NewEncoder(&buff).Encode(bodyParams); err != nil {
+			Fail(fmt.Sprintf("failed to create new request %s\n", err))
 		}
-		body = bytes.NewBuffer(jsonData)
 	}
-	request, err := http.NewRequest(method, path, body)
+
+	request, err := http.NewRequest(method, path, &buff)
 	if err != nil {
 		Fail(fmt.Sprintf("failed to create new request %s\n", err))
 	}
