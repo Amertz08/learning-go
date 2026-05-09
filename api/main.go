@@ -42,7 +42,7 @@ func initContext() (context.Context, context.CancelFunc) {
 func newServer(host, port string) *http.Server {
 	mux := http.NewServeMux()
 
-	sumHandler := &handlers.SumHandler{Service: services.Sum}
+	sumHandler := handlers.NewSumHandler(services.Sum)
 
 	mux.HandleFunc("GET /", handlers.IndexHandler)
 	mux.HandleFunc("POST /sum", sumHandler.Handle)

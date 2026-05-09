@@ -40,6 +40,14 @@ type SumHandler struct {
 	Service func(int, int) int
 }
 
+type SumService func(int, int) int
+
+func NewSumHandler(serv SumService) *SumHandler {
+	return &SumHandler{
+		Service: serv,
+	}
+}
+
 func (s *SumHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	var data SumRequest
 
