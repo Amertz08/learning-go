@@ -37,6 +37,7 @@ func initContext() (context.Context, context.CancelFunc) {
 	return ctx, cancel
 }
 
+// newServer creates a new *[http.Server] to run
 func newServer(host, port string) *http.Server {
 	mux := http.NewServeMux()
 
