@@ -34,8 +34,7 @@ var _ = Describe("Interacting with API", func() {
 				server.Handler.ServeHTTP(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusOK))
-				var obs SumResponse
-				json.NewDecoder(recorder.Body).Decode(&obs)
+				obs := decodeResponse[SumResponse](recorder.Body)
 				Expect(obs.Sum).To(Equal(3))
 			})
 		})
@@ -73,4 +72,15 @@ func newRequest(method, path string, bodyParams any, queryParams map[string]stri
 	}
 	request.URL.RawQuery = q.Encode()
 	return request
+}
+
+// decodeResponse will JSON decode the response to the provided type or Fail the test
+func decodeResponse[T any](r io.Reader) *T {
+	GinkgoHelper()
+
+	var resp T
+	if err := json.NewDecoder(r).Decode(&resp); err != nil {
+		Fail("failed to decode response")
+	}
+	return &resp
 }
