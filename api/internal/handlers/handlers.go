@@ -37,7 +37,7 @@ type SumResponse struct {
 }
 
 type SumHandler struct {
-	Service func(int, int) int
+	Service SumService
 }
 
 type SumService func(int, int) int
