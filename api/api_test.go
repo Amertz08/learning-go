@@ -35,19 +35,25 @@ var _ = Describe("Interacting with API", func() {
 		})
 
 		When("no query parameters", func() {
-			It("will return just the string", func() {
+			It("will return 200", func() {
 				request := newIndexRequest(nil)
 
 				server.Handler.ServeHTTP(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusOK))
+			})
+			It("will return an empty response object", func() {
+				request := newIndexRequest(nil)
+
+				server.Handler.ServeHTTP(recorder, request)
+
 				obs := decodeResponse[IndexResponse](recorder.Body)
 				Expect(obs).ToNot(BeNil())
 				Expect(obs).To(Equal(&IndexResponse{Params: map[string][]string{}}))
 			})
 		})
 		When("query parameters provide", func() {
-			It("will return them", func() {
+			It("will return a 200", func() {
 				request := newIndexRequest(map[string]string{
 					"a": "123",
 					"b": "c",
@@ -56,6 +62,15 @@ var _ = Describe("Interacting with API", func() {
 				server.Handler.ServeHTTP(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusOK))
+			})
+			It("will return the parameters given", func() {
+				request := newIndexRequest(map[string]string{
+					"a": "123",
+					"b": "c",
+				})
+
+				server.Handler.ServeHTTP(recorder, request)
+
 				obs := decodeResponse[IndexResponse](recorder.Body)
 				Expect(obs).ToNot(BeNil())
 				Expect(obs).To(Equal(&IndexResponse{Params: map[string][]string{
