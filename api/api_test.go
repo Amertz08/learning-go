@@ -83,19 +83,25 @@ var _ = Describe("Interacting with API", func() {
 	})
 	Context("calling the sum endpoint", func() {
 		When("submitting a valid create request", func() {
-			It("can decode the response", func() {
+			It("will return 200", func() {
 				data := &SumRequest{A: 1, B: 2}
 				request := newRequest[SumRequest]("POST", "/sum", data, nil)
 
 				server.Handler.ServeHTTP(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusOK))
+			})
+			It("will return the correct sum", func() {
+				data := &SumRequest{A: 1, B: 2}
+				request := newRequest[SumRequest]("POST", "/sum", data, nil)
+
+				server.Handler.ServeHTTP(recorder, request)
+
 				obs := decodeResponse[SumResponse](recorder.Body)
 				Expect(obs.Sum).To(Equal(3))
 			})
 		})
 		When("submitting an invalid create request", func() {
-
 		})
 		When("server errors occur", func() {
 
