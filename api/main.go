@@ -36,6 +36,10 @@ func initContext() (context.Context, context.CancelFunc) {
 	return ctx, cancel
 }
 
+type IndexResponse struct {
+	Params map[string][]string `json:"params"`
+}
+
 type SumRequest struct {
 	A int `json:"a"`
 	B int `json:"b"`
@@ -48,7 +52,12 @@ type SumResponse struct {
 func newServer(host, port string) *http.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("hello"))
+		for k, v := range r.URL.Query() {
+			fmt.Println(k, v)
+		}
+		resp := &IndexResponse{Params: r.URL.Query()}
+
+		writeJSONResponse(w, http.StatusOK, resp)
 	})
 	mux.HandleFunc("POST /sum", func(w http.ResponseWriter, r *http.Request) {
 		var data SumRequest

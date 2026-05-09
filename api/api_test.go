@@ -26,6 +26,38 @@ var _ = Describe("Interacting with API", func() {
 		server = newServer("localhost", "8080")
 		recorder = httptest.NewRecorder()
 	})
+	Context("calling the index endpoint", func() {
+		When("no query parameters", func() {
+			It("will return just the string", func() {
+				request := newRequest[any]("GET", "/", nil, nil)
+
+				server.Handler.ServeHTTP(recorder, request)
+
+				Expect(recorder.Code).To(Equal(http.StatusOK))
+				obs := decodeResponse[IndexResponse](recorder.Body)
+				Expect(obs).ToNot(BeNil())
+				Expect(obs).To(Equal(&IndexResponse{Params: map[string][]string{}}))
+			})
+		})
+		When("query parameters provide", func() {
+			It("will return them", func() {
+				request := newRequest[any]("GET", "/", nil, map[string]string{
+					"a": "123",
+					"b": "c",
+				})
+
+				server.Handler.ServeHTTP(recorder, request)
+
+				Expect(recorder.Code).To(Equal(http.StatusOK))
+				obs := decodeResponse[IndexResponse](recorder.Body)
+				Expect(obs).ToNot(BeNil())
+				Expect(obs).To(Equal(&IndexResponse{Params: map[string][]string{
+					"a": {"123"},
+					"b": {"c"},
+				}}))
+			})
+		})
+	})
 	Context("calling the sum endpoint", func() {
 		When("submitting a valid create request", func() {
 			It("can decode the response", func() {
@@ -50,7 +82,11 @@ var _ = Describe("Interacting with API", func() {
 
 // newRequest creates a request. If bodyParams provided it will encode as JSON. If queryParams provided
 // it will properly URL encode them.
-func newRequest[T any](method, path string, bodyParams *T, queryParams map[string]string) *http.Request {
+func newRequest[T any](
+	method, path string,
+	bodyParams *T,
+	queryParams map[string]string,
+) *http.Request {
 	GinkgoHelper()
 
 	var buff bytes.Buffer
