@@ -49,9 +49,9 @@ var _ = Describe("Interacting with API", func() {
 
 				server.Handler.ServeHTTP(recorder, request)
 
-				obs := decodeResponse[IndexResponse](recorder.Body)
+				obs := decodeResponse[handlers.IndexResponse](recorder.Body)
 				Expect(obs).ToNot(BeNil())
-				Expect(obs).To(Equal(&IndexResponse{Params: url.Values{}}))
+				Expect(obs).To(Equal(&handlers.IndexResponse{Params: url.Values{}}))
 			})
 		})
 		When("query parameters provide", func() {
@@ -73,9 +73,9 @@ var _ = Describe("Interacting with API", func() {
 
 				server.Handler.ServeHTTP(recorder, request)
 
-				obs := decodeResponse[IndexResponse](recorder.Body)
+				obs := decodeResponse[handlers.IndexResponse](recorder.Body)
 				Expect(obs).ToNot(BeNil())
-				Expect(obs).To(Equal(&IndexResponse{Params: url.Values{
+				Expect(obs).To(Equal(&handlers.IndexResponse{Params: url.Values{
 					"a": {"123"},
 					"b": {"c"},
 				}}))
@@ -127,8 +127,8 @@ var _ = Describe("Interacting with API", func() {
 
 				server.Handler.ServeHTTP(recorder, request)
 
-				obs := decodeResponse[ErrorResponse](recorder.Body)
-				Expect(obs).To(Equal(&ErrorResponse{Error: "missing parameters"}))
+				obs := decodeResponse[handlers.ErrorResponse](recorder.Body)
+				Expect(obs).To(Equal(&handlers.ErrorResponse{Error: "missing parameters"}))
 			})
 		})
 		When("server errors occur", func() {

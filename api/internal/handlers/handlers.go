@@ -2,8 +2,23 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/url"
 )
+
+type IndexResponse struct {
+	Params url.Values `json:"params"`
+}
+
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	for k, v := range r.URL.Query() {
+		fmt.Println(k, v)
+	}
+	resp := &IndexResponse{Params: r.URL.Query()}
+
+	writeJSONResponse(w, http.StatusOK, resp)
+}
 
 type SumRequest struct {
 	A *int `json:"a"`

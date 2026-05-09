@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
@@ -38,51 +37,17 @@ func initContext() (context.Context, context.CancelFunc) {
 	return ctx, cancel
 }
 
-type IndexResponse struct {
-	Params map[string][]string `json:"params"`
-}
-
-type ErrorResponse struct {
-	Error string `json:"error"`
-}
-
 func newServer(host, port string) *http.Server {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		for k, v := range r.URL.Query() {
-			fmt.Println(k, v)
-		}
-		resp := &IndexResponse{Params: r.URL.Query()}
 
-		writeJSONResponse(w, http.StatusOK, resp)
-	})
+	mux.HandleFunc("GET /", handlers.IndexHandler)
 	mux.HandleFunc("POST /sum", handlers.SumHandler)
+
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(host, port),
 		Handler: mux,
 	}
 	return httpServer
-}
-
-func writeJSONResponse(w http.ResponseWriter, status int, data any) {
-	w.Header().Set("content-type", "application/json")
-	w.WriteHeader(status)
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		writeServerErrorResponse(w, "server error")
-		return
-	}
-}
-
-func writeClientErrorResponse(w http.ResponseWriter, message string) {
-	writeErrorResponse(w, http.StatusBadRequest, message)
-}
-
-func writeServerErrorResponse(w http.ResponseWriter, message string) {
-	writeErrorResponse(w, http.StatusInternalServerError, message)
-}
-
-func writeErrorResponse(w http.ResponseWriter, status int, message string) {
-	writeJSONResponse(w, status, &ErrorResponse{Error: message})
 }
 
 // gracefulShutDown handles graceful shutdown of the server
