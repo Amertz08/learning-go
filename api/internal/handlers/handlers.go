@@ -36,18 +36,21 @@ type SumResponse struct {
 	Sum int `json:"sum"`
 }
 
-func SumHandler(w http.ResponseWriter, r *http.Request) {
-	var data SumRequest
+// SumHandler uses a closure to dependency inject 'service' into it
+func SumHandler(service func(int, int) int) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var data SumRequest
 
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		writeServerErrorResponse(w, "could not decode request")
-		return
-	}
-	if !data.Valid() {
-		writeClientErrorResponse(w, "missing parameters")
-		return
-	}
+		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+			writeServerErrorResponse(w, "could not decode request")
+			return
+		}
+		if !data.Valid() {
+			writeClientErrorResponse(w, "missing parameters")
+			return
+		}
 
-	resp := &SumResponse{Sum: *data.A + *data.B}
-	writeJSONResponse(w, http.StatusOK, resp)
+		resp := &SumResponse{Sum: service(*data.A, *data.B)}
+		writeJSONResponse(w, http.StatusOK, resp)
+	}
 }

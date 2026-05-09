@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.come/Amertz08/learning-go/api/internal/handlers"
+	"github.come/Amertz08/learning-go/api/internal/services"
 )
 
 func main() {
@@ -42,7 +43,7 @@ func newServer(host, port string) *http.Server {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /", handlers.IndexHandler)
-	mux.HandleFunc("POST /sum", handlers.SumHandler)
+	mux.HandleFunc("POST /sum", handlers.SumHandler(services.Sum))
 
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(host, port),
