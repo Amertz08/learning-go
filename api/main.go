@@ -63,7 +63,7 @@ func newServer(host, port string) *http.Server {
 		var data SumRequest
 
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-			writeClientErrorResponse(w, "could not decode request")
+			writeErrorResponse(w, "could not decode request")
 			return
 		}
 		resp := &SumResponse{Sum: data.A + data.B}
