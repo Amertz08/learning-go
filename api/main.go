@@ -36,25 +36,28 @@ func initContext() (context.Context, context.CancelFunc) {
 	return ctx, cancel
 }
 
+type SumRequest struct {
+	A int `json:"a"`
+	B int `json:"b"`
+}
+
+type SumResponse struct {
+	Sum int `json:"sum"`
+}
+
 func newServer(host, port string) *http.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hello"))
 	})
 	mux.HandleFunc("POST /sum", func(w http.ResponseWriter, r *http.Request) {
-		type reqBody struct {
-			A int `json:"a"`
-			B int `json:"b"`
-		}
-		type responseBody struct {
-			Sum int `json:"sum"`
-		}
-		var data reqBody
+		var data SumRequest
+
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-			writeErrorResponse(w, "could not decode request")
+			writeClientErrorResponse(w, "could not decode request")
 			return
 		}
-		resp := &responseBody{Sum: data.A + data.B}
+		resp := &SumResponse{Sum: data.A + data.B}
 		writeJSONResponse(w, http.StatusOK, resp)
 	})
 	httpServer := &http.Server{
@@ -71,6 +74,12 @@ func writeJSONResponse(w http.ResponseWriter, status int, data any) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+}
+
+func writeClientErrorResponse(w http.ResponseWriter, message string) {
+	writeJSONResponse(w, http.StatusBadRequest, map[string]string{
+		"error": message,
+	})
 }
 
 func writeErrorResponse(w http.ResponseWriter, message string) {
