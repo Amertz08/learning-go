@@ -27,9 +27,16 @@ var _ = Describe("Interacting with API", func() {
 		recorder = httptest.NewRecorder()
 	})
 	Context("calling the index endpoint", func() {
+		var newIndexRequest func(map[string]string) *http.Request
+		BeforeEach(func() {
+			newIndexRequest = func(qp map[string]string) *http.Request {
+				return newRequest[any]("GET", "/", nil, qp)
+			}
+		})
+
 		When("no query parameters", func() {
 			It("will return just the string", func() {
-				request := newRequest[any]("GET", "/", nil, nil)
+				request := newIndexRequest(nil)
 
 				server.Handler.ServeHTTP(recorder, request)
 
@@ -41,7 +48,7 @@ var _ = Describe("Interacting with API", func() {
 		})
 		When("query parameters provide", func() {
 			It("will return them", func() {
-				request := newRequest[any]("GET", "/", nil, map[string]string{
+				request := newIndexRequest(map[string]string{
 					"a": "123",
 					"b": "c",
 				})
@@ -61,8 +68,8 @@ var _ = Describe("Interacting with API", func() {
 	Context("calling the sum endpoint", func() {
 		When("submitting a valid create request", func() {
 			It("can decode the response", func() {
-				data := SumRequest{A: 1, B: 2}
-				request := newRequest[SumRequest]("POST", "/sum", &data, nil)
+				data := &SumRequest{A: 1, B: 2}
+				request := newRequest[SumRequest]("POST", "/sum", data, nil)
 
 				server.Handler.ServeHTTP(recorder, request)
 
