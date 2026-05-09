@@ -1,11 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
-	"strings"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -28,14 +29,12 @@ var _ = Describe("Interacting with API", func() {
 	Context("calling the sum endpoint", func() {
 		When("submitting a valid create request", func() {
 			It("can decode the response", func() {
-				request := newRequest("POST", "/sum", map[string]string{"a": "1", "b": "2"}, nil)
+				request := newRequest("POST", "/sum", map[string]int{"a": 1, "b": 2}, nil)
 
 				server.Handler.ServeHTTP(recorder, request)
 
-				type responseBody struct {
-					Sum int `json:"sum"`
-				}
-				var obs responseBody
+				Expect(recorder.Code).To(Equal(http.StatusOK))
+				var obs SumResponse
 				json.NewDecoder(recorder.Body).Decode(&obs)
 				Expect(obs.Sum).To(Equal(3))
 			})
@@ -49,12 +48,25 @@ var _ = Describe("Interacting with API", func() {
 	})
 })
 
-func newRequest(method, path string, bodyParams, queryParams map[string]string) *http.Request {
-	form := url.Values{}
-	for k, v := range bodyParams {
-		form.Add(k, v)
+// newRequest creates a request. If bodyParams provided it will encode as JSON. If queryParams provided
+// it will properly URL encode them.
+func newRequest(method, path string, bodyParams any, queryParams map[string]string) *http.Request {
+	GinkgoHelper()
+	var body io.Reader
+	if bodyParams != nil {
+		jsonData, err := json.Marshal(bodyParams)
+		if err != nil {
+			Fail(fmt.Sprintf("failed to marshall JSON %s\n", err))
+		}
+		body = bytes.NewBuffer(jsonData)
 	}
-	request, _ := http.NewRequest(method, path, strings.NewReader(form.Encode()))
+	request, err := http.NewRequest(method, path, body)
+	if err != nil {
+		Fail(fmt.Sprintf("failed to create new request %s\n", err))
+	}
+	if bodyParams != nil {
+		request.Header.Set("Content-Type", "application/json")
+	}
 	q := request.URL.Query()
 	for k, v := range queryParams {
 		q.Add(k, v)
