@@ -41,12 +41,23 @@ type IndexResponse struct {
 }
 
 type SumRequest struct {
-	A int `json:"a"`
-	B int `json:"b"`
+	A *int `json:"a"`
+	B *int `json:"b"`
+}
+
+func (r *SumRequest) Valid() bool {
+	if r.A == nil || r.B == nil {
+		return false
+	}
+	return true
 }
 
 type SumResponse struct {
 	Sum int `json:"sum"`
+}
+
+type ErrorResponse struct {
+	Error string `json:"error"`
 }
 
 func newServer(host, port string) *http.Server {
@@ -63,10 +74,15 @@ func newServer(host, port string) *http.Server {
 		var data SumRequest
 
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-			writeErrorResponse(w, "could not decode request")
+			writeServerErrorResponse(w, "could not decode request")
 			return
 		}
-		resp := &SumResponse{Sum: data.A + data.B}
+		if !data.Valid() {
+			writeClientErrorResponse(w, "missing parameters")
+			return
+		}
+
+		resp := &SumResponse{Sum: *data.A + *data.B}
 		writeJSONResponse(w, http.StatusOK, resp)
 	})
 	httpServer := &http.Server{
@@ -80,21 +96,21 @@ func writeJSONResponse(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		writeServerErrorResponse(w, "server error")
 		return
 	}
 }
 
 func writeClientErrorResponse(w http.ResponseWriter, message string) {
-	writeJSONResponse(w, http.StatusBadRequest, map[string]string{
-		"error": message,
-	})
+	writeErrorResponse(w, http.StatusBadRequest, message)
 }
 
-func writeErrorResponse(w http.ResponseWriter, message string) {
-	writeJSONResponse(w, http.StatusInternalServerError, map[string]string{
-		"error": message,
-	})
+func writeServerErrorResponse(w http.ResponseWriter, message string) {
+	writeErrorResponse(w, http.StatusInternalServerError, message)
+}
+
+func writeErrorResponse(w http.ResponseWriter, status int, message string) {
+	writeJSONResponse(w, status, &ErrorResponse{Error: message})
 }
 
 // gracefulShutDown handles graceful shutdown of the server

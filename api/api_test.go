@@ -82,18 +82,30 @@ var _ = Describe("Interacting with API", func() {
 		})
 	})
 	Context("calling the sum endpoint", func() {
+		var newSumRequest func(*SumRequest) *http.Request
+
+		BeforeEach(func() {
+			newSumRequest = func(d *SumRequest) *http.Request {
+				return newRequest[SumRequest]("POST", "/sum", d, nil)
+			}
+		})
+
 		When("submitting a valid create request", func() {
 			It("will return 200", func() {
-				data := &SumRequest{A: 1, B: 2}
-				request := newRequest[SumRequest]("POST", "/sum", data, nil)
+				data := &SumRequest{A: new(int), B: new(int)}
+				*data.A = 1
+				*data.B = 2
+				request := newSumRequest(data)
 
 				server.Handler.ServeHTTP(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusOK))
 			})
 			It("will return the correct sum", func() {
-				data := &SumRequest{A: 1, B: 2}
-				request := newRequest[SumRequest]("POST", "/sum", data, nil)
+				data := &SumRequest{A: new(int), B: new(int)}
+				*data.A = 1
+				*data.B = 2
+				request := newSumRequest(data)
 
 				server.Handler.ServeHTTP(recorder, request)
 
@@ -102,6 +114,21 @@ var _ = Describe("Interacting with API", func() {
 			})
 		})
 		When("submitting an invalid create request", func() {
+			It("will return a 400", func() {
+				request := newSumRequest(&SumRequest{})
+
+				server.Handler.ServeHTTP(recorder, request)
+
+				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+			})
+			It("will return a message", func() {
+				request := newSumRequest(&SumRequest{})
+
+				server.Handler.ServeHTTP(recorder, request)
+
+				obs := decodeResponse[ErrorResponse](recorder.Body)
+				Expect(obs).To(Equal(&ErrorResponse{Error: "missing parameters"}))
+			})
 		})
 		When("server errors occur", func() {
 
