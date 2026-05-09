@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -27,9 +28,9 @@ var _ = Describe("Interacting with API", func() {
 		recorder = httptest.NewRecorder()
 	})
 	Context("calling the index endpoint", func() {
-		var newIndexRequest func(map[string]string) *http.Request
+		var newIndexRequest func(values url.Values) *http.Request
 		BeforeEach(func() {
-			newIndexRequest = func(qp map[string]string) *http.Request {
+			newIndexRequest = func(qp url.Values) *http.Request {
 				return newRequest[any]("GET", "/", nil, qp)
 			}
 		})
@@ -49,14 +50,14 @@ var _ = Describe("Interacting with API", func() {
 
 				obs := decodeResponse[IndexResponse](recorder.Body)
 				Expect(obs).ToNot(BeNil())
-				Expect(obs).To(Equal(&IndexResponse{Params: map[string][]string{}}))
+				Expect(obs).To(Equal(&IndexResponse{Params: url.Values{}}))
 			})
 		})
 		When("query parameters provide", func() {
 			It("will return a 200", func() {
-				request := newIndexRequest(map[string]string{
-					"a": "123",
-					"b": "c",
+				request := newIndexRequest(url.Values{
+					"a": {"123"},
+					"b": {"c"},
 				})
 
 				server.Handler.ServeHTTP(recorder, request)
@@ -64,16 +65,16 @@ var _ = Describe("Interacting with API", func() {
 				Expect(recorder.Code).To(Equal(http.StatusOK))
 			})
 			It("will return the parameters given", func() {
-				request := newIndexRequest(map[string]string{
-					"a": "123",
-					"b": "c",
+				request := newIndexRequest(url.Values{
+					"a": {"123"},
+					"b": {"c"},
 				})
 
 				server.Handler.ServeHTTP(recorder, request)
 
 				obs := decodeResponse[IndexResponse](recorder.Body)
 				Expect(obs).ToNot(BeNil())
-				Expect(obs).To(Equal(&IndexResponse{Params: map[string][]string{
+				Expect(obs).To(Equal(&IndexResponse{Params: url.Values{
 					"a": {"123"},
 					"b": {"c"},
 				}}))
@@ -107,7 +108,7 @@ var _ = Describe("Interacting with API", func() {
 func newRequest[T any](
 	method, path string,
 	bodyParams *T,
-	queryParams map[string]string,
+	queryParams url.Values,
 ) *http.Request {
 	GinkgoHelper()
 
@@ -126,8 +127,10 @@ func newRequest[T any](
 		request.Header.Set("Content-Type", "application/json")
 	}
 	q := request.URL.Query()
-	for k, v := range queryParams {
-		q.Add(k, v)
+	for k, valList := range queryParams {
+		for _, v := range valList {
+			q.Add(k, v)
+		}
 	}
 	request.URL.RawQuery = q.Encode()
 	return request
