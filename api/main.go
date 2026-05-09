@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -16,20 +16,21 @@ import (
 )
 
 func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	ctx, cancel := initContext()
 	defer cancel()
 
-	httpServer := newServer("localhost", "8080")
+	httpServer := newServer(logger, "localhost", "8080")
 
 	// start the web server
 	go func() {
-		fmt.Println("starting server")
+		logger.Info("starting server")
 		if err := httpServer.ListenAndServe(); err != nil {
-			fmt.Println("error running server", err)
+			logger.Error("error running server", err)
 		}
 	}()
 
-	gracefulShutDown(ctx, httpServer)
+	gracefulShutDown(ctx, logger, httpServer)
 }
 
 // initContext creates a context and cancel function that listens for an interrupt signal
@@ -40,13 +41,13 @@ func initContext() (context.Context, context.CancelFunc) {
 }
 
 // newServer creates a new *[http.Server] to run
-func newServer(host, port string) *http.Server {
+func newServer(logger *slog.Logger, host, port string) *http.Server {
 	mux := http.NewServeMux()
 
-	//sumHandler := handlers.NewSumHandler(services.Sum)
-	sumHandler := middleware.CoolMiddleware(handlers.NewSumHandler(services.Sum))
+	coolMiddleware := middleware.CoolMiddleware(logger)
+	sumHandler := coolMiddleware(handlers.NewSumHandler(logger, services.Sum))
 
-	mux.HandleFunc("GET /", handlers.IndexHandler)
+	mux.HandleFunc("GET /", handlers.IndexHandler(logger))
 	mux.Handle("POST /sum", sumHandler)
 
 	httpServer := &http.Server{
@@ -57,7 +58,7 @@ func newServer(host, port string) *http.Server {
 }
 
 // gracefulShutDown handles graceful shutdown of the server
-func gracefulShutDown(ctx context.Context, server *http.Server) {
+func gracefulShutDown(ctx context.Context, logger *slog.Logger, server *http.Server) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
@@ -72,7 +73,7 @@ func gracefulShutDown(ctx context.Context, server *http.Server) {
 		shutdownCtx, cancel := context.WithTimeout(shutdownCtx, 10*time.Second)
 		defer cancel()
 		if err := server.Shutdown(shutdownCtx); err != nil {
-			fmt.Fprintf(os.Stderr, "error shutting down http server: %s\n", err)
+			logger.Error("error shutting down http server: %s\n", err)
 		}
 	}()
 

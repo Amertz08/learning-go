@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 )
@@ -10,13 +11,17 @@ type IndexResponse struct {
 	Params url.Values `json:"params"`
 }
 
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	for k, v := range r.URL.Query() {
-		fmt.Println(k, v)
-	}
-	resp := &IndexResponse{Params: r.URL.Query()}
+func IndexHandler(logger *slog.Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		for k, v := range r.URL.Query() {
+			fmt.Println(k, v)
+		}
+		logger.Info("hit index")
 
-	writeJSONResponse(w, http.StatusOK, resp)
+		resp := &IndexResponse{Params: r.URL.Query()}
+
+		writeJSONResponse(w, http.StatusOK, resp)
+	}
 }
 
 type SumRequest struct {
@@ -36,14 +41,17 @@ type SumResponse struct {
 }
 
 type SumHandler struct {
+	logger *slog.Logger
+
 	Service SumService
 }
 
 type SumService func(int, int) int
 
-func NewSumHandler(serv SumService) *SumHandler {
+func NewSumHandler(logger *slog.Logger, serv SumService) *SumHandler {
 	return &SumHandler{
 		Service: serv,
+		logger:  logger,
 	}
 }
 
@@ -51,6 +59,7 @@ func (s *SumHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	data, err := decodeRequest[SumRequest](r)
 
 	if err != nil {
+		s.logger.Error("error decoding response")
 		writeServerErrorResponse(w, "cannot decode request")
 		return
 	}
