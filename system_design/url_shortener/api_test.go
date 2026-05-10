@@ -3,6 +3,7 @@ package url_shortener
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -93,6 +94,28 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
 			})
 		})
+		When("insertion error", func() {
+			It("returns a 500", func() {
+				request, _ := newShortenedRequest("blah")
+
+				store.CreateError = true
+
+				srv.Handler.ServeHTTP(recorder, request)
+
+				Expect(recorder.Code).To(Equal(http.StatusInternalServerError))
+			})
+			It("tells you there is a server error", func() {
+				request, _ := newShortenedRequest("blah")
+
+				store.CreateError = true
+
+				srv.Handler.ServeHTTP(recorder, request)
+
+				resp := decodeTestResponse[handlers.ErrorResponse](recorder.Body)
+				Expect(resp).To(Equal(&handlers.ErrorResponse{Error: "server error"}))
+			})
+
+		})
 	})
 })
 
@@ -121,10 +144,14 @@ func (f *FakeHasher) Encode(input string) string { return input + "+hello" }
 func (f *FakeHasher) Decode(input string) string { return "" }
 
 type FakeDataStore struct {
-	Data map[string]string
+	Data        map[string]string
+	CreateError bool
 }
 
 func (f *FakeDataStore) Create(shortened, original string) error {
+	if f.CreateError {
+		return errors.New("failed to create record")
+	}
 	f.Data[original] = shortened
 	return nil
 }
