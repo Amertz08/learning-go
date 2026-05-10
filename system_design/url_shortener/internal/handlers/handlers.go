@@ -40,7 +40,7 @@ func ShortenHandler(
 
 		encoded := hasher.Encode(data.URL)
 
-		_, err = store.CreateShortenRecord(encoded, data.URL)
+		_, err = store.CreateShortenedRecord(encoded, data.URL)
 		if err != nil {
 			logger.Error("could not save shortened link", slog.Any("error", err))
 			encodeServerErrorResponse(w)
@@ -142,7 +142,7 @@ type HashService interface {
 }
 
 type HashDataStore interface {
-	CreateShortenRecord(string, string) (*ShortenedRecord, error)
+	CreateShortenedRecord(string, string) (*ShortenedRecord, error)
 	Get(string) (*ShortenedRecord, bool)
 	CreateVisitRecord(int) (*VisitRecord, error)
 }
