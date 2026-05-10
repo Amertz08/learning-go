@@ -89,7 +89,13 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 			}
 		}
 
-		// TODO: write visit record
+		// TODO: use actual shorten ID
+		_, err := store.CreateVisitRecord(123)
+		if err != nil {
+			logger.Error("error creating visit", slog.Any("error", err))
+			encodeServerErrorResponse(w, "server error")
+			return
+		}
 
 		http.Redirect(w, r, redirectUrl, http.StatusFound)
 	}
@@ -136,6 +142,13 @@ type HashService interface {
 type HashDataStore interface {
 	Create(string, string) error
 	Get(string) (string, bool)
+	CreateVisitRecord(int) (*Visit, error)
+}
+
+type Visit struct {
+	Id        int
+	ShortId   int
+	CreatedAt time.Time
 }
 
 type HashCacheStore interface {
