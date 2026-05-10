@@ -157,6 +157,17 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			})
 		})
 	})
+	Context("visiting a shortened link", func() {
+		When("a valid link", func() {
+			It("returns a 302", func() {
+				request, _ := http.NewRequest("GET", "/v/abc", nil)
+
+				srv.Handler.ServeHTTP(recorder, request)
+
+				Expect(recorder.Code).To(Equal(http.StatusFound))
+			})
+		})
+	})
 })
 
 func decodeTestResponse[T any](b io.Reader) *T {

@@ -71,6 +71,14 @@ type ShortenedResponse struct {
 	URL string `json:"url"`
 }
 
+func VisitHandler(logger *slog.Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		hash := r.PathValue("short_hash")
+		logger.Info("visiting", slog.Any("hash", hash))
+		w.WriteHeader(http.StatusFound)
+	}
+}
+
 func decodeRequest[T any](r io.ReadCloser) (*T, error) {
 	if r == nil {
 		return nil, ErrEmptyRequest

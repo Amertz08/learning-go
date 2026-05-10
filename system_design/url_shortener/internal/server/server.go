@@ -16,8 +16,10 @@ func NewServer(
 	mux := &http.ServeMux{}
 
 	shortHandler := handlers.ShortenHandler(logger, hasher, store, cache)
+	visitHandler := handlers.VisitHandler(logger)
 
 	mux.HandleFunc("POST /shorten", shortHandler)
+	mux.HandleFunc("GET /v/{short_hash}", visitHandler)
 
 	server := &http.Server{
 		Handler: mux,
