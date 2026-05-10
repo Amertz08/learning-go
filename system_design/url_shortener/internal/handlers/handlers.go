@@ -8,7 +8,10 @@ import (
 	"time"
 )
 
-var ErrEmptyRequest = errors.New("empty request")
+var (
+	ErrEmptyRequest          = errors.New("empty request")
+	ErrCouldNotDecodeRequest = errors.New("could not decode request")
+)
 
 func ShortenHandler(
 	hasher HashService,
@@ -65,11 +68,11 @@ type ShortenedResponse struct {
 
 func decodeRequest[T any](r io.ReadCloser) (*T, error) {
 	if r == nil {
-		return nil, errors.New("empty request")
+		return nil, ErrEmptyRequest
 	}
 	var data T
 	if err := json.NewDecoder(r).Decode(&data); err != nil {
-		return nil, errors.New("could not decode request")
+		return nil, ErrCouldNotDecodeRequest
 	}
 	return &data, nil
 }
@@ -79,7 +82,7 @@ func encodeResponse(w http.ResponseWriter, status int, data any) {
 	w.WriteHeader(status)
 
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		encodeServerErrorResponse(w, "server error")
 		return
 	}
 }
