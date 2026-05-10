@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -90,7 +91,7 @@ type UserResponse struct {
 }
 
 type UserStore interface {
-	Create(string, string) (string, error)
+	Create(context.Context, string, string) (string, error)
 }
 
 type UserHandler struct {
@@ -116,7 +117,7 @@ func (h *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := h.userStore.Create(*data.First, *data.Last)
+	id, err := h.userStore.Create(r.Context(), *data.First, *data.Last)
 	if err != nil {
 		h.logger.Error("error creating user", slog.Any("error", err))
 		writeClientErrorResponse(w, "invalid user")
