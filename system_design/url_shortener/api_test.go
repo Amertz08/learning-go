@@ -166,6 +166,13 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 				Expect(recorder.Code).To(Equal(http.StatusFound))
 			})
+			It("sets the Location header", func() {
+				request, _ := http.NewRequest("GET", "/v/abc", nil)
+
+				srv.Handler.ServeHTTP(recorder, request)
+
+				Expect(recorder.Header().Get("Location")).To(Equal("http://example.com"))
+			})
 		})
 	})
 })

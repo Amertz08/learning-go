@@ -75,7 +75,7 @@ func VisitHandler(logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		hash := r.PathValue("short_hash")
 		logger.Info("visiting", slog.Any("hash", hash))
-		w.WriteHeader(http.StatusFound)
+		http.Redirect(w, r, "http://example.com", http.StatusFound)
 	}
 }
 
