@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -62,10 +63,10 @@ func encodeTestRequest[T any](data *T) io.ReadWriter {
 	return &b
 }
 
-func NewServer(hasher HashService, store HashDataStore) *http.Server {
+func NewServer(hasher HashService, store HashDataStore, cache HashCacheStore) *http.Server {
 	mux := &http.ServeMux{}
 
-	shortHandler := ShortenHandler(hasher, store)
+	shortHandler := ShortenHandler(hasher, store, cache)
 
 	mux.HandleFunc("POST /shorten", shortHandler)
 
@@ -99,7 +100,20 @@ func (f *FakeDataStore) Create(shortened, original string) error {
 	return nil
 }
 
-func ShortenHandler(hasher HashService, store HashDataStore) http.HandlerFunc {
+type HashCacheStore interface {
+	Set(string, string, time.Duration) error
+}
+
+type FakeCacheStore struct {
+	Cache map[string]string
+}
+
+func (f *FakeCacheStore) Set(key, value string, expiration time.Duration) error {
+	f.Cache[key] = value
+	return nil
+}
+
+func ShortenHandler(hasher HashService, store HashDataStore, cache HashCacheStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data, err := decodeRequest[ShortenRequest](r.Body)
 
@@ -107,11 +121,14 @@ func ShortenHandler(hasher HashService, store HashDataStore) http.HandlerFunc {
 			encodeResponse(w, http.StatusInternalServerError, nil)
 			return
 		}
-		// TODO: generate hash, upsert, cache value, return value
 		encoded := hasher.Encode(data.URL)
 
 		if err = store.Create(encoded, data.URL); err != nil {
 			encodeResponse(w, http.StatusBadRequest, nil)
+		}
+
+		if err = cache.Set(data.URL, encoded, 30*time.Minute); err != nil {
+			encodeResponse(w, http.StatusInternalServerError, nil)
 		}
 
 		encodeResponse(w, http.StatusOK, &ShortenedResponse{URL: encoded})
@@ -123,12 +140,14 @@ var _ = Describe("Interacting with URL shortener API", func() {
 	var recorder *httptest.ResponseRecorder
 	var hasher *FakeHasher
 	var store *FakeDataStore
+	var cache *FakeCacheStore
 
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
 		store = &FakeDataStore{Data: make(map[string]string)}
 		hasher = &FakeHasher{}
-		srv = NewServer(hasher, store)
+		cache = &FakeCacheStore{Cache: make(map[string]string)}
+		srv = NewServer(hasher, store, cache)
 	})
 	When("creating a shortened link", func() {
 		It("returns a 200", func() {
@@ -154,6 +173,14 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 			encoded := hasher.Encode(data.URL)
 			Expect(store.Data[data.URL]).To(Equal(encoded))
+		})
+		It("caches the value", func() {
+			request, data := newShortenedRequest("blah")
+
+			srv.Handler.ServeHTTP(recorder, request)
+
+			encoded := hasher.Encode(data.URL)
+			Expect(cache.Cache[data.URL]).To(Equal(encoded))
 		})
 	})
 })
