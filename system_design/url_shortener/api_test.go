@@ -83,7 +83,7 @@ type HashService interface {
 type FakeHasher struct {
 }
 
-func (f *FakeHasher) Encode(input string) string { return "" }
+func (f *FakeHasher) Encode(input string) string { return input + "+hello" }
 func (f *FakeHasher) Decode(input string) string { return "" }
 
 func ShortenHandler(hasher HashService) http.HandlerFunc {
@@ -95,8 +95,9 @@ func ShortenHandler(hasher HashService) http.HandlerFunc {
 			return
 		}
 		// TODO: generate hash, upsert, cache value, return value
+		encoded := hasher.Encode(data.URL)
 
-		encodeResponse(w, http.StatusOK, &ShortenedResponse{URL: data.URL})
+		encodeResponse(w, http.StatusOK, &ShortenedResponse{URL: encoded})
 	}
 }
 
@@ -127,7 +128,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			srv.Handler.ServeHTTP(recorder, request)
 
 			resp := decodeTestResponse[ShortenedResponse](recorder.Body)
-			Expect(resp.URL).To(Equal("blah"))
+			Expect(resp.URL).To(Equal("blah+hello"))
 		})
 	})
 })
