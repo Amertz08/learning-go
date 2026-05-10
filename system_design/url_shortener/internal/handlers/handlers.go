@@ -150,6 +150,7 @@ type ShortenedRecord struct {
 	Id        int
 	Encoded   string
 	TargetURL string
+	CreatedAt time.Time
 }
 
 type VisitRecord struct {
