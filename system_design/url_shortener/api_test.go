@@ -53,6 +53,15 @@ func decodeTestResponse[T any](b io.Reader) *T {
 	return &v
 }
 
+func encodeTestRequest[T any](data *T) io.ReadWriter {
+	GinkgoHelper()
+	var b bytes.Buffer
+	if err := json.NewEncoder(&b).Encode(data); err != nil {
+		Fail(fmt.Sprintf("failed to encode request: %s", err))
+	}
+	return &b
+}
+
 func NewServer() *http.Server {
 	mux := &http.ServeMux{}
 
@@ -85,11 +94,8 @@ var _ = Describe("Interacting with URL shortner API", func() {
 	When("creating a shortened link", func() {
 		It("returns a 200", func() {
 			data := &ShortenRequest{URL: "blah"}
-			var b bytes.Buffer
-			if err := json.NewEncoder(&b).Encode(data); err != nil {
-				Fail("failed to encode data")
-			}
-			request, _ := http.NewRequest("POST", "/shorten", &b)
+			body := encodeTestRequest[ShortenRequest](data)
+			request, _ := http.NewRequest("POST", "/shorten", body)
 
 			srv.Handler.ServeHTTP(recorder, request)
 
@@ -98,11 +104,8 @@ var _ = Describe("Interacting with URL shortner API", func() {
 		})
 		It("returns the url", func() {
 			data := &ShortenRequest{URL: "blah"}
-			var b bytes.Buffer
-			if err := json.NewEncoder(&b).Encode(data); err != nil {
-				Fail("failed to encode data")
-			}
-			request, _ := http.NewRequest("POST", "/shorten", &b)
+			body := encodeTestRequest[ShortenRequest](data)
+			request, _ := http.NewRequest("POST", "/shorten", body)
 
 			srv.Handler.ServeHTTP(recorder, request)
 
