@@ -28,7 +28,7 @@ func main() {
 	go func() {
 		logger.Info("starting server")
 		if err := httpServer.ListenAndServe(); err != nil {
-			logger.Error("error running server", err)
+			logger.Error("error running server", slog.Any("error", err))
 		}
 	}()
 
@@ -75,7 +75,7 @@ func gracefulShutDown(ctx context.Context, logger *slog.Logger, server *http.Ser
 		shutdownCtx, cancel := context.WithTimeout(shutdownCtx, 10*time.Second)
 		defer cancel()
 		if err := server.Shutdown(shutdownCtx); err != nil {
-			logger.Error("error shutting down http server: %s\n", err)
+			logger.Error("error shutting down http server:", slog.Any("error", err))
 		}
 	}()
 

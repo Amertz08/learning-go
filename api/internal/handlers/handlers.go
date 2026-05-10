@@ -59,7 +59,7 @@ func (s *SumHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	data, err := decodeRequest[SumRequest](r)
 
 	if err != nil {
-		s.logger.Error("error decoding response")
+		s.logger.Error("error decoding response", slog.Any("error", err))
 		writeServerErrorResponse(w, "cannot decode request")
 		return
 	}
