@@ -143,12 +143,25 @@ var _ = Describe("Interacting with API", func() {
 	Context("creating a user", func() {
 		When("called with valid parameters", func() {
 			It("will return a 200", func() {
-				u := &handlers.User{First: "adam", Last: "mertz"}
-				request := newRequest[handlers.User]("POST", "/users", u, nil)
+				u := &handlers.UserRequest{First: new(string), Last: new(string)}
+				*u.First = "adam"
+				*u.Last = "mertz"
+
+				request := newRequest[handlers.UserRequest]("POST", "/users", u, nil)
 
 				uut(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusOK))
+			})
+		})
+		When("called with invalid parameters", func() {
+			It("will return a 400", func() {
+				u := &handlers.UserRequest{}
+				request := newRequest[handlers.UserRequest]("POST", "/users", u, nil)
+
+				uut(recorder, request)
+
+				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
 			})
 		})
 	})

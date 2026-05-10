@@ -73,9 +73,16 @@ func (s *SumHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, http.StatusOK, resp)
 }
 
-type User struct {
-	First string `json:"first"`
-	Last  string `json:"last"`
+type UserRequest struct {
+	First *string `json:"first"`
+	Last  *string `json:"last"`
+}
+
+func (u *UserRequest) Valid() bool {
+	if u.First == nil || u.Last == nil {
+		return false
+	}
+	return true
 }
 
 type UserHandler struct {
@@ -87,5 +94,18 @@ func NewUserHandler(logger *slog.Logger) http.Handler {
 }
 
 func (h *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	data, err := decodeRequest[UserRequest](r)
+
+	if err != nil {
+		h.logger.Error("error decoding request", slog.Any("error", err))
+		writeServerErrorResponse(w, "cannot decode request")
+		return
+	}
+
+	if !data.Valid() {
+		writeClientErrorResponse(w, "invalid request")
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
