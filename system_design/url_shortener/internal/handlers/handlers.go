@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"net/http"
 	"time"
 )
@@ -14,6 +15,7 @@ var (
 )
 
 func ShortenHandler(
+	logger *slog.Logger,
 	hasher HashService,
 	store HashDataStore,
 	cache HashCacheStore,
@@ -26,6 +28,7 @@ func ShortenHandler(
 				encodeClientErrorResponse(w, "invalid parameters")
 				return
 			}
+			logger.Error("could not decode request", slog.Any("error", err))
 			encodeServerErrorResponse(w, "server error")
 			return
 		}
@@ -38,11 +41,13 @@ func ShortenHandler(
 		encoded := hasher.Encode(data.URL)
 
 		if err = store.Create(encoded, data.URL); err != nil {
+			logger.Error("could not save shortened link", slog.Any("error", err))
 			encodeServerErrorResponse(w, "server error")
 			return
 		}
 
 		if err = cache.Set(data.URL, encoded, 30*time.Minute); err != nil {
+			logger.Error("could not cache value", slog.Any("error", err))
 			encodeServerErrorResponse(w, "server error")
 			return
 		}
