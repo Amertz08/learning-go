@@ -16,8 +16,7 @@ import (
 )
 
 func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
+	logger := initLogger()
 
 	ctx, cancel := initContext()
 	defer cancel()
@@ -33,6 +32,12 @@ func main() {
 	}()
 
 	gracefulShutDown(ctx, logger, httpServer)
+}
+
+func initLogger() *slog.Logger {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+	return logger
 }
 
 // initContext creates a context and cancel function that listens for an interrupt signal
