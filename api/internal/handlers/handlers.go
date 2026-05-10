@@ -48,7 +48,7 @@ type SumHandler struct {
 
 type SumService func(int, int) int
 
-func NewSumHandler(logger *slog.Logger, serv SumService) *SumHandler {
+func NewSumHandler(logger *slog.Logger, serv SumService) http.Handler {
 	return &SumHandler{
 		Service: serv,
 		logger:  logger,
@@ -71,4 +71,21 @@ func (s *SumHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	resp := &SumResponse{Sum: s.Service(*data.A, *data.B)}
 	writeJSONResponse(w, http.StatusOK, resp)
+}
+
+type User struct {
+	First string `json:"first"`
+	Last  string `json:"last"`
+}
+
+type UserHandler struct {
+	logger *slog.Logger
+}
+
+func NewUserHandler(logger *slog.Logger) http.Handler {
+	return &UserHandler{logger: logger}
+}
+
+func (h *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }

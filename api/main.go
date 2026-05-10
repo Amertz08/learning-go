@@ -60,11 +60,14 @@ func initContext() (context.Context, context.CancelFunc) {
 func newServer(logger *slog.Logger, host, port string) *http.Server {
 	mux := http.NewServeMux()
 
+	indexHandler := handlers.IndexHandler(logger)
 	coolMiddleware := middleware.CoolMiddleware(logger)
 	sumHandler := coolMiddleware(handlers.NewSumHandler(logger, services.Sum))
+	userHandler := handlers.NewUserHandler(logger)
 
-	mux.HandleFunc("GET /", handlers.IndexHandler(logger))
+	mux.HandleFunc("GET /", indexHandler)
 	mux.Handle("POST /sum", sumHandler)
+	mux.Handle("POST /users", userHandler)
 
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(host, port),

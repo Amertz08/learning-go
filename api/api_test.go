@@ -140,6 +140,18 @@ var _ = Describe("Interacting with API", func() {
 
 		})
 	})
+	Context("creating a user", func() {
+		When("called with valid parameters", func() {
+			It("will return a 200", func() {
+				u := &handlers.User{First: "adam", Last: "mertz"}
+				request := newRequest[handlers.User]("POST", "/users", u, nil)
+
+				uut(recorder, request)
+
+				Expect(recorder.Code).To(Equal(http.StatusOK))
+			})
+		})
+	})
 })
 
 // newRequest creates a request. If bodyParams provided it will encode as JSON. If queryParams provided
