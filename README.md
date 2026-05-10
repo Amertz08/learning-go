@@ -1,4 +1,4 @@
-# learning-go
+# Learning Go
 
 Captures examples of my focused learning in Go. A lot of this code is from assorted books, and exercises from early in the
 books may not use the best patterns which are introduced in later chapters. I say that to state that I would not take these
@@ -29,3 +29,6 @@ In the case of an API
 3. Have the Agent generate the test suite with the test and OpenAPI spec 
 4. Validate the correctness of the test suite
 5. Have the agent generate the implementation (disallow any changes to the test code)
+
+## To Read
+- [profiling programs](https://go.dev/blog/pprof)
