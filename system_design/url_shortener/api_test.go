@@ -28,11 +28,15 @@ func NewServer() *http.Server {
 }
 
 var _ = Describe("Interacting with URL shortner API", func() {
+	var recorder *httptest.ResponseRecorder
+
+	BeforeEach(func() {
+		recorder = httptest.NewRecorder()
+	})
 	When("creating a shortened link", func() {
 		It("returns a 200", func() {
 			srv := NewServer()
 			request, _ := http.NewRequest("POST", "/shorten", nil)
-			recorder := httptest.NewRecorder()
 
 			srv.Handler.ServeHTTP(recorder, request)
 
