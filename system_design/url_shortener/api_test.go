@@ -100,7 +100,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			It("returns a 500", func() {
 				request, _ := newShortenedRequest("blah")
 
-				store.CreateError = true
+				store.hasCreateError = true
 
 				srv.Handler.ServeHTTP(recorder, request)
 
@@ -109,7 +109,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			It("tells you there is a server error", func() {
 				request, _ := newShortenedRequest("blah")
 
-				store.CreateError = true
+				store.hasCreateError = true
 
 				srv.Handler.ServeHTTP(recorder, request)
 
@@ -121,7 +121,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			It("returns a 500", func() {
 				request, _ := newShortenedRequest("blah")
 
-				cache.SetError = true
+				cache.hasSetError = true
 
 				srv.Handler.ServeHTTP(recorder, request)
 
@@ -130,7 +130,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			It("tells you there is a server error", func() {
 				request, _ := newShortenedRequest("blah")
 
-				cache.SetError = true
+				cache.hasSetError = true
 
 				srv.Handler.ServeHTTP(recorder, request)
 
@@ -166,12 +166,12 @@ func (f *FakeHasher) Encode(input string) string { return input + "+hello" }
 func (f *FakeHasher) Decode(input string) string { return "" }
 
 type FakeDataStore struct {
-	Data        map[string]string
-	CreateError bool
+	Data           map[string]string
+	hasCreateError bool
 }
 
 func (f *FakeDataStore) Create(shortened, original string) error {
-	if f.CreateError {
+	if f.hasCreateError {
 		return errors.New("failed to create record")
 	}
 	f.Data[original] = shortened
@@ -179,12 +179,12 @@ func (f *FakeDataStore) Create(shortened, original string) error {
 }
 
 type FakeCacheStore struct {
-	Cache    map[string]string
-	SetError bool
+	Cache       map[string]string
+	hasSetError bool
 }
 
 func (f *FakeCacheStore) Set(key, value string, expiration time.Duration) error {
-	if f.SetError {
+	if f.hasSetError {
 		return errors.New("error setting cache")
 	}
 	f.Cache[key] = value
