@@ -197,6 +197,14 @@ var _ = Describe("Interacting with URL shortener API", func() {
 					Expect(recorder.Code).To(Equal(http.StatusFound))
 					Expect(recorder.Header().Get("Location")).To(Equal(targetURL))
 				})
+				It("will cache the value", func() {
+					request, _ := http.NewRequest("GET", "/v/"+targetHash, nil)
+
+					srv.Handler.ServeHTTP(recorder, request)
+
+					obs, _ := cache.Get(targetHash)
+					Expect(obs).To(Equal(targetURL))
+				})
 			})
 			It("returns a 404", func() {
 				request, _ := http.NewRequest("GET", "/v/abc", nil)

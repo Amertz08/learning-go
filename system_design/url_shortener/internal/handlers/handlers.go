@@ -77,13 +77,19 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 		logger.Info("visiting", slog.Any("hash", hash))
 		redirectUrl, ok := cache.Get(hash)
 		if !ok {
-			// TODO: db lookup, if found cache and redirect, else 404
 			redirectUrl, ok = store.Get(hash)
 			if !ok {
 				w.WriteHeader(http.StatusNotFound)
 				return
 			}
+			if err := cache.Set(hash, redirectUrl, 30*time.Minute); err != nil {
+				logger.Error("error setting the cache", slog.Any("error", err))
+				encodeServerErrorResponse(w, "server error")
+				return
+			}
 		}
+
+		// TODO: write visit record
 
 		http.Redirect(w, r, redirectUrl, http.StatusFound)
 	}
