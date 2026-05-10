@@ -132,9 +132,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 	})
 	When("creating a shortened link", func() {
 		It("returns a 200", func() {
-			data := &ShortenRequest{URL: "blah"}
-			body := encodeTestRequest[ShortenRequest](data)
-			request, _ := http.NewRequest("POST", "/shorten", body)
+			request, _ := newShortenedRequest("blah")
 
 			srv.Handler.ServeHTTP(recorder, request)
 
@@ -142,9 +140,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 		})
 		It("returns the url", func() {
-			data := &ShortenRequest{URL: "blah"}
-			body := encodeTestRequest[ShortenRequest](data)
-			request, _ := http.NewRequest("POST", "/shorten", body)
+			request, _ := newShortenedRequest("blah")
 
 			srv.Handler.ServeHTTP(recorder, request)
 
@@ -152,9 +148,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			Expect(resp.URL).To(Equal("blah+hello"))
 		})
 		It("stores the value in the database", func() {
-			data := &ShortenRequest{URL: "blah"}
-			body := encodeTestRequest[ShortenRequest](data)
-			request, _ := http.NewRequest("POST", "/shorten", body)
+			request, data := newShortenedRequest("blah")
 
 			srv.Handler.ServeHTTP(recorder, request)
 
@@ -163,3 +157,10 @@ var _ = Describe("Interacting with URL shortener API", func() {
 		})
 	})
 })
+
+func newShortenedRequest(url string) (*http.Request, *ShortenRequest) {
+	data := &ShortenRequest{URL: url}
+	body := encodeTestRequest[ShortenRequest](data)
+	request, _ := http.NewRequest("POST", "/shorten", body)
+	return request, data
+}
