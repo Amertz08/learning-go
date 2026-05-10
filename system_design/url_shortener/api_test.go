@@ -193,7 +193,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				BeforeEach(func() {
 					targetHash = "abc"
 					targetURL = "http://example.com"
-					store.Create(targetHash, targetURL)
+					store.CreateShortenRecord(targetHash, targetURL)
 				})
 
 				It("will redirect", func() {
@@ -254,12 +254,12 @@ type FakeDataStore struct {
 	Visits         map[int]*handlers.Visit
 }
 
-func (f *FakeDataStore) Create(shortened, original string) error {
+func (f *FakeDataStore) CreateShortenRecord(shortened, original string) (*handlers.ShortenedRecord, error) {
 	if f.hasCreateError {
-		return errors.New("failed to create record")
+		return nil, errors.New("failed to create record")
 	}
 	f.Data[shortened] = original
-	return nil
+	return nil, nil
 }
 
 func (f *FakeDataStore) Get(key string) (string, bool) {
