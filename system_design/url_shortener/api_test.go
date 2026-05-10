@@ -36,7 +36,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
-		store = &FakeDataStore{Data: make(map[string]string), Visits: make(map[int]*handlers.Visit)}
+		store = &FakeDataStore{Data: make(map[string]string), Visits: make(map[int]*handlers.VisitRecord)}
 		hasher = &FakeHasher{}
 		cache = &FakeCacheStore{Cache: make(map[string]string)}
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
@@ -251,7 +251,7 @@ func (f *FakeHasher) Decode(input string) string { return "" }
 type FakeDataStore struct {
 	Data           map[string]string
 	hasCreateError bool
-	Visits         map[int]*handlers.Visit
+	Visits         map[int]*handlers.VisitRecord
 }
 
 func (f *FakeDataStore) CreateShortenRecord(shortened, original string) (*handlers.ShortenedRecord, error) {
@@ -267,8 +267,8 @@ func (f *FakeDataStore) Get(key string) (string, bool) {
 	return val, ok
 }
 
-func (f *FakeDataStore) CreateVisitRecord(shortId int) (*handlers.Visit, error) {
-	v := &handlers.Visit{
+func (f *FakeDataStore) CreateVisitRecord(shortId int) (*handlers.VisitRecord, error) {
+	v := &handlers.VisitRecord{
 		Id:        1,
 		ShortId:   shortId,
 		CreatedAt: time.Now(),

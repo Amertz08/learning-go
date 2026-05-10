@@ -143,7 +143,7 @@ type HashService interface {
 type HashDataStore interface {
 	CreateShortenRecord(string, string) (*ShortenedRecord, error)
 	Get(string) (string, bool)
-	CreateVisitRecord(int) (*Visit, error)
+	CreateVisitRecord(int) (*VisitRecord, error)
 }
 
 type ShortenedRecord struct {
@@ -152,7 +152,7 @@ type ShortenedRecord struct {
 	TargetURL string
 }
 
-type Visit struct {
+type VisitRecord struct {
 	Id        int
 	ShortId   int
 	CreatedAt time.Time
