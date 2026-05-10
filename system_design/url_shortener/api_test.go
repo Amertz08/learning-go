@@ -159,19 +159,34 @@ var _ = Describe("Interacting with URL shortener API", func() {
 	})
 	Context("visiting a shortened link", func() {
 		When("a valid link", func() {
+			var targetHash, targetURL string
+			BeforeEach(func() {
+				targetHash = "abc"
+				targetURL = "http://example.com"
+				cache.Set(targetHash, targetURL, 1)
+			})
 			It("returns a 302", func() {
-				request, _ := http.NewRequest("GET", "/v/abc", nil)
+				request, _ := http.NewRequest("GET", "/v/"+targetHash, nil)
 
 				srv.Handler.ServeHTTP(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusFound))
 			})
 			It("sets the Location header", func() {
+				request, _ := http.NewRequest("GET", "/v/"+targetHash, nil)
+
+				srv.Handler.ServeHTTP(recorder, request)
+
+				Expect(recorder.Header().Get("Location")).To(Equal(targetURL))
+			})
+		})
+		When("a non existent link", func() {
+			It("returns a 404", func() {
 				request, _ := http.NewRequest("GET", "/v/abc", nil)
 
 				srv.Handler.ServeHTTP(recorder, request)
 
-				Expect(recorder.Header().Get("Location")).To(Equal("http://example.com"))
+				Expect(recorder.Code).To(Equal(http.StatusNotFound))
 			})
 		})
 	})
@@ -225,6 +240,11 @@ func (f *FakeCacheStore) Set(key, value string, expiration time.Duration) error 
 	}
 	f.Cache[key] = value
 	return nil
+}
+
+func (f *FakeCacheStore) Get(key string) (string, bool) {
+	val, ok := f.Cache[key]
+	return val, ok
 }
 
 func newShortenedRequest(url string) (*http.Request, *handlers.ShortenRequest) {
