@@ -1,31 +1,24 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"log/slog"
-	"net"
 	"net/http"
-	"os"
-	"os/signal"
-	"sync"
-	"time"
 
-	"github.come/Amertz08/learning-go/api/internal/handlers"
-	"github.come/Amertz08/learning-go/api/internal/middleware"
-	"github.come/Amertz08/learning-go/api/internal/services"
+	"github.come/Amertz08/learning-go/api/internal/server"
 	"github.come/Amertz08/learning-go/api/internal/store"
+	"github.come/Amertz08/learning-go/api/internal/util"
 )
 
 func main() {
-	logger := initLogger(slog.LevelInfo)
+	logger := util.InitLogger(slog.LevelInfo)
 
-	ctx, cancel := initContext()
+	ctx, cancel := util.InitContext()
 	defer cancel()
 
 	userStore := store.NewInMemoryUserStore()
 
-	httpServer := newServer(logger, "localhost", "8080", userStore)
+	httpServer := server.NewServer(logger, "localhost", "8080", userStore)
 
 	// start the web server
 	go func() {
@@ -39,65 +32,5 @@ func main() {
 		}
 	}()
 
-	gracefulShutDown(ctx, logger, httpServer)
-}
-
-// initLogger initializes a [slog.Logger]
-func initLogger(level slog.Level) *slog.Logger {
-	opts := slog.HandlerOptions{
-		Level: level,
-	}
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &opts))
-	slog.SetDefault(logger)
-	return logger
-}
-
-// initContext creates a context and cancel function that listens for an interrupt signal
-func initContext() (context.Context, context.CancelFunc) {
-	ctx := context.Background()
-	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
-	return ctx, cancel
-}
-
-// newServer creates a new *[http.Server] to run
-func newServer(logger *slog.Logger, host, port string, userStore handlers.UserStore) *http.Server {
-	mux := http.NewServeMux()
-
-	indexHandler := handlers.IndexHandler(logger)
-	coolMiddleware := middleware.CoolMiddleware(logger)
-	sumHandler := coolMiddleware(handlers.NewSumHandler(logger, services.Sum))
-	userHandler := handlers.NewUserHandler(logger, userStore)
-
-	mux.HandleFunc("GET /", indexHandler)
-	mux.Handle("POST /sum", sumHandler)
-	mux.Handle("POST /users", userHandler)
-
-	httpServer := &http.Server{
-		Addr:    net.JoinHostPort(host, port),
-		Handler: mux,
-	}
-	return httpServer
-}
-
-// gracefulShutDown handles graceful shutdown of the server
-func gracefulShutDown(ctx context.Context, logger *slog.Logger, server *http.Server) {
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	go func() {
-		defer wg.Done()
-
-		// block until main context ends
-		<-ctx.Done()
-
-		// create a shutdown context with a timeout to begin graceful shutdown
-		shutdownCtx := context.Background()
-		shutdownCtx, cancel := context.WithTimeout(shutdownCtx, 10*time.Second)
-		defer cancel()
-		if err := server.Shutdown(shutdownCtx); err != nil {
-			logger.Error("error shutting down http server:", slog.Any("error", err))
-		}
-	}()
-
-	wg.Wait()
+	server.GracefulShutdown(ctx, logger, httpServer)
 }

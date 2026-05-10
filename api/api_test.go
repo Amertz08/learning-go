@@ -14,7 +14,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.come/Amertz08/learning-go/api/internal/handlers"
+	"github.come/Amertz08/learning-go/api/internal/server"
 	"github.come/Amertz08/learning-go/api/internal/store"
+	"github.come/Amertz08/learning-go/api/internal/util"
 )
 
 func TestAPI(t *testing.T) {
@@ -23,17 +25,17 @@ func TestAPI(t *testing.T) {
 }
 
 var _ = Describe("Interacting with API", func() {
-	var server *http.Server
+	var svr *http.Server
 	var uut http.HandlerFunc
 	var recorder *httptest.ResponseRecorder
 	var logger *slog.Logger
 	var userStore *store.InMemoryUserStore
 
 	BeforeEach(func() {
-		logger = initLogger(slog.LevelError)
+		logger = util.InitLogger(slog.LevelError)
 		userStore = store.NewInMemoryUserStore()
-		server = newServer(logger, "localhost", "8080", userStore)
-		uut = server.Handler.ServeHTTP
+		svr = server.NewServer(logger, "localhost", "8080", userStore)
+		uut = svr.Handler.ServeHTTP
 		recorder = httptest.NewRecorder()
 	})
 	Context("calling the index endpoint", func() {
