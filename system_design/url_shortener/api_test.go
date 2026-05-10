@@ -24,6 +24,8 @@ func TestAPI(t *testing.T) {
 	RunSpecs(t, "API tests")
 }
 
+const DisableLogsLevel slog.Level = 20
+
 var _ = Describe("Interacting with URL shortener API", func() {
 	var srv *http.Server
 	var recorder *httptest.ResponseRecorder
@@ -38,7 +40,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 		hasher = &FakeHasher{}
 		cache = &FakeCacheStore{Cache: make(map[string]string)}
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-			Level: slog.LevelError,
+			Level: DisableLogsLevel,
 		}))
 
 		srv = server.NewServer(logger, hasher, store, cache)
@@ -114,7 +116,27 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				resp := decodeTestResponse[handlers.ErrorResponse](recorder.Body)
 				Expect(resp).To(Equal(&handlers.ErrorResponse{Error: "server error"}))
 			})
+		})
+		When("cache error", func() {
+			It("returns a 500", func() {
+				request, _ := newShortenedRequest("blah")
 
+				cache.SetError = true
+
+				srv.Handler.ServeHTTP(recorder, request)
+
+				Expect(recorder.Code).To(Equal(http.StatusInternalServerError))
+			})
+			It("tells you there is a server error", func() {
+				request, _ := newShortenedRequest("blah")
+
+				cache.SetError = true
+
+				srv.Handler.ServeHTTP(recorder, request)
+
+				resp := decodeTestResponse[handlers.ErrorResponse](recorder.Body)
+				Expect(resp).To(Equal(&handlers.ErrorResponse{Error: "server error"}))
+			})
 		})
 	})
 })
@@ -157,10 +179,14 @@ func (f *FakeDataStore) Create(shortened, original string) error {
 }
 
 type FakeCacheStore struct {
-	Cache map[string]string
+	Cache    map[string]string
+	SetError bool
 }
 
 func (f *FakeCacheStore) Set(key, value string, expiration time.Duration) error {
+	if f.SetError {
+		return errors.New("error setting cache")
+	}
 	f.Cache[key] = value
 	return nil
 }
