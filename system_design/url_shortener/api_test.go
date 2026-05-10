@@ -3,6 +3,7 @@ package url_shortener
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -23,6 +24,14 @@ type ShortenRequest struct {
 }
 type ShortenedResponse struct {
 	URL string `json:"url"`
+}
+
+func decodeRequest[T any](r io.ReadCloser) (*T, error) {
+	var data T
+	if err := json.NewDecoder(r).Decode(&data); err != nil {
+		return nil, errors.New("could not decode request")
+	}
+	return &data, nil
 }
 
 func encodeResponse(w http.ResponseWriter, status int, data any) {
@@ -48,8 +57,9 @@ func NewServer() *http.Server {
 	mux := &http.ServeMux{}
 
 	mux.HandleFunc("POST /shorten", func(w http.ResponseWriter, r *http.Request) {
-		var data ShortenRequest
-		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		data, err := decodeRequest[ShortenRequest](r.Body)
+
+		if err != nil {
 			encodeResponse(w, http.StatusInternalServerError, nil)
 			return
 		}
