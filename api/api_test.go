@@ -168,6 +168,9 @@ var _ = Describe("Interacting with API", func() {
 				_, ok := userStore.Data[*u.First+*u.Last]
 				Expect(ok).To(BeTrue())
 			})
+			It("will return the user id", func() {
+				// TODO: implement
+			})
 		})
 		When("called with invalid parameters", func() {
 			It("will return a 400", func() {
