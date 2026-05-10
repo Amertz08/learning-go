@@ -14,6 +14,8 @@ var (
 	ErrCouldNotDecodeRequest = errors.New("could not decode request")
 )
 
+// TODO: cache expiry via config
+
 func ShortenHandler(
 	logger *slog.Logger,
 	hasher HashService,
