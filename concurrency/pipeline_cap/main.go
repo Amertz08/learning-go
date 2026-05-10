@@ -16,7 +16,6 @@ import (
 	4. Broadcast results to multiple consumers
 
 	TODO
-		- nil channel example
 		- testing
 */
 
