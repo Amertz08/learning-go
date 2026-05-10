@@ -24,10 +24,12 @@ func ShortenHandler(
 
 		if err = store.Create(encoded, data.URL); err != nil {
 			encodeResponse(w, http.StatusBadRequest, nil)
+			return
 		}
 
 		if err = cache.Set(data.URL, encoded, 30*time.Minute); err != nil {
 			encodeResponse(w, http.StatusInternalServerError, nil)
+			return
 		}
 
 		encodeResponse(w, http.StatusOK, &ShortenedResponse{URL: encoded})
