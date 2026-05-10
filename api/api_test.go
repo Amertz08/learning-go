@@ -180,6 +180,18 @@ var _ = Describe("Interacting with API", func() {
 			})
 		})
 	})
+	Context("a user already exists", func() {
+		When("trying to create same user", func() {
+			It("will return an error", func() {
+				// TODO: implement
+			})
+		})
+		When("trying to create a different user", func() {
+			It("will create the user", func() {
+				// TODO: implement
+			})
+		})
+	})
 })
 
 // newRequest creates a request. If bodyParams provided it will encode as JSON. If queryParams provided
