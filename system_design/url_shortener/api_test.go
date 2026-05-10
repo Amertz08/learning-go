@@ -36,7 +36,10 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
-		store = &FakeDataStore{Data: make(map[string]string), Visits: make(map[int]*handlers.VisitRecord)}
+		store = &FakeDataStore{
+			Data:   make(map[string]*handlers.ShortenedRecord),
+			Visits: make(map[int]*handlers.VisitRecord),
+		}
 		hasher = &FakeHasher{}
 		cache = &FakeCacheStore{Cache: make(map[string]string)}
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
@@ -69,7 +72,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				srv.Handler.ServeHTTP(recorder, request)
 
 				encoded := hasher.Encode(data.URL)
-				Expect(store.Data[encoded]).To(Equal(data.URL))
+				Expect(store.Data[encoded].TargetURL).To(Equal(data.URL))
 			})
 			It("caches the value", func() {
 				request, data := newShortenedRequest("blah")
@@ -249,20 +252,27 @@ func (f *FakeHasher) Encode(input string) string { return input + "+hello" }
 func (f *FakeHasher) Decode(input string) string { return "" }
 
 type FakeDataStore struct {
-	Data           map[string]string
+	Data           map[string]*handlers.ShortenedRecord
 	hasCreateError bool
 	Visits         map[int]*handlers.VisitRecord
 }
 
-func (f *FakeDataStore) CreateShortenRecord(shortened, original string) (*handlers.ShortenedRecord, error) {
+func (f *FakeDataStore) CreateShortenRecord(
+	shortened, original string,
+) (*handlers.ShortenedRecord, error) {
 	if f.hasCreateError {
 		return nil, errors.New("failed to create record")
 	}
-	f.Data[shortened] = original
-	return nil, nil
+	f.Data[shortened] = &handlers.ShortenedRecord{
+		Id:        1,
+		Encoded:   shortened,
+		TargetURL: original,
+		CreatedAt: time.Now(),
+	}
+	return f.Data[shortened], nil
 }
 
-func (f *FakeDataStore) Get(key string) (string, bool) {
+func (f *FakeDataStore) Get(key string) (*handlers.ShortenedRecord, bool) {
 	val, ok := f.Data[key]
 	return val, ok
 }

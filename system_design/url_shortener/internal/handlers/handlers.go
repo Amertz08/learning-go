@@ -78,11 +78,12 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 		logger.Info("visiting", slog.Any("hash", hash))
 		redirectUrl, ok := cache.Get(hash)
 		if !ok {
-			redirectUrl, ok = store.Get(hash)
+			shortRecord, ok := store.Get(hash)
 			if !ok {
 				w.WriteHeader(http.StatusNotFound)
 				return
 			}
+			redirectUrl = shortRecord.TargetURL
 			if err := cache.Set(hash, redirectUrl, 30*time.Minute); err != nil {
 				logger.Error("error setting the cache", slog.Any("error", err))
 				encodeServerErrorResponse(w)
@@ -142,7 +143,7 @@ type HashService interface {
 
 type HashDataStore interface {
 	CreateShortenRecord(string, string) (*ShortenedRecord, error)
-	Get(string) (string, bool)
+	Get(string) (*ShortenedRecord, bool)
 	CreateVisitRecord(int) (*VisitRecord, error)
 }
 
@@ -162,5 +163,6 @@ type VisitRecord struct {
 type HashCacheStore interface {
 	// TODO: set should probably take ShortenedRecord
 	Set(string, string, time.Duration) error
+	// TODO: should probably return ShortenedRecord
 	Get(string) (string, bool)
 }
