@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -23,9 +24,11 @@ func TestAPI(t *testing.T) {
 var _ = Describe("Interacting with API", func() {
 	var server *http.Server
 	var recorder *httptest.ResponseRecorder
+	var logger *slog.Logger
 
 	BeforeEach(func() {
-		server = newServer("localhost", "8080")
+		logger = initLogger(slog.LevelError)
+		server = newServer(logger, "localhost", "8080")
 		recorder = httptest.NewRecorder()
 	})
 	Context("calling the index endpoint", func() {

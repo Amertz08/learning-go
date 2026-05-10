@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	logger := initLogger()
+	logger := initLogger(slog.LevelInfo)
 
 	ctx, cancel := initContext()
 	defer cancel()
@@ -39,8 +39,12 @@ func main() {
 	gracefulShutDown(ctx, logger, httpServer)
 }
 
-func initLogger() *slog.Logger {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+// initLogger initializes a [slog.Logger]
+func initLogger(level slog.Level) *slog.Logger {
+	opts := slog.HandlerOptions{
+		Level: level,
+	}
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &opts))
 	slog.SetDefault(logger)
 	return logger
 }
