@@ -23,12 +23,14 @@ func TestAPI(t *testing.T) {
 
 var _ = Describe("Interacting with API", func() {
 	var server *http.Server
+	var uut http.HandlerFunc
 	var recorder *httptest.ResponseRecorder
 	var logger *slog.Logger
 
 	BeforeEach(func() {
 		logger = initLogger(slog.LevelError)
 		server = newServer(logger, "localhost", "8080")
+		uut = server.Handler.ServeHTTP
 		recorder = httptest.NewRecorder()
 	})
 	Context("calling the index endpoint", func() {
@@ -43,14 +45,14 @@ var _ = Describe("Interacting with API", func() {
 			It("will return 200", func() {
 				request := newIndexRequest(nil)
 
-				server.Handler.ServeHTTP(recorder, request)
+				uut(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusOK))
 			})
 			It("will return an empty response object", func() {
 				request := newIndexRequest(nil)
 
-				server.Handler.ServeHTTP(recorder, request)
+				uut(recorder, request)
 
 				obs := decodeResponse[handlers.IndexResponse](recorder.Body)
 				Expect(obs).ToNot(BeNil())
@@ -64,7 +66,7 @@ var _ = Describe("Interacting with API", func() {
 					"b": {"c"},
 				})
 
-				server.Handler.ServeHTTP(recorder, request)
+				uut(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusOK))
 			})
@@ -74,7 +76,7 @@ var _ = Describe("Interacting with API", func() {
 					"b": {"c"},
 				})
 
-				server.Handler.ServeHTTP(recorder, request)
+				uut(recorder, request)
 
 				obs := decodeResponse[handlers.IndexResponse](recorder.Body)
 				Expect(obs).ToNot(BeNil())
@@ -101,7 +103,7 @@ var _ = Describe("Interacting with API", func() {
 				*data.B = 2
 				request := newSumRequest(data)
 
-				server.Handler.ServeHTTP(recorder, request)
+				uut(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusOK))
 			})
@@ -111,7 +113,7 @@ var _ = Describe("Interacting with API", func() {
 				*data.B = 2
 				request := newSumRequest(data)
 
-				server.Handler.ServeHTTP(recorder, request)
+				uut(recorder, request)
 
 				obs := decodeResponse[handlers.SumResponse](recorder.Body)
 				Expect(obs.Sum).To(Equal(3))
@@ -121,14 +123,14 @@ var _ = Describe("Interacting with API", func() {
 			It("will return a 400", func() {
 				request := newSumRequest(&handlers.SumRequest{})
 
-				server.Handler.ServeHTTP(recorder, request)
+				uut(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
 			})
 			It("will return a message", func() {
 				request := newSumRequest(&handlers.SumRequest{})
 
-				server.Handler.ServeHTTP(recorder, request)
+				uut(recorder, request)
 
 				obs := decodeResponse[handlers.ErrorResponse](recorder.Body)
 				Expect(obs).To(Equal(&handlers.ErrorResponse{Error: "missing parameters"}))
