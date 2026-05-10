@@ -65,7 +65,29 @@ func encodeTestRequest[T any](data *T) io.ReadWriter {
 func NewServer() *http.Server {
 	mux := &http.ServeMux{}
 
-	mux.HandleFunc("POST /shorten", func(w http.ResponseWriter, r *http.Request) {
+	shortHandler := ShortenHandler(&FakeHasher{})
+
+	mux.HandleFunc("POST /shorten", shortHandler)
+
+	server := &http.Server{
+		Handler: mux,
+	}
+	return server
+}
+
+type HashService interface {
+	Encode(string) string
+	Decode(string) string
+}
+
+type FakeHasher struct {
+}
+
+func (f *FakeHasher) Encode(input string) string { return "" }
+func (f *FakeHasher) Decode(input string) string { return "" }
+
+func ShortenHandler(hasher HashService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		data, err := decodeRequest[ShortenRequest](r.Body)
 
 		if err != nil {
@@ -75,12 +97,7 @@ func NewServer() *http.Server {
 		// TODO: generate hash, upsert, cache value, return value
 
 		encodeResponse(w, http.StatusOK, &ShortenedResponse{URL: data.URL})
-	})
-
-	server := &http.Server{
-		Handler: mux,
 	}
-	return server
 }
 
 var _ = Describe("Interacting with URL shortener API", func() {
