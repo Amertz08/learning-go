@@ -71,14 +71,18 @@ type ShortenedResponse struct {
 	URL string `json:"url"`
 }
 
-func VisitHandler(logger *slog.Logger, cache HashCacheStore) http.HandlerFunc {
+func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		hash := r.PathValue("short_hash")
 		logger.Info("visiting", slog.Any("hash", hash))
 		redirectUrl, ok := cache.Get(hash)
 		if !ok {
-			w.WriteHeader(http.StatusNotFound)
-			return
+			// TODO: db lookup, if found cache and redirect, else 404
+			redirectUrl, ok = store.Get(hash)
+			if !ok {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
 		}
 
 		http.Redirect(w, r, redirectUrl, http.StatusFound)
@@ -125,6 +129,7 @@ type HashService interface {
 
 type HashDataStore interface {
 	Create(string, string) error
+	Get(string) (string, bool)
 }
 
 type HashCacheStore interface {

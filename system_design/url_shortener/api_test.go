@@ -69,7 +69,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				srv.Handler.ServeHTTP(recorder, request)
 
 				encoded := hasher.Encode(data.URL)
-				Expect(store.Data[data.URL]).To(Equal(encoded))
+				Expect(store.Data[encoded]).To(Equal(data.URL))
 			})
 			It("caches the value", func() {
 				request, data := newShortenedRequest("blah")
@@ -180,7 +180,24 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				Expect(recorder.Header().Get("Location")).To(Equal(targetURL))
 			})
 		})
-		When("a non existent link", func() {
+		When("link not in cache", func() {
+			When("it exists in the database", func() {
+				var targetHash, targetURL string
+				BeforeEach(func() {
+					targetHash = "abc"
+					targetURL = "http://example.com"
+					store.Create(targetHash, targetURL)
+				})
+
+				It("will redirect", func() {
+					request, _ := http.NewRequest("GET", "/v/"+targetHash, nil)
+
+					srv.Handler.ServeHTTP(recorder, request)
+
+					Expect(recorder.Code).To(Equal(http.StatusFound))
+					Expect(recorder.Header().Get("Location")).To(Equal(targetURL))
+				})
+			})
 			It("returns a 404", func() {
 				request, _ := http.NewRequest("GET", "/v/abc", nil)
 
@@ -225,8 +242,13 @@ func (f *FakeDataStore) Create(shortened, original string) error {
 	if f.hasCreateError {
 		return errors.New("failed to create record")
 	}
-	f.Data[original] = shortened
+	f.Data[shortened] = original
 	return nil
+}
+
+func (f *FakeDataStore) Get(key string) (string, bool) {
+	val, ok := f.Data[key]
+	return val, ok
 }
 
 type FakeCacheStore struct {
