@@ -62,10 +62,10 @@ func encodeTestRequest[T any](data *T) io.ReadWriter {
 	return &b
 }
 
-func NewServer() *http.Server {
+func NewServer(hasher HashService, store HashDataStore) *http.Server {
 	mux := &http.ServeMux{}
 
-	shortHandler := ShortenHandler(&FakeHasher{})
+	shortHandler := ShortenHandler(hasher, store)
 
 	mux.HandleFunc("POST /shorten", shortHandler)
 
@@ -86,7 +86,20 @@ type FakeHasher struct {
 func (f *FakeHasher) Encode(input string) string { return input + "+hello" }
 func (f *FakeHasher) Decode(input string) string { return "" }
 
-func ShortenHandler(hasher HashService) http.HandlerFunc {
+type HashDataStore interface {
+	Create(string, string) error
+}
+
+type FakeDataStore struct {
+	Data map[string]string
+}
+
+func (f *FakeDataStore) Create(shortened, original string) error {
+	f.Data[original] = shortened
+	return nil
+}
+
+func ShortenHandler(hasher HashService, store HashDataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data, err := decodeRequest[ShortenRequest](r.Body)
 
@@ -97,6 +110,10 @@ func ShortenHandler(hasher HashService) http.HandlerFunc {
 		// TODO: generate hash, upsert, cache value, return value
 		encoded := hasher.Encode(data.URL)
 
+		if err = store.Create(encoded, data.URL); err != nil {
+			encodeResponse(w, http.StatusBadRequest, nil)
+		}
+
 		encodeResponse(w, http.StatusOK, &ShortenedResponse{URL: encoded})
 	}
 }
@@ -104,10 +121,14 @@ func ShortenHandler(hasher HashService) http.HandlerFunc {
 var _ = Describe("Interacting with URL shortener API", func() {
 	var srv *http.Server
 	var recorder *httptest.ResponseRecorder
+	var hasher *FakeHasher
+	var store *FakeDataStore
 
 	BeforeEach(func() {
-		srv = NewServer()
 		recorder = httptest.NewRecorder()
+		store = &FakeDataStore{Data: make(map[string]string)}
+		hasher = &FakeHasher{}
+		srv = NewServer(hasher, store)
 	})
 	When("creating a shortened link", func() {
 		It("returns a 200", func() {
@@ -129,6 +150,16 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 			resp := decodeTestResponse[ShortenedResponse](recorder.Body)
 			Expect(resp.URL).To(Equal("blah+hello"))
+		})
+		It("stores the value in the database", func() {
+			data := &ShortenRequest{URL: "blah"}
+			body := encodeTestRequest[ShortenRequest](data)
+			request, _ := http.NewRequest("POST", "/shorten", body)
+
+			srv.Handler.ServeHTTP(recorder, request)
+
+			encoded := hasher.Encode(data.URL)
+			Expect(store.Data[data.URL]).To(Equal(encoded))
 		})
 	})
 })
