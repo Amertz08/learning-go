@@ -52,7 +52,7 @@ func ShortenHandler(
 			return
 		}
 
-		encodeResponse(w, http.StatusOK, &ShortenedResponse{URL: encoded})
+		encodeResponse[ShortenedResponse](w, http.StatusOK, &ShortenedResponse{URL: encoded})
 	}
 }
 
@@ -82,7 +82,7 @@ func decodeRequest[T any](r io.ReadCloser) (*T, error) {
 	return &data, nil
 }
 
-func encodeResponse(w http.ResponseWriter, status int, data any) {
+func encodeResponse[T any](w http.ResponseWriter, status int, data *T) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
@@ -97,11 +97,11 @@ type ErrorResponse struct {
 }
 
 func encodeClientErrorResponse(w http.ResponseWriter, message string) {
-	encodeResponse(w, http.StatusBadRequest, &ErrorResponse{Error: message})
+	encodeResponse[ErrorResponse](w, http.StatusBadRequest, &ErrorResponse{Error: message})
 }
 
 func encodeServerErrorResponse(w http.ResponseWriter, message string) {
-	encodeResponse(w, http.StatusInternalServerError, &ErrorResponse{Error: message})
+	encodeResponse[ErrorResponse](w, http.StatusInternalServerError, &ErrorResponse{Error: message})
 }
 
 type HashService interface {
