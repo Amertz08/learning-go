@@ -29,7 +29,7 @@ func ShortenHandler(
 				return
 			}
 			logger.Error("could not decode request", slog.Any("error", err))
-			encodeServerErrorResponse(w, "server error")
+			encodeServerErrorResponse(w)
 			return
 		}
 
@@ -42,13 +42,13 @@ func ShortenHandler(
 
 		if err = store.Create(encoded, data.URL); err != nil {
 			logger.Error("could not save shortened link", slog.Any("error", err))
-			encodeServerErrorResponse(w, "server error")
+			encodeServerErrorResponse(w)
 			return
 		}
 
 		if err = cache.Set(data.URL, encoded, 30*time.Minute); err != nil {
 			logger.Error("could not cache value", slog.Any("error", err))
-			encodeServerErrorResponse(w, "server error")
+			encodeServerErrorResponse(w)
 			return
 		}
 
@@ -84,7 +84,7 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 			}
 			if err := cache.Set(hash, redirectUrl, 30*time.Minute); err != nil {
 				logger.Error("error setting the cache", slog.Any("error", err))
-				encodeServerErrorResponse(w, "server error")
+				encodeServerErrorResponse(w)
 				return
 			}
 		}
@@ -93,7 +93,7 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 		_, err := store.CreateVisitRecord(123)
 		if err != nil {
 			logger.Error("error creating visit", slog.Any("error", err))
-			encodeServerErrorResponse(w, "server error")
+			encodeServerErrorResponse(w)
 			return
 		}
 
@@ -117,7 +117,7 @@ func encodeResponse[T any](w http.ResponseWriter, status int, data *T) {
 	w.WriteHeader(status)
 
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		encodeServerErrorResponse(w, "server error")
+		encodeServerErrorResponse(w)
 		return
 	}
 }
@@ -130,8 +130,8 @@ func encodeClientErrorResponse(w http.ResponseWriter, message string) {
 	encodeResponse[ErrorResponse](w, http.StatusBadRequest, &ErrorResponse{Error: message})
 }
 
-func encodeServerErrorResponse(w http.ResponseWriter, message string) {
-	encodeResponse[ErrorResponse](w, http.StatusInternalServerError, &ErrorResponse{Error: message})
+func encodeServerErrorResponse(w http.ResponseWriter) {
+	encodeResponse[ErrorResponse](w, http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
 }
 
 type HashService interface {
