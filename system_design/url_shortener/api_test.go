@@ -83,7 +83,7 @@ func NewServer() *http.Server {
 	return server
 }
 
-var _ = Describe("Interacting with URL shortner API", func() {
+var _ = Describe("Interacting with URL shortener API", func() {
 	var srv *http.Server
 	var recorder *httptest.ResponseRecorder
 
