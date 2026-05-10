@@ -63,6 +63,11 @@ func NewServer() *http.Server {
 			encodeResponse(w, http.StatusInternalServerError, nil)
 			return
 		}
+		//	TODO: does the URL already exist?
+		//	TODO: if exists return value
+		//	TODO: if not exists, generate hash and store, then return value
+		//	TODO: cache given read heavy work flow
+
 		encodeResponse(w, http.StatusOK, &ShortenedResponse{URL: data.URL})
 	})
 
