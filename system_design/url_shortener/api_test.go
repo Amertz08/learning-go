@@ -36,37 +36,55 @@ var _ = Describe("Interacting with URL shortener API", func() {
 		srv = server.NewServer(hasher, store, cache)
 	})
 	When("creating a shortened link", func() {
-		It("returns a 200", func() {
-			request, _ := newShortenedRequest("blah")
+		When("given valid parameters", func() {
+			It("returns a 200", func() {
+				request, _ := newShortenedRequest("blah")
 
-			srv.Handler.ServeHTTP(recorder, request)
+				srv.Handler.ServeHTTP(recorder, request)
 
-			Expect(recorder.Code).To(Equal(http.StatusOK))
+				Expect(recorder.Code).To(Equal(http.StatusOK))
 
+			})
+			It("returns the url", func() {
+				request, _ := newShortenedRequest("blah")
+
+				srv.Handler.ServeHTTP(recorder, request)
+
+				resp := decodeTestResponse[handlers.ShortenedResponse](recorder.Body)
+				Expect(resp.URL).To(Equal("blah+hello"))
+			})
+			It("stores the value in the database", func() {
+				request, data := newShortenedRequest("blah")
+
+				srv.Handler.ServeHTTP(recorder, request)
+
+				encoded := hasher.Encode(data.URL)
+				Expect(store.Data[data.URL]).To(Equal(encoded))
+			})
+			It("caches the value", func() {
+				request, data := newShortenedRequest("blah")
+
+				srv.Handler.ServeHTTP(recorder, request)
+
+				encoded := hasher.Encode(data.URL)
+				Expect(cache.Cache[data.URL]).To(Equal(encoded))
+			})
 		})
-		It("returns the url", func() {
-			request, _ := newShortenedRequest("blah")
+		When("given invalid parameters", func() {
+			It("will return 400", func() {
+				request, _ := newShortenedRequest("")
 
-			srv.Handler.ServeHTTP(recorder, request)
+				srv.Handler.ServeHTTP(recorder, request)
 
-			resp := decodeTestResponse[handlers.ShortenedResponse](recorder.Body)
-			Expect(resp.URL).To(Equal("blah+hello"))
-		})
-		It("stores the value in the database", func() {
-			request, data := newShortenedRequest("blah")
+				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+			})
+			It("will return 4002", func() {
+				request, _ := http.NewRequest("POST", "/shorten", nil)
 
-			srv.Handler.ServeHTTP(recorder, request)
+				srv.Handler.ServeHTTP(recorder, request)
 
-			encoded := hasher.Encode(data.URL)
-			Expect(store.Data[data.URL]).To(Equal(encoded))
-		})
-		It("caches the value", func() {
-			request, data := newShortenedRequest("blah")
-
-			srv.Handler.ServeHTTP(recorder, request)
-
-			encoded := hasher.Encode(data.URL)
-			Expect(cache.Cache[data.URL]).To(Equal(encoded))
+				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
+			})
 		})
 	})
 })

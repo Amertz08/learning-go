@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+var ErrEmptyRequest = errors.New("empty request")
+
 func ShortenHandler(
 	hasher HashService,
 	store HashDataStore,
@@ -17,13 +19,23 @@ func ShortenHandler(
 		data, err := decodeRequest[ShortenRequest](r.Body)
 
 		if err != nil {
+			if errors.As(err, &ErrEmptyRequest) {
+				encodeResponse(w, http.StatusBadRequest, nil)
+				return
+			}
 			encodeResponse(w, http.StatusInternalServerError, nil)
 			return
 		}
+
+		if !data.Valid() {
+			encodeResponse(w, http.StatusBadRequest, nil)
+			return
+		}
+
 		encoded := hasher.Encode(data.URL)
 
 		if err = store.Create(encoded, data.URL); err != nil {
-			encodeResponse(w, http.StatusBadRequest, nil)
+			encodeResponse(w, http.StatusInternalServerError, nil)
 			return
 		}
 
@@ -39,11 +51,22 @@ func ShortenHandler(
 type ShortenRequest struct {
 	URL string `json:"url"`
 }
+
+func (r *ShortenRequest) Valid() bool {
+	if r.URL == "" {
+		return false
+	}
+	return true
+}
+
 type ShortenedResponse struct {
 	URL string `json:"url"`
 }
 
 func decodeRequest[T any](r io.ReadCloser) (*T, error) {
+	if r == nil {
+		return nil, errors.New("empty request")
+	}
 	var data T
 	if err := json.NewDecoder(r).Decode(&data); err != nil {
 		return nil, errors.New("could not decode request")
