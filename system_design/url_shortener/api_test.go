@@ -45,7 +45,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 		srv = server.NewServer(logger, hasher, store, cache)
 	})
-	When("creating a shortened link", func() {
+	Context("creating a shortened link", func() {
 		When("given valid parameters", func() {
 			It("returns a 200", func() {
 				request, _ := newShortenedRequest("blah")
@@ -80,7 +80,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				Expect(cache.Cache[data.URL]).To(Equal(encoded))
 			})
 		})
-		When("given invalid parameters", func() {
+		When("given a blank string", func() {
 			It("will return 400", func() {
 				request, _ := newShortenedRequest("")
 
@@ -88,15 +88,33 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
 			})
-			It("will return 4002", func() {
+			It("will tell you invalid parameters", func() {
+				request, _ := newShortenedRequest("")
+
+				srv.Handler.ServeHTTP(recorder, request)
+
+				resp := decodeTestResponse[handlers.ErrorResponse](recorder.Body)
+				Expect(resp).To(Equal(&handlers.ErrorResponse{Error: "invalid parameters"}))
+			})
+		})
+		When("no body provided", func() {
+			It("will return 400", func() {
 				request, _ := http.NewRequest("POST", "/shorten", nil)
 
 				srv.Handler.ServeHTTP(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusBadRequest))
 			})
+			It("will tell you invalid parameters", func() {
+				request, _ := http.NewRequest("POST", "/shorten", nil)
+
+				srv.Handler.ServeHTTP(recorder, request)
+
+				resp := decodeTestResponse[handlers.ErrorResponse](recorder.Body)
+				Expect(resp).To(Equal(&handlers.ErrorResponse{Error: "invalid parameters"}))
+			})
 		})
-		When("insertion error", func() {
+		When("an insertion error occurs", func() {
 			It("returns a 500", func() {
 				request, _ := newShortenedRequest("blah")
 
@@ -117,7 +135,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				Expect(resp).To(Equal(&handlers.ErrorResponse{Error: "server error"}))
 			})
 		})
-		When("cache error", func() {
+		When("a cache error occurs", func() {
 			It("returns a 500", func() {
 				request, _ := newShortenedRequest("blah")
 
