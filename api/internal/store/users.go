@@ -1,8 +1,13 @@
 package store
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/google/uuid"
+)
 
 type User struct {
+	Id    string
 	First string
 	Last  string
 }
@@ -15,14 +20,16 @@ func NewInMemoryUserStore() *InMemoryUserStore {
 	return &InMemoryUserStore{Data: make(map[string]*User)}
 }
 
-func (s *InMemoryUserStore) Create(first, last string) error {
+func (s *InMemoryUserStore) Create(first, last string) (string, error) {
 	key := first + last
 	if _, ok := s.Data[key]; ok {
-		return errors.New("user already exists")
+		return "", errors.New("user already exists")
 	}
+	id, _ := uuid.NewUUID()
 	s.Data[key] = &User{
+		Id:    id.String(),
 		First: first,
 		Last:  last,
 	}
-	return nil
+	return id.String(), nil
 }

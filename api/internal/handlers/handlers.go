@@ -85,8 +85,12 @@ func (u *UserRequest) Valid() bool {
 	return true
 }
 
+type UserResponse struct {
+	Id string `json:"id"`
+}
+
 type UserStore interface {
-	Create(string, string) error
+	Create(string, string) (string, error)
 }
 
 type UserHandler struct {
@@ -112,12 +116,12 @@ func (h *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: really should return an ID
-	if err = h.userStore.Create(*data.First, *data.Last); err != nil {
+	id, err := h.userStore.Create(*data.First, *data.Last)
+	if err != nil {
 		h.logger.Error("error creating user", slog.Any("error", err))
 		writeClientErrorResponse(w, "invalid user")
 		return
 	}
+	writeJSONResponse(w, http.StatusOK, id)
 
-	w.WriteHeader(http.StatusOK)
 }
