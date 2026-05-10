@@ -3,7 +3,6 @@ package url_shortener
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,36 +12,13 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/handlers"
+	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
 )
 
 func TestAPI(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "API tests")
-}
-
-type ShortenRequest struct {
-	URL string `json:"url"`
-}
-type ShortenedResponse struct {
-	URL string `json:"url"`
-}
-
-func decodeRequest[T any](r io.ReadCloser) (*T, error) {
-	var data T
-	if err := json.NewDecoder(r).Decode(&data); err != nil {
-		return nil, errors.New("could not decode request")
-	}
-	return &data, nil
-}
-
-func encodeResponse(w http.ResponseWriter, status int, data any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 }
 
 func decodeTestResponse[T any](b io.Reader) *T {
@@ -63,33 +39,11 @@ func encodeTestRequest[T any](data *T) io.ReadWriter {
 	return &b
 }
 
-func NewServer(hasher HashService, store HashDataStore, cache HashCacheStore) *http.Server {
-	mux := &http.ServeMux{}
-
-	shortHandler := ShortenHandler(hasher, store, cache)
-
-	mux.HandleFunc("POST /shorten", shortHandler)
-
-	server := &http.Server{
-		Handler: mux,
-	}
-	return server
-}
-
-type HashService interface {
-	Encode(string) string
-	Decode(string) string
-}
-
 type FakeHasher struct {
 }
 
 func (f *FakeHasher) Encode(input string) string { return input + "+hello" }
 func (f *FakeHasher) Decode(input string) string { return "" }
-
-type HashDataStore interface {
-	Create(string, string) error
-}
 
 type FakeDataStore struct {
 	Data map[string]string
@@ -100,10 +54,6 @@ func (f *FakeDataStore) Create(shortened, original string) error {
 	return nil
 }
 
-type HashCacheStore interface {
-	Set(string, string, time.Duration) error
-}
-
 type FakeCacheStore struct {
 	Cache map[string]string
 }
@@ -111,28 +61,6 @@ type FakeCacheStore struct {
 func (f *FakeCacheStore) Set(key, value string, expiration time.Duration) error {
 	f.Cache[key] = value
 	return nil
-}
-
-func ShortenHandler(hasher HashService, store HashDataStore, cache HashCacheStore) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		data, err := decodeRequest[ShortenRequest](r.Body)
-
-		if err != nil {
-			encodeResponse(w, http.StatusInternalServerError, nil)
-			return
-		}
-		encoded := hasher.Encode(data.URL)
-
-		if err = store.Create(encoded, data.URL); err != nil {
-			encodeResponse(w, http.StatusBadRequest, nil)
-		}
-
-		if err = cache.Set(data.URL, encoded, 30*time.Minute); err != nil {
-			encodeResponse(w, http.StatusInternalServerError, nil)
-		}
-
-		encodeResponse(w, http.StatusOK, &ShortenedResponse{URL: encoded})
-	}
 }
 
 var _ = Describe("Interacting with URL shortener API", func() {
@@ -147,7 +75,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 		store = &FakeDataStore{Data: make(map[string]string)}
 		hasher = &FakeHasher{}
 		cache = &FakeCacheStore{Cache: make(map[string]string)}
-		srv = NewServer(hasher, store, cache)
+		srv = server.NewServer(hasher, store, cache)
 	})
 	When("creating a shortened link", func() {
 		It("returns a 200", func() {
@@ -163,7 +91,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 			srv.Handler.ServeHTTP(recorder, request)
 
-			resp := decodeTestResponse[ShortenedResponse](recorder.Body)
+			resp := decodeTestResponse[handlers.ShortenedResponse](recorder.Body)
 			Expect(resp.URL).To(Equal("blah+hello"))
 		})
 		It("stores the value in the database", func() {
@@ -185,9 +113,9 @@ var _ = Describe("Interacting with URL shortener API", func() {
 	})
 })
 
-func newShortenedRequest(url string) (*http.Request, *ShortenRequest) {
-	data := &ShortenRequest{URL: url}
-	body := encodeTestRequest[ShortenRequest](data)
+func newShortenedRequest(url string) (*http.Request, *handlers.ShortenRequest) {
+	data := &handlers.ShortenRequest{URL: url}
+	body := encodeTestRequest[handlers.ShortenRequest](data)
 	request, _ := http.NewRequest("POST", "/shorten", body)
 	return request, data
 }
