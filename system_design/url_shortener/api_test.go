@@ -21,48 +21,6 @@ func TestAPI(t *testing.T) {
 	RunSpecs(t, "API tests")
 }
 
-func decodeTestResponse[T any](b io.Reader) *T {
-	GinkgoHelper()
-	var v T
-	if err := json.NewDecoder(b).Decode(&v); err != nil {
-		Fail(fmt.Sprintf("error decoding response: %s", err))
-	}
-	return &v
-}
-
-func encodeTestRequest[T any](data *T) io.ReadWriter {
-	GinkgoHelper()
-	var b bytes.Buffer
-	if err := json.NewEncoder(&b).Encode(data); err != nil {
-		Fail(fmt.Sprintf("failed to encode request: %s", err))
-	}
-	return &b
-}
-
-type FakeHasher struct {
-}
-
-func (f *FakeHasher) Encode(input string) string { return input + "+hello" }
-func (f *FakeHasher) Decode(input string) string { return "" }
-
-type FakeDataStore struct {
-	Data map[string]string
-}
-
-func (f *FakeDataStore) Create(shortened, original string) error {
-	f.Data[original] = shortened
-	return nil
-}
-
-type FakeCacheStore struct {
-	Cache map[string]string
-}
-
-func (f *FakeCacheStore) Set(key, value string, expiration time.Duration) error {
-	f.Cache[key] = value
-	return nil
-}
-
 var _ = Describe("Interacting with URL shortener API", func() {
 	var srv *http.Server
 	var recorder *httptest.ResponseRecorder
@@ -112,6 +70,48 @@ var _ = Describe("Interacting with URL shortener API", func() {
 		})
 	})
 })
+
+func decodeTestResponse[T any](b io.Reader) *T {
+	GinkgoHelper()
+	var v T
+	if err := json.NewDecoder(b).Decode(&v); err != nil {
+		Fail(fmt.Sprintf("error decoding response: %s", err))
+	}
+	return &v
+}
+
+func encodeTestRequest[T any](data *T) io.ReadWriter {
+	GinkgoHelper()
+	var b bytes.Buffer
+	if err := json.NewEncoder(&b).Encode(data); err != nil {
+		Fail(fmt.Sprintf("failed to encode request: %s", err))
+	}
+	return &b
+}
+
+type FakeHasher struct {
+}
+
+func (f *FakeHasher) Encode(input string) string { return input + "+hello" }
+func (f *FakeHasher) Decode(input string) string { return "" }
+
+type FakeDataStore struct {
+	Data map[string]string
+}
+
+func (f *FakeDataStore) Create(shortened, original string) error {
+	f.Data[original] = shortened
+	return nil
+}
+
+type FakeCacheStore struct {
+	Cache map[string]string
+}
+
+func (f *FakeCacheStore) Set(key, value string, expiration time.Duration) error {
+	f.Cache[key] = value
+	return nil
+}
 
 func newShortenedRequest(url string) (*http.Request, *handlers.ShortenRequest) {
 	data := &handlers.ShortenRequest{URL: url}
