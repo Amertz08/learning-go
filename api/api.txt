@@ -3,3 +3,5 @@ TODO
         - required
         - enum
     - pagination
+    - actual DB
+        - integration tests
