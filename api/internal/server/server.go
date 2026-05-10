@@ -27,8 +27,9 @@ func NewServer(logger *slog.Logger, host, port string, userStore handlers.UserSt
 	mux.Handle("POST /users", userHandler)
 
 	httpServer := &http.Server{
-		Addr:    net.JoinHostPort(host, port),
-		Handler: mux,
+		Addr:     net.JoinHostPort(host, port),
+		Handler:  mux,
+		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
 	}
 	return httpServer
 }
