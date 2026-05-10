@@ -85,12 +85,17 @@ func (u *UserRequest) Valid() bool {
 	return true
 }
 
-type UserHandler struct {
-	logger *slog.Logger
+type UserStore interface {
+	Create(string, string) error
 }
 
-func NewUserHandler(logger *slog.Logger) http.Handler {
-	return &UserHandler{logger: logger}
+type UserHandler struct {
+	logger    *slog.Logger
+	userStore UserStore
+}
+
+func NewUserHandler(logger *slog.Logger, store UserStore) http.Handler {
+	return &UserHandler{logger: logger, userStore: store}
 }
 
 func (h *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -104,6 +109,13 @@ func (h *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if !data.Valid() {
 		writeClientErrorResponse(w, "invalid request")
+		return
+	}
+
+	// TODO: really should return an ID
+	if err = h.userStore.Create(*data.First, *data.Last); err != nil {
+		h.logger.Error("error creating user", slog.Any("error", err))
+		writeClientErrorResponse(w, "invalid user")
 		return
 	}
 

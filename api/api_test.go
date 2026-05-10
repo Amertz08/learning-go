@@ -14,6 +14,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.come/Amertz08/learning-go/api/internal/handlers"
+	"github.come/Amertz08/learning-go/api/internal/store"
 )
 
 func TestAPI(t *testing.T) {
@@ -26,10 +27,12 @@ var _ = Describe("Interacting with API", func() {
 	var uut http.HandlerFunc
 	var recorder *httptest.ResponseRecorder
 	var logger *slog.Logger
+	var userStore *store.InMemoryUserStore
 
 	BeforeEach(func() {
 		logger = initLogger(slog.LevelError)
-		server = newServer(logger, "localhost", "8080")
+		userStore = store.NewInMemoryUserStore()
+		server = newServer(logger, "localhost", "8080", userStore)
 		uut = server.Handler.ServeHTTP
 		recorder = httptest.NewRecorder()
 	})
@@ -152,6 +155,18 @@ var _ = Describe("Interacting with API", func() {
 				uut(recorder, request)
 
 				Expect(recorder.Code).To(Equal(http.StatusOK))
+			})
+			It("will create the user", func() {
+				u := &handlers.UserRequest{First: new(string), Last: new(string)}
+				*u.First = "adam"
+				*u.Last = "mertz"
+
+				request := newRequest[handlers.UserRequest]("POST", "/users", u, nil)
+
+				uut(recorder, request)
+
+				_, ok := userStore.Data[*u.First+*u.Last]
+				Expect(ok).To(BeTrue())
 			})
 		})
 		When("called with invalid parameters", func() {

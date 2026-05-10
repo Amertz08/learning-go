@@ -14,6 +14,7 @@ import (
 	"github.come/Amertz08/learning-go/api/internal/handlers"
 	"github.come/Amertz08/learning-go/api/internal/middleware"
 	"github.come/Amertz08/learning-go/api/internal/services"
+	"github.come/Amertz08/learning-go/api/internal/store"
 )
 
 func main() {
@@ -22,7 +23,9 @@ func main() {
 	ctx, cancel := initContext()
 	defer cancel()
 
-	httpServer := newServer(logger, "localhost", "8080")
+	userStore := store.NewInMemoryUserStore()
+
+	httpServer := newServer(logger, "localhost", "8080", userStore)
 
 	// start the web server
 	go func() {
@@ -57,13 +60,13 @@ func initContext() (context.Context, context.CancelFunc) {
 }
 
 // newServer creates a new *[http.Server] to run
-func newServer(logger *slog.Logger, host, port string) *http.Server {
+func newServer(logger *slog.Logger, host, port string, userStore handlers.UserStore) *http.Server {
 	mux := http.NewServeMux()
 
 	indexHandler := handlers.IndexHandler(logger)
 	coolMiddleware := middleware.CoolMiddleware(logger)
 	sumHandler := coolMiddleware(handlers.NewSumHandler(logger, services.Sum))
-	userHandler := handlers.NewUserHandler(logger)
+	userHandler := handlers.NewUserHandler(logger, userStore)
 
 	mux.HandleFunc("GET /", indexHandler)
 	mux.Handle("POST /sum", sumHandler)
