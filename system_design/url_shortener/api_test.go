@@ -1,6 +1,7 @@
 package url_shortener
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -17,6 +18,9 @@ func TestAPI(t *testing.T) {
 	RunSpecs(t, "API tests")
 }
 
+type ShortenRequest struct {
+	URL string `json:"url"`
+}
 type ShortenedResponse struct {
 	URL string `json:"url"`
 }
@@ -44,7 +48,12 @@ func NewServer() *http.Server {
 	mux := &http.ServeMux{}
 
 	mux.HandleFunc("POST /shorten", func(w http.ResponseWriter, r *http.Request) {
-		encodeResponse(w, http.StatusOK, &ShortenedResponse{URL: "blah"})
+		var data ShortenRequest
+		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+			encodeResponse(w, http.StatusInternalServerError, nil)
+			return
+		}
+		encodeResponse(w, http.StatusOK, &ShortenedResponse{URL: data.URL})
 	})
 
 	server := &http.Server{
@@ -63,7 +72,12 @@ var _ = Describe("Interacting with URL shortner API", func() {
 	})
 	When("creating a shortened link", func() {
 		It("returns a 200", func() {
-			request, _ := http.NewRequest("POST", "/shorten", nil)
+			data := &ShortenRequest{URL: "blah"}
+			var b bytes.Buffer
+			if err := json.NewEncoder(&b).Encode(data); err != nil {
+				Fail("failed to encode data")
+			}
+			request, _ := http.NewRequest("POST", "/shorten", &b)
 
 			srv.Handler.ServeHTTP(recorder, request)
 
@@ -71,7 +85,12 @@ var _ = Describe("Interacting with URL shortner API", func() {
 
 		})
 		It("returns the url", func() {
-			request, _ := http.NewRequest("POST", "/shorten", nil)
+			data := &ShortenRequest{URL: "blah"}
+			var b bytes.Buffer
+			if err := json.NewEncoder(&b).Encode(data); err != nil {
+				Fail("failed to encode data")
+			}
+			request, _ := http.NewRequest("POST", "/shorten", &b)
 
 			srv.Handler.ServeHTTP(recorder, request)
 
