@@ -20,27 +20,27 @@ func ShortenHandler(
 
 		if err != nil {
 			if errors.As(err, &ErrEmptyRequest) {
-				encodeResponse(w, http.StatusBadRequest, nil)
+				encodeClientErrorResponse(w, "invalid parameters")
 				return
 			}
-			encodeResponse(w, http.StatusInternalServerError, nil)
+			encodeServerErrorResponse(w, "server error")
 			return
 		}
 
 		if !data.Valid() {
-			encodeResponse(w, http.StatusBadRequest, nil)
+			encodeClientErrorResponse(w, "invalid parameters")
 			return
 		}
 
 		encoded := hasher.Encode(data.URL)
 
 		if err = store.Create(encoded, data.URL); err != nil {
-			encodeResponse(w, http.StatusInternalServerError, nil)
+			encodeServerErrorResponse(w, "server error")
 			return
 		}
 
 		if err = cache.Set(data.URL, encoded, 30*time.Minute); err != nil {
-			encodeResponse(w, http.StatusInternalServerError, nil)
+			encodeServerErrorResponse(w, "server error")
 			return
 		}
 
@@ -82,6 +82,18 @@ func encodeResponse(w http.ResponseWriter, status int, data any) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+}
+
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+func encodeClientErrorResponse(w http.ResponseWriter, message string) {
+	encodeResponse(w, http.StatusBadRequest, &ErrorResponse{Error: message})
+}
+
+func encodeServerErrorResponse(w http.ResponseWriter, message string) {
+	encodeResponse(w, http.StatusInternalServerError, &ErrorResponse{Error: message})
 }
 
 type HashService interface {
