@@ -24,7 +24,7 @@ func main() {
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	hasher := hasher2.NewFakeHasher()
+	hasher := &hasher2.Base64Hasher{}
 	store := internal.NewFakeDataStore()
 	c := cache.NewRedisCache("localhost", "6379")
 	defer func() {

@@ -57,7 +57,7 @@ func ShortenHandler(
 			return
 		}
 
-		encodeResponse[ShortenedResponse](w, http.StatusOK, &ShortenedResponse{URL: encoded})
+		encodeResponse[ShortenedResponse](w, http.StatusOK, &ShortenedResponse{URL: "http://localhost/v/" + encoded})
 	}
 }
 
