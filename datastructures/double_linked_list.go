@@ -176,14 +176,21 @@ func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T,
 		return l.PopFront()
 	}
 
+	if node == l.front {
+		return l.PopFront()
+	}
+	if node == l.back {
+		return l.PopBack()
+	}
+
 	// TODO tests
 	prev, _ := node.Prev()
 	p, _ := prev.(*doubleLinkedListNodeImpl[T])
 	next, _ := node.Next()
 	n, _ := next.(*doubleLinkedListNodeImpl[T])
-	//if p != nil {
-	//	p.next = n
-	//}
+	if p != nil {
+		p.next = n
+	}
 	if n != nil {
 		n.prev = p
 	}

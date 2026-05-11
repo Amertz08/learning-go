@@ -366,6 +366,41 @@ var _ = Describe("Generic Double Linked List", func() {
 			It("will decrease the size", func() {
 				Expect(uut.Len()).To(Equal(1))
 			})
+			It("will reassign front correctly", func() {
+				newFront, _ := uut.Front()
+				Expect(newFront.Value()).To(Equal(firstFrontVal))
+			})
 		})
+		When("the back value is removed with Remove", func() {
+			var removedNode, prevNode datastructures.DoubleLinkedListNode[int]
+			var removedVal int
+			var removedOk bool
+
+			BeforeEach(func() {
+				removedNode, _ = uut.Back()
+				prevNode, _ = removedNode.Prev()
+				removedVal, removedOk = uut.Remove(removedNode)
+			})
+			It("will remove ok", func() {
+				Expect(removedOk).To(BeTrue())
+			})
+			It("will remove the value", func() {
+				Expect(removedVal).To(Equal(firstFrontVal))
+			})
+			It("will reassign the prev.next to be nil", func() {
+				next, _ := prevNode.Next()
+				Expect(next).To(BeNil())
+			})
+			It("will decrease the size", func() {
+				Expect(uut.Len()).To(Equal(1))
+			})
+			It("will reassign back correctly", func() {
+				newBack, _ := uut.Back()
+				Expect(newBack.Value()).To(Equal(secondFrontVal))
+			})
+		})
+	})
+	When("the middle item is removed from a list of 3", func() {
+		// TODO implement
 	})
 })
