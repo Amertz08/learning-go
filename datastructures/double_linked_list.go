@@ -5,6 +5,7 @@ type DoublyLinkedList[T any] interface {
 	// Insert
 	PushFront(value T)
 	PushBack(value T)
+	// TODO implement
 	//InsertAfter(node DoubleLinkedListNode[T], value T) DoubleLinkedListNode[T]
 	//InsertBefore(node DoubleLinkedListNode[T], value T) DoubleLinkedListNode[T]
 
