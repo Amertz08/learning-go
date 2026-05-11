@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/cache"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/database"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/hasher"
@@ -25,7 +26,12 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	h := &hasher.Base64Hasher{}
-	store := database.NewFakeDataStore()
+	conn, err := pgx.Connect(ctx, "postgres://postgres:password@localhost:5432/postgres")
+	if err != nil {
+		logger.Error("could not connect to db", slog.Any("error", err))
+		os.Exit(1)
+	}
+	s := database.NewPGDataStore(conn)
 	c := cache.NewRedisCache("localhost", "6379")
 	defer func() {
 		if err := c.Close(); err != nil {
@@ -33,7 +39,7 @@ func main() {
 		}
 	}()
 
-	srv := server.NewServer(logger, "localhost", "8080", h, store, c)
+	srv := server.NewServer(logger, "localhost", "8080", h, s, c)
 
 	go func() {
 		logger.Info(fmt.Sprintf("starting server -> %s", srv.Addr))
