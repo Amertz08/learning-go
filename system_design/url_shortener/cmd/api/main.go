@@ -25,7 +25,7 @@ func main() {
 
 	hasher := internal.NewFakeHasher()
 	store := internal.NewFakeDataStore()
-	c := cache.NewRedisCache("localhost", "6739")
+	c := cache.NewRedisCache("localhost", "6379")
 	defer func() {
 		if err := c.Close(); err != nil {
 			logger.Error("error closing cache", slog.Any("error", err))
