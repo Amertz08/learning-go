@@ -168,6 +168,7 @@ type HashDataStore interface {
 	CreateVisitRecord(context.Context, int) (*VisitRecord, error)
 }
 
+// ShortenedRecord is the mapping of the target URL to the encoded value
 type ShortenedRecord struct {
 	Id        int
 	Encoded   string
@@ -175,6 +176,8 @@ type ShortenedRecord struct {
 	CreatedAt time.Time
 }
 
+// VisitRecord captures an individual visit and redirect to the target.
+// In theory, you'd likely want IP address and other attributes in the record
 type VisitRecord struct {
 	Id        int
 	ShortId   int
