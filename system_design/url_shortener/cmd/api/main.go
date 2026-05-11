@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"github.come/Amertz08/learning-go/system_design/url_shortener/internal"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/cache"
+	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/database"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/hasher"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
 )
@@ -25,7 +25,7 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	h := &hasher.Base64Hasher{}
-	store := internal.NewFakeDataStore()
+	store := database.NewFakeDataStore()
 	c := cache.NewRedisCache("localhost", "6379")
 	defer func() {
 		if err := c.Close(); err != nil {

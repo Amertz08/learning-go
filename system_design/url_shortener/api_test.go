@@ -13,8 +13,8 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.come/Amertz08/learning-go/system_design/url_shortener/internal"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/cache"
+	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/database"
 	hasher2 "github.come/Amertz08/learning-go/system_design/url_shortener/internal/hasher"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
 )
@@ -30,13 +30,13 @@ var _ = Describe("Interacting with URL shortener API", func() {
 	var srv *http.Server
 	var recorder *httptest.ResponseRecorder
 	var hasher *hasher2.FakeHasher
-	var store *internal.FakeDataStore
+	var store *database.FakeDataStore
 	var fakeCache *cache.FakeCacheStore
 	var logger *slog.Logger
 
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
-		store = internal.NewFakeDataStore()
+		store = database.NewFakeDataStore()
 		hasher = hasher2.NewFakeHasher()
 		fakeCache = cache.NewFakeCacheStore()
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
