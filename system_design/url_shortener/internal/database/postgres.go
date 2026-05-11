@@ -21,3 +21,10 @@ func (s *PGDataStore) CreateShortenedRecord(
 ) (*server.ShortenedRecord, error) {
 	return nil, nil
 }
+
+func (s *PGDataStore) Get(context.Context, string) (*server.ShortenedRecord, error) {
+	return nil, nil
+}
+func (s *PGDataStore) CreateVisitRecord(context.Context, int) (*server.VisitRecord, error) {
+	return nil, nil
+}
