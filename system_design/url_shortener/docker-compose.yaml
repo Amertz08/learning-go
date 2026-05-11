@@ -3,3 +3,10 @@ services:
     image: redis:8.8-m03
     ports:
       - "6379:6379"
+  db:
+    image: postgres:18.3
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: testdb

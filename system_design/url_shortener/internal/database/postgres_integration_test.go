@@ -1,0 +1,36 @@
+package database
+
+import (
+	"testing"
+
+	"github.com/jackc/pgx/v5"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+func TestPostgresIntegration(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "postgres integration")
+}
+
+var _ = Describe("postgres integration tests", func() {
+	var pgStore *PGDataStore
+	var conn *pgx.Conn
+	var connErr error
+
+	BeforeEach(func(ctx SpecContext) {
+		conn, connErr = pgx.Connect(ctx, "postgres://postgres:password@localhost:5432/testdb")
+		Expect(connErr).To(BeNil())
+		pgStore = NewPGDataStore(conn)
+	})
+	AfterEach(func(ctx SpecContext) {
+		conn.Close(ctx)
+	})
+	When("creating a record", func() {
+		It("works", func(ctx SpecContext) {
+			// TODO
+			_, err := pgStore.CreateShortenedRecord(ctx, "encoded", "target")
+			Expect(err).To(BeNil())
+		})
+	})
+})
