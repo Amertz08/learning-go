@@ -28,7 +28,9 @@ func (s *PGDataStore) CreateShortenedRecord(
 	err := s.db.QueryRow(ctx, `
 INSERT INTO public.shortened_records (encoded, target_url)
 VALUES ($1, $2)
-RETURNING id, created_at
+ON CONFLICT (encoded)
+DO UPDATE SET encoded = EXCLUDED.encoded
+RETURNING id, created_at;
 ;
 `, encoded, targetUrl).Scan(&record.Id, &record.CreatedAt)
 	if err != nil {

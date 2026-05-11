@@ -44,6 +44,8 @@ func ShortenHandler(
 
 		encoded := hasher.Encode(data.URL)
 
+		// TODO: check cache if exists
+
 		shortRecord, err := store.CreateShortenedRecord(ctx, encoded, data.URL)
 		if err != nil {
 			logger.Error("could not save shortened link", slog.Any("error", err))
@@ -51,6 +53,7 @@ func ShortenHandler(
 			return
 		}
 
+		// TODO: I think the key should be the `encoded` value
 		if err = cache.Set(ctx, data.URL, shortRecord, 30*time.Minute); err != nil {
 			logger.Error("could not cache value", slog.Any("error", err))
 			encodeServerErrorResponse(w)
