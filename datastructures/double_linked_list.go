@@ -169,6 +169,7 @@ func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T,
 
 	// Not really sure how you could get here on an empty list given
 	// there is no public method for creating a node. Have this JIC.
+	// (update) If you attempt to remove a single node list twice you would hit this.
 	if l.IsEmpty() {
 		return zeroVal, false
 	}
