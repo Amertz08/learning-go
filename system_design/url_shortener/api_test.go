@@ -117,7 +117,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			It("returns a 500", func() {
 				request, _ := newShortenedRequest("blah")
 
-				store.HasCreateError = true
+				store.HasCreateShortErr = true
 
 				srv.Handler.ServeHTTP(recorder, request)
 
@@ -126,7 +126,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			It("tells you there is a server error", func() {
 				request, _ := newShortenedRequest("blah")
 
-				store.HasCreateError = true
+				store.HasCreateShortErr = true
 
 				srv.Handler.ServeHTTP(recorder, request)
 

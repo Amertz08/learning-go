@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/handlers"
@@ -19,9 +20,10 @@ func (f *FakeHasher) Encode(input string) string { return input + "+hello" }
 func (f *FakeHasher) Decode(input string) string { return "" }
 
 type FakeDataStore struct {
-	Data           map[string]*handlers.ShortenedRecord
-	HasCreateError bool
-	Visits         map[int]*handlers.VisitRecord
+	Data              map[string]*handlers.ShortenedRecord
+	HasCreateShortErr bool
+	HasGetError       bool
+	Visits            map[int]*handlers.VisitRecord
 }
 
 func NewFakeDataStore() *FakeDataStore {
@@ -34,7 +36,7 @@ func NewFakeDataStore() *FakeDataStore {
 func (f *FakeDataStore) CreateShortenedRecord(
 	shortened, original string,
 ) (*handlers.ShortenedRecord, error) {
-	if f.HasCreateError {
+	if f.HasCreateShortErr {
 		return nil, errors.New("failed to create record")
 	}
 	f.Data[shortened] = &handlers.ShortenedRecord{
@@ -48,6 +50,9 @@ func (f *FakeDataStore) CreateShortenedRecord(
 
 func (f *FakeDataStore) Get(key string) (*handlers.ShortenedRecord, error) {
 	val, _ := f.Data[key]
+	if f.HasGetError {
+		return nil, fmt.Errorf("error getting db key: %s", key)
+	}
 	return val, nil
 }
 
@@ -64,6 +69,7 @@ func (f *FakeDataStore) CreateVisitRecord(shortId int) (*handlers.VisitRecord, e
 type FakeCacheStore struct {
 	Cache       map[string]*handlers.ShortenedRecord
 	HasSetError bool
+	HasGetError bool
 }
 
 func NewFakeCacheStore() *FakeCacheStore {
@@ -84,10 +90,9 @@ func (f *FakeCacheStore) Set(
 }
 
 func (f *FakeCacheStore) Get(ctx context.Context, key string) (*handlers.ShortenedRecord, error) {
-	val, ok := f.Cache[key]
-	if !ok {
-		// TODO: this is not really an error
-		return nil, errors.New("not found")
+	val, _ := f.Cache[key]
+	if f.HasGetError {
+		return nil, fmt.Errorf("error getting key: %s", key)
 	}
 	return val, nil
 }

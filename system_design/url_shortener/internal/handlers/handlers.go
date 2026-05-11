@@ -82,8 +82,12 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 		hash := r.PathValue("short_hash")
 
 		shortRecord, err := cache.Get(ctx, hash)
-		// TODO: better error handling
 		if err != nil {
+			logger.Error("error getting hash from cache", slog.Any("error", err))
+			encodeServerErrorResponse(w)
+			return
+		}
+		if shortRecord == nil {
 			shortRecord, err = store.Get(hash)
 			if err != nil {
 				logger.Error("error getting hash from DB", slog.Any("error", err))
