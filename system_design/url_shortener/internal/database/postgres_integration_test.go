@@ -32,13 +32,14 @@ var _ = Describe("postgres integration tests", func() {
 		conn.Close(ctx)
 	})
 	When("creating a record", func() {
+		// TODO better testing
 		It("works", func(ctx SpecContext) {
-			// TODO
 			_, err := pgStore.CreateShortenedRecord(ctx, "encoded", "target")
 			Expect(err).To(BeNil())
 		})
 	})
 	When("you get a short record", func() {
+		// TODO better testing
 		It("works", func(ctx context.Context) {
 			shortened, err := pgStore.CreateShortenedRecord(ctx, "encoded", "target")
 			Expect(err).To(BeNil())
@@ -49,6 +50,7 @@ var _ = Describe("postgres integration tests", func() {
 		})
 	})
 	When("creating a visit", func() {
+		// TODO better testing
 		It("works", func(ctx context.Context) {
 			shortened, err := pgStore.CreateShortenedRecord(ctx, "encoded", "target")
 			Expect(err).To(BeNil())
