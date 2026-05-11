@@ -276,6 +276,25 @@ var _ = Describe("Generic Double Linked List", func() {
 				Expect(prev).To(BeIdenticalTo(front))
 			})
 		})
+		When("the value is removed", func() {
+			var removedNode datastructures.DoubleLinkedListNode[int]
+			var removedVal int
+			var removedOk bool
+
+			BeforeEach(func() {
+				removedNode, _ = uut.Front()
+				removedVal, removedOk = uut.Remove(removedNode)
+			})
+			It("is removed ok", func() {
+				Expect(removedOk).To(BeTrue())
+			})
+			It("returns the value", func() {
+				Expect(removedVal).To(Equal(firstValue))
+			})
+			It("will decrease the size", func() {
+				Expect(uut.Len()).To(Equal(0))
+			})
+		})
 	})
 	When("there are multiple items on the list", func() {
 		var firstFrontVal, secondFrontVal int
@@ -322,6 +341,30 @@ var _ = Describe("Generic Double Linked List", func() {
 				Expect(back).ToNot(BeNil())
 				next, _ := back.Next()
 				Expect(next).To(BeNil())
+			})
+		})
+		When("the front value is removed with Remove", func() {
+			var removedNode, nextNode datastructures.DoubleLinkedListNode[int]
+			var removedVal int
+			var removedOk bool
+
+			BeforeEach(func() {
+				removedNode, _ = uut.Front()
+				nextNode, _ = removedNode.Next()
+				removedVal, removedOk = uut.Remove(removedNode)
+			})
+			It("will remove ok", func() {
+				Expect(removedOk).To(BeTrue())
+			})
+			It("will remove the value", func() {
+				Expect(removedVal).To(Equal(secondFrontVal))
+			})
+			It("will reassign the next.prev to be nil", func() {
+				prev, _ := nextNode.Prev()
+				Expect(prev).To(BeNil())
+			})
+			It("will decrease the size", func() {
+				Expect(uut.Len()).To(Equal(1))
 			})
 		})
 	})
