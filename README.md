@@ -9,6 +9,7 @@ better exemplify the patterns and idioms that I learned later in my journey with
 - [Data Structures](datastructures/)
 - [Remote Shell](networking/reverse_shell) (socket interactions)
 - [gURL](networking/gurl) (`net/http` exploration)
+- [URL shortener](system_design/url_shortener)
 
 
 ## AI Stuff
