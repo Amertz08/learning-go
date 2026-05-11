@@ -1,0 +1,5 @@
+services:
+  cache:
+    image: redis:8.8-m03
+    ports:
+      - "6379:6379"

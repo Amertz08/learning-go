@@ -25,6 +25,10 @@ func NewRedisCache(host, port string) *RedisCache {
 	return r
 }
 
+func (r *RedisCache) Close() error {
+	return r.rdb.Close()
+}
+
 func (r *RedisCache) Set(
 	ctx context.Context,
 	key string,

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal"
+	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/cache"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
 )
 
@@ -23,9 +24,14 @@ func main() {
 
 	hasher := internal.NewFakeHasher()
 	store := internal.NewFakeDataStore()
-	cache := internal.NewFakeCacheStore()
+	c := cache.NewRedisCache("localhost", "6739")
+	defer func() {
+		if err := c.Close(); err != nil {
+			logger.Error("error closing cache", slog.Any("error", err))
+		}
+	}()
 
-	srv := server.NewServer(logger, hasher, store, cache)
+	srv := server.NewServer(logger, hasher, store, c)
 
 	go func() {
 		logger.Info("starting server...")
