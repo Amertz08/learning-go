@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net"
 	"time"
 
@@ -35,11 +33,11 @@ func (r *RedisCache) Set(
 ) error {
 	var b bytes.Buffer
 	if err := json.NewEncoder(&b).Encode(value); err != nil {
-		return errors.New("failed to encode for cache")
+		return err
 	}
 	cmd := r.rdb.Set(ctx, key, value, expiration)
 	if cmd.Err() != nil {
-		return errors.New("failed to set value in cache")
+		return cmd.Err()
 	}
 	return nil
 }
@@ -47,16 +45,16 @@ func (r *RedisCache) Set(
 func (r *RedisCache) Get(ctx context.Context, key string) (*handlers.ShortenedRecord, error) {
 	cmd := r.rdb.Get(ctx, key)
 	if cmd.Err() != nil {
-		return nil, errors.New(fmt.Sprintf("could not get key: %s", key))
+		return nil, cmd.Err()
 	}
 
 	byteData, err := cmd.Bytes()
 	if err != nil {
-		return nil, errors.New("could not get bytes")
+		return nil, err
 	}
 	var val handlers.ShortenedRecord
 	if err = json.NewDecoder(bytes.NewReader(byteData)).Decode(&val); err != nil {
-		return nil, errors.New(fmt.Sprintf("could not decode key: %s", key))
+		return nil, err
 	}
 
 	return &val, nil
