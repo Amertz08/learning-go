@@ -77,11 +77,12 @@ type ShortenedResponse struct {
 func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		hash := r.PathValue("short_hash")
-		logger.Info("visiting", slog.Any("hash", hash))
+
 		shortRecord, ok := cache.Get(hash)
 		if !ok {
 			shortRecord, ok = store.Get(hash)
 			if !ok {
+				logger.Warn("not found", slog.Any("hash", hash))
 				w.WriteHeader(http.StatusNotFound)
 				return
 			}
