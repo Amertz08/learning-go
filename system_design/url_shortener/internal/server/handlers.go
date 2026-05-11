@@ -57,6 +57,7 @@ func ShortenHandler(
 			return
 		}
 
+		// TODO: shorten prefix should be a config
 		encodeResponse[ShortenedResponse](w, http.StatusOK, &ShortenedResponse{URL: "http://localhost/v/" + encoded})
 	}
 }
