@@ -6,7 +6,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.come/Amertz08/learning-go/system_design/url_shortener"
 )
 
 func TestPostgresIntegration(t *testing.T) {
@@ -22,14 +21,14 @@ var _ = Describe("postgres integration tests", func() {
 	BeforeEach(func(ctx SpecContext) {
 		conn, connErr = pgx.Connect(ctx, "postgres://postgres:password@localhost:5432/postgres")
 		Expect(connErr).ToNot(HaveOccurred())
-		row, connErr := conn.Query(ctx, url_shortener.CreateSchemaSqlString)
+		row, connErr := conn.Query(ctx, CreateSchemaSqlString)
 		row.Close()
 		Expect(connErr).ToNot(HaveOccurred())
 
 		pgStore = NewPGDataStore(conn)
 	})
 	AfterEach(func(ctx SpecContext) {
-		conn.QueryRow(ctx, url_shortener.DropSchemaSqlString)
+		conn.QueryRow(ctx, DropSchemaSqlString)
 		conn.Close(ctx)
 	})
 	When("creating a record", func() {
