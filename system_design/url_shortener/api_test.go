@@ -15,7 +15,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/cache"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/database"
-	hasher2 "github.come/Amertz08/learning-go/system_design/url_shortener/internal/hasher"
+	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/hasher"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
 )
 
@@ -29,7 +29,7 @@ const DisableLogsLevel slog.Level = 20
 var _ = Describe("Interacting with URL shortener API", func() {
 	var srv *http.Server
 	var recorder *httptest.ResponseRecorder
-	var hasher *hasher2.FakeHasher
+	var fakeHasher *hasher.FakeHasher
 	var store *database.FakeDataStore
 	var fakeCache *cache.FakeCacheStore
 	var logger *slog.Logger
@@ -37,13 +37,13 @@ var _ = Describe("Interacting with URL shortener API", func() {
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
 		store = database.NewFakeDataStore()
-		hasher = hasher2.NewFakeHasher()
+		fakeHasher = hasher.NewFakeHasher()
 		fakeCache = cache.NewFakeCacheStore()
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 			Level: DisableLogsLevel,
 		}))
 
-		srv = server.NewServer(logger, "localhost", "8080", hasher, store, fakeCache)
+		srv = server.NewServer(logger, "localhost", "8080", fakeHasher, store, fakeCache)
 	})
 	Context("creating a shortened link", func() {
 		When("given valid parameters", func() {
@@ -68,7 +68,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 				srv.Handler.ServeHTTP(recorder, request)
 
-				encoded := hasher.Encode(data.URL)
+				encoded := fakeHasher.Encode(data.URL)
 				Expect(store.Data[encoded].TargetURL).To(Equal(data.URL))
 			})
 			It("caches the value", func() {
@@ -76,7 +76,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 				srv.Handler.ServeHTTP(recorder, request)
 
-				encoded := hasher.Encode(data.URL)
+				encoded := fakeHasher.Encode(data.URL)
 				Expect(fakeCache.Cache[data.URL].Encoded).To(Equal(encoded))
 			})
 		})
