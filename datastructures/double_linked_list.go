@@ -183,7 +183,6 @@ func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T,
 		return l.PopBack()
 	}
 
-	// TODO tests
 	prev, _ := node.Prev()
 	p, _ := prev.(*doubleLinkedListNodeImpl[T])
 	next, _ := node.Next()

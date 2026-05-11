@@ -402,5 +402,39 @@ var _ = Describe("Generic Double Linked List", func() {
 	})
 	When("the middle item is removed from a list of 3", func() {
 		// TODO implement
+		var firstVal, secondVal, thirdVal, targetVal int
+		var targetOk bool
+		var targetNode, nextNode, prevNode datastructures.DoubleLinkedListNode[int]
+
+		BeforeEach(func() {
+			uut.PushBack(firstVal)
+			uut.PushBack(secondVal)
+			uut.PushBack(thirdVal)
+
+			targetNode, _ = uut.Front()
+			targetNode, _ = targetNode.Next()
+			nextNode, _ = targetNode.Next()
+			prevNode, _ = targetNode.Prev()
+			Expect(targetNode.Value()).To(Equal(secondVal))
+
+			targetVal, targetOk = uut.Remove(targetNode)
+		})
+		It("will remove the proper value", func() {
+			Expect(targetVal).To(Equal(secondVal))
+		})
+		It("will correctly remove node", func() {
+			Expect(targetOk).To(BeTrue())
+		})
+		It("will decrease the length", func() {
+			Expect(uut.Len()).To(Equal(2))
+		})
+		It("will reassign next.prev to the previous node", func() {
+			obsPrev, _ := nextNode.Prev()
+			Expect(obsPrev).To(BeIdenticalTo(prevNode))
+		})
+		It("will reassign prev.next to the next node", func() {
+			obsNext, _ := prevNode.Next()
+			Expect(obsNext).To(BeIdenticalTo(nextNode))
+		})
 	})
 })
