@@ -44,7 +44,7 @@ func ShortenHandler(
 
 		encoded := hasher.Encode(data.URL)
 
-		shortRecord, err := store.CreateShortenedRecord(encoded, data.URL)
+		shortRecord, err := store.CreateShortenedRecord(ctx, encoded, data.URL)
 		if err != nil {
 			logger.Error("could not save shortened link", slog.Any("error", err))
 			encodeServerErrorResponse(w)
@@ -58,7 +58,7 @@ func ShortenHandler(
 		}
 
 		// TODO: shorten prefix should be a config
-		encodeResponse[ShortenedResponse](w, http.StatusOK, &ShortenedResponse{URL: "http://localhost/v/" + encoded})
+		encodeResponse[ShortenedResponse](w, http.StatusOK, &ShortenedResponse{URL: "http://localhost:8080/v/" + encoded})
 	}
 }
 
@@ -89,7 +89,7 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 			return
 		}
 		if shortRecord == nil {
-			shortRecord, err = store.Get(hash)
+			shortRecord, err = store.Get(ctx, hash)
 			if err != nil {
 				logger.Error("error getting hash from DB", slog.Any("error", err))
 				encodeServerErrorResponse(w)
@@ -107,7 +107,7 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 			}
 		}
 
-		_, err = store.CreateVisitRecord(shortRecord.Id)
+		_, err = store.CreateVisitRecord(ctx, shortRecord.Id)
 		if err != nil {
 			logger.Error("error creating visit", slog.Any("error", err))
 			encodeServerErrorResponse(w)
@@ -161,9 +161,9 @@ type HashService interface {
 }
 
 type HashDataStore interface {
-	CreateShortenedRecord(string, string) (*ShortenedRecord, error)
-	Get(string) (*ShortenedRecord, error)
-	CreateVisitRecord(int) (*VisitRecord, error)
+	CreateShortenedRecord(context.Context, string, string) (*ShortenedRecord, error)
+	Get(context.Context, string) (*ShortenedRecord, error)
+	CreateVisitRecord(context.Context, int) (*VisitRecord, error)
 }
 
 type ShortenedRecord struct {

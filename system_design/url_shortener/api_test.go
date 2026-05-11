@@ -61,7 +61,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				srv.Handler.ServeHTTP(recorder, request)
 
 				resp := decodeTestResponse[server.ShortenedResponse](recorder.Body)
-				Expect(resp.URL).To(Equal("blah+hello"))
+				Expect(resp.URL).To(Equal("http://localhost:8080/v/blah+hello"))
 			})
 			It("stores the value in the database", func() {
 				request, data := newShortenedRequest("blah")
@@ -195,10 +195,11 @@ var _ = Describe("Interacting with URL shortener API", func() {
 		When("link not in cache", func() {
 			When("it exists in the database", func() {
 				var targetHash, targetURL string
-				BeforeEach(func() {
+				BeforeEach(func(ctx SpecContext) {
 					targetHash = "abc"
 					targetURL = "http://example.com"
-					store.CreateShortenedRecord(targetHash, targetURL)
+					_, err := store.CreateShortenedRecord(ctx, targetHash, targetURL)
+					Expect(err).To(BeNil())
 				})
 
 				It("will redirect", func() {

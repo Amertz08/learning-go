@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -23,6 +24,7 @@ func NewFakeDataStore() *FakeDataStore {
 }
 
 func (f *FakeDataStore) CreateShortenedRecord(
+	ctx context.Context,
 	shortened, original string,
 ) (*server.ShortenedRecord, error) {
 	if f.HasCreateShortErr {
@@ -37,7 +39,7 @@ func (f *FakeDataStore) CreateShortenedRecord(
 	return f.Data[shortened], nil
 }
 
-func (f *FakeDataStore) Get(key string) (*server.ShortenedRecord, error) {
+func (f *FakeDataStore) Get(ctx context.Context, key string) (*server.ShortenedRecord, error) {
 	val, _ := f.Data[key]
 	if f.HasGetError {
 		return nil, fmt.Errorf("error getting db key: %s", key)
@@ -45,7 +47,7 @@ func (f *FakeDataStore) Get(key string) (*server.ShortenedRecord, error) {
 	return val, nil
 }
 
-func (f *FakeDataStore) CreateVisitRecord(shortId int) (*server.VisitRecord, error) {
+func (f *FakeDataStore) CreateVisitRecord(ctx context.Context, shortId int) (*server.VisitRecord, error) {
 	v := &server.VisitRecord{
 		Id:        1,
 		ShortId:   shortId,
