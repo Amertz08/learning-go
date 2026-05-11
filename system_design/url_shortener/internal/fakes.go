@@ -83,7 +83,10 @@ func (f *FakeCacheStore) Set(
 	return nil
 }
 
-func (f *FakeCacheStore) Get(ctx context.Context, key string) (*handlers.ShortenedRecord, bool) {
+func (f *FakeCacheStore) Get(ctx context.Context, key string) (*handlers.ShortenedRecord, error) {
 	val, ok := f.Cache[key]
-	return val, ok
+	if !ok {
+		return nil, errors.New("not found")
+	}
+	return val, nil
 }
