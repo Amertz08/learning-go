@@ -184,11 +184,18 @@ func (l *doubleLinkedListImpl[T]) Remove(node DoubleLinkedListNode[T]) (value T,
 		return l.PopBack()
 	}
 
-	// TODO: we might want to handle !ok here
 	prev, _ := node.Prev()
-	p, _ := prev.(*doubleLinkedListNodeImpl[T])
+	// can technically get an implementation or type of a DoubleLinkedListNode so we need
+	// to fail if for some reason that happens.
+	p, ok := prev.(*doubleLinkedListNodeImpl[T])
+	if !ok {
+		return zeroVal, false
+	}
 	next, _ := node.Next()
-	n, _ := next.(*doubleLinkedListNodeImpl[T])
+	n, ok := next.(*doubleLinkedListNodeImpl[T])
+	if !ok {
+		return zeroVal, false
+	}
 	if p != nil {
 		p.next = n
 	}
