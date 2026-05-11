@@ -15,6 +15,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/cache"
+	hasher2 "github.come/Amertz08/learning-go/system_design/url_shortener/internal/hasher"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
 )
 
@@ -28,7 +29,7 @@ const DisableLogsLevel slog.Level = 20
 var _ = Describe("Interacting with URL shortener API", func() {
 	var srv *http.Server
 	var recorder *httptest.ResponseRecorder
-	var hasher *internal.FakeHasher
+	var hasher *hasher2.FakeHasher
 	var store *internal.FakeDataStore
 	var fakeCache *cache.FakeCacheStore
 	var logger *slog.Logger
@@ -36,7 +37,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
 		store = internal.NewFakeDataStore()
-		hasher = internal.NewFakeHasher()
+		hasher = hasher2.NewFakeHasher()
 		fakeCache = cache.NewFakeCacheStore()
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 			Level: DisableLogsLevel,

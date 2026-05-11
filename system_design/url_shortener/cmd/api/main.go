@@ -13,6 +13,7 @@ import (
 
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/cache"
+	hasher2 "github.come/Amertz08/learning-go/system_design/url_shortener/internal/hasher"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
 )
 
@@ -23,7 +24,7 @@ func main() {
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	hasher := internal.NewFakeHasher()
+	hasher := hasher2.NewFakeHasher()
 	store := internal.NewFakeDataStore()
 	c := cache.NewRedisCache("localhost", "6379")
 	defer func() {

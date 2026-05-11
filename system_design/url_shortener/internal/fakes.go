@@ -8,16 +8,6 @@ import (
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
 )
 
-type FakeHasher struct {
-}
-
-func NewFakeHasher() *FakeHasher {
-	return &FakeHasher{}
-}
-
-func (f *FakeHasher) Encode(input string) string { return input + "+hello" }
-func (f *FakeHasher) Decode(input string) string { return "" }
-
 type FakeDataStore struct {
 	Data              map[string]*server.ShortenedRecord
 	HasCreateShortErr bool
