@@ -2,6 +2,7 @@ package server
 
 import (
 	"log/slog"
+	"net"
 	"net/http"
 
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/handlers"
@@ -9,6 +10,8 @@ import (
 
 func NewServer(
 	logger *slog.Logger,
+	host string,
+	port string,
 	hasher handlers.HashService,
 	store handlers.HashDataStore,
 	cache handlers.HashCacheStore,
@@ -23,6 +26,7 @@ func NewServer(
 
 	server := &http.Server{
 		Handler: mux,
+		Addr:    net.JoinHostPort(host, port),
 	}
 	return server
 }

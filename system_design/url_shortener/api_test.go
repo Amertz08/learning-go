@@ -42,7 +42,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			Level: DisableLogsLevel,
 		}))
 
-		srv = server.NewServer(logger, hasher, store, cache)
+		srv = server.NewServer(logger, "localhost", "8080", hasher, store, cache)
 	})
 	Context("creating a shortened link", func() {
 		When("given valid parameters", func() {

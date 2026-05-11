@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -31,10 +32,10 @@ func main() {
 		}
 	}()
 
-	srv := server.NewServer(logger, hasher, store, c)
+	srv := server.NewServer(logger, "localhost", "8080", hasher, store, c)
 
 	go func() {
-		logger.Info("starting server...")
+		logger.Info(fmt.Sprintf("starting server -> %s", srv.Addr))
 		if err := srv.ListenAndServe(); err != nil {
 			if errors.Is(err, http.ErrServerClosed) {
 				logger.Info("server closed gracefully")
