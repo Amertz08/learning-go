@@ -77,7 +77,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				srv.Handler.ServeHTTP(recorder, request)
 
 				encoded := fakeHasher.Encode(data.URL)
-				Expect(fakeCache.Cache[data.URL].Encoded).To(Equal(encoded))
+				Expect(fakeCache.Cache[encoded].TargetURL).To(Equal(data.URL))
 			})
 		})
 		When("given a blank string", func() {

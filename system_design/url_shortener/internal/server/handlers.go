@@ -53,8 +53,7 @@ func ShortenHandler(
 			return
 		}
 
-		// TODO: I think the key should be the `encoded` value
-		if err = cache.Set(ctx, data.URL, shortRecord, 30*time.Minute); err != nil {
+		if err = cache.Set(ctx, encoded, shortRecord, 30*time.Minute); err != nil {
 			logger.Error("could not cache value", slog.Any("error", err))
 			encodeServerErrorResponse(w)
 			return
