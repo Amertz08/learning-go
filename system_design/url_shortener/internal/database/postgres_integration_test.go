@@ -21,14 +21,13 @@ var _ = Describe("postgres integration tests", func() {
 	BeforeEach(func(ctx SpecContext) {
 		conn, connErr = pgx.Connect(ctx, "postgres://postgres:password@localhost:5432/postgres")
 		Expect(connErr).ToNot(HaveOccurred())
-		row, connErr := conn.Query(ctx, CreateSchemaSqlString)
-		row.Close()
+		_, connErr = conn.Exec(ctx, CreateSchemaSqlString)
 		Expect(connErr).ToNot(HaveOccurred())
 
 		pgStore = NewPGDataStore(conn)
 	})
 	AfterEach(func(ctx SpecContext) {
-		conn.QueryRow(ctx, DropSchemaSqlString)
+		conn.Exec(ctx, DropSchemaSqlString)
 		conn.Close(ctx)
 	})
 	When("creating a record", func() {
