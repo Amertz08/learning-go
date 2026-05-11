@@ -39,7 +39,7 @@ func (r *RedisCache) Set(
 	if err := json.NewEncoder(&b).Encode(value); err != nil {
 		return err
 	}
-	cmd := r.rdb.Set(ctx, key, value, expiration)
+	cmd := r.rdb.Set(ctx, key, b.String(), expiration)
 	if cmd.Err() != nil {
 		return cmd.Err()
 	}
