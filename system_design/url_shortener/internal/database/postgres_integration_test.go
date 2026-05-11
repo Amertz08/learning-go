@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"testing"
 
 	"github.com/jackc/pgx/v5"
@@ -35,6 +36,26 @@ var _ = Describe("postgres integration tests", func() {
 			// TODO
 			_, err := pgStore.CreateShortenedRecord(ctx, "encoded", "target")
 			Expect(err).To(BeNil())
+		})
+	})
+	When("you get a short record", func() {
+		It("works", func(ctx context.Context) {
+			shortened, err := pgStore.CreateShortenedRecord(ctx, "encoded", "target")
+			Expect(err).To(BeNil())
+
+			obs, err := pgStore.Get(ctx, shortened.Encoded)
+			Expect(err).To(BeNil())
+			Expect(obs.Id).To(Equal(shortened.Id))
+		})
+	})
+	When("creating a visit", func() {
+		It("works", func(ctx context.Context) {
+			shortened, err := pgStore.CreateShortenedRecord(ctx, "encoded", "target")
+			Expect(err).To(BeNil())
+
+			visit, err := pgStore.CreateVisitRecord(ctx, shortened.Id)
+			Expect(err).To(BeNil())
+			Expect((*visit).ShortId).To(Equal(shortened.Id))
 		})
 	})
 })
