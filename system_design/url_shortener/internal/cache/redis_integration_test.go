@@ -16,7 +16,7 @@ func TestCacheIntegration(t *testing.T) {
 
 var _ = Describe("cache integration tests", func() {
 	When("setting a cache value", func() {
-		var uut *RedisCache
+		var uut *redisCache
 		BeforeEach(func() {
 			uut = NewRedisCache("localhost", "6379")
 		})

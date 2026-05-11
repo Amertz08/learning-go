@@ -11,25 +11,25 @@ import (
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/handlers"
 )
 
-type RedisCache struct {
+type redisCache struct {
 	rdb *redis.Client
 }
 
-func NewRedisCache(host, port string) *RedisCache {
+func NewRedisCache(host, port string) *redisCache {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     net.JoinHostPort(host, port),
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
-	r := &RedisCache{rdb: rdb}
+	r := &redisCache{rdb: rdb}
 	return r
 }
 
-func (r *RedisCache) Close() error {
+func (r *redisCache) Close() error {
 	return r.rdb.Close()
 }
 
-func (r *RedisCache) Set(
+func (r *redisCache) Set(
 	ctx context.Context,
 	key string,
 	value *handlers.ShortenedRecord,
@@ -46,7 +46,7 @@ func (r *RedisCache) Set(
 	return nil
 }
 
-func (r *RedisCache) Get(ctx context.Context, key string) (*handlers.ShortenedRecord, error) {
+func (r *redisCache) Get(ctx context.Context, key string) (*handlers.ShortenedRecord, error) {
 	cmd := r.rdb.Get(ctx, key)
 	if cmd.Err() != nil {
 		return nil, cmd.Err()
