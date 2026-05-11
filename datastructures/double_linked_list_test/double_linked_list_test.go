@@ -401,7 +401,6 @@ var _ = Describe("Generic Double Linked List", func() {
 		})
 	})
 	When("the middle item is removed from a list of 3", func() {
-		// TODO implement
 		var firstVal, secondVal, thirdVal, targetVal int
 		var targetOk bool
 		var targetNode, nextNode, prevNode datastructures.DoubleLinkedListNode[int]
