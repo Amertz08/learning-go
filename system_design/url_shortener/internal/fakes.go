@@ -46,9 +46,9 @@ func (f *FakeDataStore) CreateShortenedRecord(
 	return f.Data[shortened], nil
 }
 
-func (f *FakeDataStore) Get(key string) (*handlers.ShortenedRecord, bool) {
-	val, ok := f.Data[key]
-	return val, ok
+func (f *FakeDataStore) Get(key string) (*handlers.ShortenedRecord, error) {
+	val, _ := f.Data[key]
+	return val, nil
 }
 
 func (f *FakeDataStore) CreateVisitRecord(shortId int) (*handlers.VisitRecord, error) {
@@ -86,6 +86,7 @@ func (f *FakeCacheStore) Set(
 func (f *FakeCacheStore) Get(ctx context.Context, key string) (*handlers.ShortenedRecord, error) {
 	val, ok := f.Cache[key]
 	if !ok {
+		// TODO: this is not really an error
 		return nil, errors.New("not found")
 	}
 	return val, nil

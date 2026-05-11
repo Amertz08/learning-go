@@ -84,10 +84,13 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 		shortRecord, err := cache.Get(ctx, hash)
 		// TODO: better error handling
 		if err != nil {
-			// TODO: deal with shadow issue. I think when this returns error instead of 'ok' we can just do = instead of :=
-			s, ok := store.Get(hash)
-			shortRecord = s
-			if !ok {
+			shortRecord, err = store.Get(hash)
+			if err != nil {
+				logger.Error("error getting hash from DB", slog.Any("error", err))
+				encodeServerErrorResponse(w)
+				return
+			}
+			if shortRecord == nil {
 				logger.Warn("not found", slog.Any("hash", hash))
 				w.WriteHeader(http.StatusNotFound)
 				return
@@ -154,7 +157,7 @@ type HashService interface {
 
 type HashDataStore interface {
 	CreateShortenedRecord(string, string) (*ShortenedRecord, error)
-	Get(string) (*ShortenedRecord, bool)
+	Get(string) (*ShortenedRecord, error)
 	CreateVisitRecord(int) (*VisitRecord, error)
 }
 
