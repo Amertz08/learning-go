@@ -41,7 +41,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			Visits: make(map[int]*handlers.VisitRecord),
 		}
 		hasher = &FakeHasher{}
-		cache = &FakeCacheStore{Cache: make(map[string]string)}
+		cache = &FakeCacheStore{Cache: make(map[string]*handlers.ShortenedRecord)}
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 			Level: DisableLogsLevel,
 		}))
@@ -80,7 +80,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				srv.Handler.ServeHTTP(recorder, request)
 
 				encoded := hasher.Encode(data.URL)
-				Expect(cache.Cache[data.URL]).To(Equal(encoded))
+				Expect(cache.Cache[data.URL].Encoded).To(Equal(encoded))
 			})
 		})
 		When("given a blank string", func() {
@@ -166,7 +166,11 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			BeforeEach(func() {
 				targetHash = "abc"
 				targetURL = "http://example.com"
-				cache.Set(targetHash, targetURL, 1)
+				cache.Set(
+					targetHash,
+					&handlers.ShortenedRecord{Id: 1, Encoded: targetHash, TargetURL: targetURL},
+					1,
+				)
 			})
 			It("returns a 302", func() {
 				request, _ := http.NewRequest("GET", "/v/"+targetHash, nil)
@@ -186,7 +190,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				request, _ := http.NewRequest("GET", "/v/"+targetHash, nil)
 
 				srv.Handler.ServeHTTP(recorder, request)
-				// TODO: best assertion
+				// TODO: better assertion
 				Expect(len(store.Visits) > 0).To(BeTrue())
 			})
 		})
@@ -213,7 +217,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 					srv.Handler.ServeHTTP(recorder, request)
 
 					obs, _ := cache.Get(targetHash)
-					Expect(obs).To(Equal(targetURL))
+					Expect(obs.TargetURL).To(Equal(targetURL))
 				})
 			})
 			It("returns a 404", func() {
@@ -288,11 +292,15 @@ func (f *FakeDataStore) CreateVisitRecord(shortId int) (*handlers.VisitRecord, e
 }
 
 type FakeCacheStore struct {
-	Cache       map[string]string
+	Cache       map[string]*handlers.ShortenedRecord
 	hasSetError bool
 }
 
-func (f *FakeCacheStore) Set(key, value string, expiration time.Duration) error {
+func (f *FakeCacheStore) Set(
+	key string,
+	value *handlers.ShortenedRecord,
+	expiration time.Duration,
+) error {
 	if f.hasSetError {
 		return errors.New("error setting cache")
 	}
@@ -300,7 +308,7 @@ func (f *FakeCacheStore) Set(key, value string, expiration time.Duration) error 
 	return nil
 }
 
-func (f *FakeCacheStore) Get(key string) (string, bool) {
+func (f *FakeCacheStore) Get(key string) (*handlers.ShortenedRecord, bool) {
 	val, ok := f.Cache[key]
 	return val, ok
 }

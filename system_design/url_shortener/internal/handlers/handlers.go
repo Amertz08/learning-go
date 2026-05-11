@@ -42,14 +42,14 @@ func ShortenHandler(
 
 		encoded := hasher.Encode(data.URL)
 
-		_, err = store.CreateShortenedRecord(encoded, data.URL)
+		shortRecord, err := store.CreateShortenedRecord(encoded, data.URL)
 		if err != nil {
 			logger.Error("could not save shortened link", slog.Any("error", err))
 			encodeServerErrorResponse(w)
 			return
 		}
 
-		if err = cache.Set(data.URL, encoded, 30*time.Minute); err != nil {
+		if err = cache.Set(data.URL, shortRecord, 30*time.Minute); err != nil {
 			logger.Error("could not cache value", slog.Any("error", err))
 			encodeServerErrorResponse(w)
 			return
@@ -78,30 +78,28 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 	return func(w http.ResponseWriter, r *http.Request) {
 		hash := r.PathValue("short_hash")
 		logger.Info("visiting", slog.Any("hash", hash))
-		redirectUrl, ok := cache.Get(hash)
+		shortRecord, ok := cache.Get(hash)
 		if !ok {
-			shortRecord, ok := store.Get(hash)
+			shortRecord, ok = store.Get(hash)
 			if !ok {
 				w.WriteHeader(http.StatusNotFound)
 				return
 			}
-			redirectUrl = shortRecord.TargetURL
-			if err := cache.Set(hash, redirectUrl, 30*time.Minute); err != nil {
+			if err := cache.Set(hash, shortRecord, 30*time.Minute); err != nil {
 				logger.Error("error setting the cache", slog.Any("error", err))
 				encodeServerErrorResponse(w)
 				return
 			}
 		}
 
-		// TODO: use actual shorten ID
-		_, err := store.CreateVisitRecord(123)
+		_, err := store.CreateVisitRecord(shortRecord.Id)
 		if err != nil {
 			logger.Error("error creating visit", slog.Any("error", err))
 			encodeServerErrorResponse(w)
 			return
 		}
 
-		http.Redirect(w, r, redirectUrl, http.StatusFound)
+		http.Redirect(w, r, shortRecord.TargetURL, http.StatusFound)
 	}
 }
 
@@ -135,7 +133,11 @@ func encodeClientErrorResponse(w http.ResponseWriter, message string) {
 }
 
 func encodeServerErrorResponse(w http.ResponseWriter) {
-	encodeResponse[ErrorResponse](w, http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
+	encodeResponse[ErrorResponse](
+		w,
+		http.StatusInternalServerError,
+		&ErrorResponse{Error: "server error"},
+	)
 }
 
 type HashService interface {
@@ -163,8 +165,6 @@ type VisitRecord struct {
 }
 
 type HashCacheStore interface {
-	// TODO: set should probably take ShortenedRecord
-	Set(string, string, time.Duration) error
-	// TODO: should probably return ShortenedRecord
-	Get(string) (string, bool)
+	Set(string, *ShortenedRecord, time.Duration) error
+	Get(string) (*ShortenedRecord, bool)
 }
