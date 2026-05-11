@@ -22,7 +22,7 @@ var _ = Describe("postgres integration tests", func() {
 	BeforeEach(func(ctx SpecContext) {
 		conn, connErr = pgx.Connect(ctx, "postgres://postgres:password@localhost:5432/postgres")
 		Expect(connErr).ToNot(HaveOccurred())
-		row, connErr := conn.Query(ctx, url_shortener.SchemaSqlString)
+		row, connErr := conn.Query(ctx, url_shortener.CreateSchemaSqlString)
 		row.Close()
 		Expect(connErr).ToNot(HaveOccurred())
 
