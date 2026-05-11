@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/handlers"
+	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
 )
 
 type FakeHasher struct {
@@ -19,26 +19,26 @@ func (f *FakeHasher) Encode(input string) string { return input + "+hello" }
 func (f *FakeHasher) Decode(input string) string { return "" }
 
 type FakeDataStore struct {
-	Data              map[string]*handlers.ShortenedRecord
+	Data              map[string]*server.ShortenedRecord
 	HasCreateShortErr bool
 	HasGetError       bool
-	Visits            map[int]*handlers.VisitRecord
+	Visits            map[int]*server.VisitRecord
 }
 
 func NewFakeDataStore() *FakeDataStore {
 	return &FakeDataStore{
-		Data:   make(map[string]*handlers.ShortenedRecord),
-		Visits: make(map[int]*handlers.VisitRecord),
+		Data:   make(map[string]*server.ShortenedRecord),
+		Visits: make(map[int]*server.VisitRecord),
 	}
 }
 
 func (f *FakeDataStore) CreateShortenedRecord(
 	shortened, original string,
-) (*handlers.ShortenedRecord, error) {
+) (*server.ShortenedRecord, error) {
 	if f.HasCreateShortErr {
 		return nil, errors.New("failed to create record")
 	}
-	f.Data[shortened] = &handlers.ShortenedRecord{
+	f.Data[shortened] = &server.ShortenedRecord{
 		Id:        1,
 		Encoded:   shortened,
 		TargetURL: original,
@@ -47,7 +47,7 @@ func (f *FakeDataStore) CreateShortenedRecord(
 	return f.Data[shortened], nil
 }
 
-func (f *FakeDataStore) Get(key string) (*handlers.ShortenedRecord, error) {
+func (f *FakeDataStore) Get(key string) (*server.ShortenedRecord, error) {
 	val, _ := f.Data[key]
 	if f.HasGetError {
 		return nil, fmt.Errorf("error getting db key: %s", key)
@@ -55,8 +55,8 @@ func (f *FakeDataStore) Get(key string) (*handlers.ShortenedRecord, error) {
 	return val, nil
 }
 
-func (f *FakeDataStore) CreateVisitRecord(shortId int) (*handlers.VisitRecord, error) {
-	v := &handlers.VisitRecord{
+func (f *FakeDataStore) CreateVisitRecord(shortId int) (*server.VisitRecord, error) {
+	v := &server.VisitRecord{
 		Id:        1,
 		ShortId:   shortId,
 		CreatedAt: time.Now(),

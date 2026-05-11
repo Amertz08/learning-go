@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/handlers"
+	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
 )
 
 type redisCache struct {
@@ -32,7 +32,7 @@ func (r *redisCache) Close() error {
 func (r *redisCache) Set(
 	ctx context.Context,
 	key string,
-	value *handlers.ShortenedRecord,
+	value *server.ShortenedRecord,
 	expiration time.Duration,
 ) error {
 	var b bytes.Buffer
@@ -46,7 +46,7 @@ func (r *redisCache) Set(
 	return nil
 }
 
-func (r *redisCache) Get(ctx context.Context, key string) (*handlers.ShortenedRecord, error) {
+func (r *redisCache) Get(ctx context.Context, key string) (*server.ShortenedRecord, error) {
 	cmd := r.rdb.Get(ctx, key)
 	if cmd.Err() != nil {
 		return nil, cmd.Err()
@@ -56,7 +56,7 @@ func (r *redisCache) Get(ctx context.Context, key string) (*handlers.ShortenedRe
 	if err != nil {
 		return nil, err
 	}
-	var val handlers.ShortenedRecord
+	var val server.ShortenedRecord
 	if err = json.NewDecoder(bytes.NewReader(byteData)).Decode(&val); err != nil {
 		return nil, err
 	}

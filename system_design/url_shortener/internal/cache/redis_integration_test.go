@@ -6,7 +6,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/handlers"
+	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
 )
 
 func TestCacheIntegration(t *testing.T) {
@@ -28,7 +28,7 @@ var _ = Describe("cache integration tests", func() {
 			err := uut.Set(
 				ctx,
 				"mykey",
-				&handlers.ShortenedRecord{
+				&server.ShortenedRecord{
 					Id:        1,
 					Encoded:   "abc",
 					TargetURL: "http://example.com",
@@ -39,7 +39,7 @@ var _ = Describe("cache integration tests", func() {
 			Expect(err).To(BeNil())
 		})
 		It("will correctly get", func(ctx SpecContext) {
-			input := handlers.ShortenedRecord{
+			input := server.ShortenedRecord{
 				Id:        1,
 				Encoded:   "abc",
 				TargetURL: "http://example.com",

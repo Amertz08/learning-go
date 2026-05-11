@@ -15,7 +15,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal"
 	cache2 "github.come/Amertz08/learning-go/system_design/url_shortener/internal/cache"
-	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/handlers"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
 )
 
@@ -60,7 +59,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 				srv.Handler.ServeHTTP(recorder, request)
 
-				resp := decodeTestResponse[handlers.ShortenedResponse](recorder.Body)
+				resp := decodeTestResponse[server.ShortenedResponse](recorder.Body)
 				Expect(resp.URL).To(Equal("blah+hello"))
 			})
 			It("stores the value in the database", func() {
@@ -93,8 +92,8 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 				srv.Handler.ServeHTTP(recorder, request)
 
-				resp := decodeTestResponse[handlers.ErrorResponse](recorder.Body)
-				Expect(resp).To(Equal(&handlers.ErrorResponse{Error: "invalid parameters"}))
+				resp := decodeTestResponse[server.ErrorResponse](recorder.Body)
+				Expect(resp).To(Equal(&server.ErrorResponse{Error: "invalid parameters"}))
 			})
 		})
 		When("no body provided", func() {
@@ -110,8 +109,8 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 				srv.Handler.ServeHTTP(recorder, request)
 
-				resp := decodeTestResponse[handlers.ErrorResponse](recorder.Body)
-				Expect(resp).To(Equal(&handlers.ErrorResponse{Error: "invalid parameters"}))
+				resp := decodeTestResponse[server.ErrorResponse](recorder.Body)
+				Expect(resp).To(Equal(&server.ErrorResponse{Error: "invalid parameters"}))
 			})
 		})
 		When("an insertion error occurs", func() {
@@ -131,8 +130,8 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 				srv.Handler.ServeHTTP(recorder, request)
 
-				resp := decodeTestResponse[handlers.ErrorResponse](recorder.Body)
-				Expect(resp).To(Equal(&handlers.ErrorResponse{Error: "server error"}))
+				resp := decodeTestResponse[server.ErrorResponse](recorder.Body)
+				Expect(resp).To(Equal(&server.ErrorResponse{Error: "server error"}))
 			})
 		})
 		When("a cache error occurs", func() {
@@ -152,8 +151,8 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 				srv.Handler.ServeHTTP(recorder, request)
 
-				resp := decodeTestResponse[handlers.ErrorResponse](recorder.Body)
-				Expect(resp).To(Equal(&handlers.ErrorResponse{Error: "server error"}))
+				resp := decodeTestResponse[server.ErrorResponse](recorder.Body)
+				Expect(resp).To(Equal(&server.ErrorResponse{Error: "server error"}))
 			})
 		})
 	})
@@ -166,7 +165,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				cache.Set(
 					nil,
 					targetHash,
-					&handlers.ShortenedRecord{Id: 1, Encoded: targetHash, TargetURL: targetURL},
+					&server.ShortenedRecord{Id: 1, Encoded: targetHash, TargetURL: targetURL},
 					1,
 				)
 			})
@@ -247,9 +246,9 @@ func encodeTestRequest[T any](data *T) io.ReadWriter {
 	return &b
 }
 
-func newShortenedRequest(url string) (*http.Request, *handlers.ShortenRequest) {
-	data := &handlers.ShortenRequest{URL: url}
-	body := encodeTestRequest[handlers.ShortenRequest](data)
+func newShortenedRequest(url string) (*http.Request, *server.ShortenRequest) {
+	data := &server.ShortenRequest{URL: url}
+	body := encodeTestRequest[server.ShortenRequest](data)
 	request, _ := http.NewRequest("POST", "/shorten", body)
 	return request, data
 }
