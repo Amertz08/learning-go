@@ -16,6 +16,7 @@ var (
 )
 
 // TODO: cache expiry via config
+// TODO: throttle creation
 
 func ShortenHandler(
 	logger *slog.Logger,
