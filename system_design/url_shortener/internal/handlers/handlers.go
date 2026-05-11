@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -23,6 +24,7 @@ func ShortenHandler(
 	cache HashCacheStore,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 		data, err := decodeRequest[ShortenRequest](r.Body)
 
 		if err != nil {
@@ -49,7 +51,7 @@ func ShortenHandler(
 			return
 		}
 
-		if err = cache.Set(data.URL, shortRecord, 30*time.Minute); err != nil {
+		if err = cache.Set(ctx, data.URL, shortRecord, 30*time.Minute); err != nil {
 			logger.Error("could not cache value", slog.Any("error", err))
 			encodeServerErrorResponse(w)
 			return
@@ -76,9 +78,10 @@ type ShortenedResponse struct {
 
 func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 		hash := r.PathValue("short_hash")
 
-		shortRecord, ok := cache.Get(hash)
+		shortRecord, ok := cache.Get(ctx, hash)
 		if !ok {
 			shortRecord, ok = store.Get(hash)
 			if !ok {
@@ -86,7 +89,7 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 				w.WriteHeader(http.StatusNotFound)
 				return
 			}
-			if err := cache.Set(hash, shortRecord, 30*time.Minute); err != nil {
+			if err := cache.Set(ctx, hash, shortRecord, 30*time.Minute); err != nil {
 				logger.Error("error setting the cache", slog.Any("error", err))
 				encodeServerErrorResponse(w)
 				return
@@ -166,6 +169,6 @@ type VisitRecord struct {
 }
 
 type HashCacheStore interface {
-	Set(string, *ShortenedRecord, time.Duration) error
-	Get(string) (*ShortenedRecord, bool)
+	Set(context.Context, string, *ShortenedRecord, time.Duration) error
+	Get(context.Context, string) (*ShortenedRecord, bool)
 }

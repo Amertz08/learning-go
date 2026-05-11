@@ -163,6 +163,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				targetHash = "abc"
 				targetURL = "http://example.com"
 				cache.Set(
+					nil,
 					targetHash,
 					&handlers.ShortenedRecord{Id: 1, Encoded: targetHash, TargetURL: targetURL},
 					1,
@@ -212,7 +213,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 					srv.Handler.ServeHTTP(recorder, request)
 
-					obs, _ := cache.Get(targetHash)
+					obs, _ := cache.Get(nil, targetHash)
 					Expect(obs.TargetURL).To(Equal(targetURL))
 				})
 			})

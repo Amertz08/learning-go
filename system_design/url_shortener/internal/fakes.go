@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -70,6 +71,7 @@ func NewFakeCacheStore() *FakeCacheStore {
 }
 
 func (f *FakeCacheStore) Set(
+	ctx context.Context,
 	key string,
 	value *handlers.ShortenedRecord,
 	expiration time.Duration,
@@ -81,7 +83,7 @@ func (f *FakeCacheStore) Set(
 	return nil
 }
 
-func (f *FakeCacheStore) Get(key string) (*handlers.ShortenedRecord, bool) {
+func (f *FakeCacheStore) Get(ctx context.Context, key string) (*handlers.ShortenedRecord, bool) {
 	val, ok := f.Cache[key]
 	return val, ok
 }
