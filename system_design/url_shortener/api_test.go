@@ -14,7 +14,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal"
-	cache2 "github.come/Amertz08/learning-go/system_design/url_shortener/internal/cache"
+	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/cache"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
 )
 
@@ -30,19 +30,19 @@ var _ = Describe("Interacting with URL shortener API", func() {
 	var recorder *httptest.ResponseRecorder
 	var hasher *internal.FakeHasher
 	var store *internal.FakeDataStore
-	var cache *cache2.FakeCacheStore
+	var fakeCache *cache.FakeCacheStore
 	var logger *slog.Logger
 
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
 		store = internal.NewFakeDataStore()
 		hasher = internal.NewFakeHasher()
-		cache = cache2.NewFakeCacheStore()
+		fakeCache = cache.NewFakeCacheStore()
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 			Level: DisableLogsLevel,
 		}))
 
-		srv = server.NewServer(logger, "localhost", "8080", hasher, store, cache)
+		srv = server.NewServer(logger, "localhost", "8080", hasher, store, fakeCache)
 	})
 	Context("creating a shortened link", func() {
 		When("given valid parameters", func() {
@@ -76,7 +76,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 				srv.Handler.ServeHTTP(recorder, request)
 
 				encoded := hasher.Encode(data.URL)
-				Expect(cache.Cache[data.URL].Encoded).To(Equal(encoded))
+				Expect(fakeCache.Cache[data.URL].Encoded).To(Equal(encoded))
 			})
 		})
 		When("given a blank string", func() {
@@ -138,7 +138,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			It("returns a 500", func() {
 				request, _ := newShortenedRequest("blah")
 
-				cache.HasSetError = true
+				fakeCache.HasSetError = true
 
 				srv.Handler.ServeHTTP(recorder, request)
 
@@ -147,7 +147,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			It("tells you there is a server error", func() {
 				request, _ := newShortenedRequest("blah")
 
-				cache.HasSetError = true
+				fakeCache.HasSetError = true
 
 				srv.Handler.ServeHTTP(recorder, request)
 
@@ -162,7 +162,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 			BeforeEach(func() {
 				targetHash = "abc"
 				targetURL = "http://example.com"
-				cache.Set(
+				fakeCache.Set(
 					nil,
 					targetHash,
 					&server.ShortenedRecord{Id: 1, Encoded: targetHash, TargetURL: targetURL},
@@ -213,7 +213,7 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 					srv.Handler.ServeHTTP(recorder, request)
 
-					obs, _ := cache.Get(nil, targetHash)
+					obs, _ := fakeCache.Get(nil, targetHash)
 					Expect(obs.TargetURL).To(Equal(targetURL))
 				})
 			})
