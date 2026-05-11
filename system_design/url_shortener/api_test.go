@@ -35,12 +35,9 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
-		store = &internal.FakeDataStore{
-			Data:   make(map[string]*handlers.ShortenedRecord),
-			Visits: make(map[int]*handlers.VisitRecord),
-		}
-		hasher = &internal.FakeHasher{}
-		cache = &internal.FakeCacheStore{Cache: make(map[string]*handlers.ShortenedRecord)}
+		store = internal.NewFakeDataStore()
+		hasher = internal.NewFakeHasher()
+		cache = internal.NewFakeCacheStore()
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 			Level: DisableLogsLevel,
 		}))

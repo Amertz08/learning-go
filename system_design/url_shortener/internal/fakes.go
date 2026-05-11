@@ -10,6 +10,10 @@ import (
 type FakeHasher struct {
 }
 
+func NewFakeHasher() *FakeHasher {
+	return &FakeHasher{}
+}
+
 func (f *FakeHasher) Encode(input string) string { return input + "+hello" }
 func (f *FakeHasher) Decode(input string) string { return "" }
 
@@ -17,6 +21,13 @@ type FakeDataStore struct {
 	Data           map[string]*handlers.ShortenedRecord
 	HasCreateError bool
 	Visits         map[int]*handlers.VisitRecord
+}
+
+func NewFakeDataStore() *FakeDataStore {
+	return &FakeDataStore{
+		Data:   make(map[string]*handlers.ShortenedRecord),
+		Visits: make(map[int]*handlers.VisitRecord),
+	}
 }
 
 func (f *FakeDataStore) CreateShortenedRecord(
@@ -52,6 +63,10 @@ func (f *FakeDataStore) CreateVisitRecord(shortId int) (*handlers.VisitRecord, e
 type FakeCacheStore struct {
 	Cache       map[string]*handlers.ShortenedRecord
 	HasSetError bool
+}
+
+func NewFakeCacheStore() *FakeCacheStore {
+	return &FakeCacheStore{Cache: make(map[string]*handlers.ShortenedRecord)}
 }
 
 func (f *FakeCacheStore) Set(
