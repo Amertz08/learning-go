@@ -37,7 +37,7 @@ func main() {
 	s := database.NewPGDataStore(conn)
 	c := cache.NewRedisCache(cfg.RedisConfig.Host, cfg.RedisConfig.Port)
 	defer func() {
-		if err := c.Close(); err != nil {
+		if redisErr := c.Close(); redisErr != nil {
 			logger.Error("error closing cache", slog.Any("error", err))
 		}
 	}()
@@ -46,12 +46,12 @@ func main() {
 
 	go func() {
 		logger.Info(fmt.Sprintf("starting server -> %s", srv.Addr))
-		if err := srv.ListenAndServe(); err != nil {
-			if errors.Is(err, http.ErrServerClosed) {
+		if listenErr := srv.ListenAndServe(); listenErr != nil {
+			if errors.Is(listenErr, http.ErrServerClosed) {
 				logger.Info("server closed gracefully")
 				return
 			}
-			logger.Error("error running server", slog.Any("error", err))
+			logger.Error("error running server", slog.Any("error", listenErr))
 		}
 	}()
 
@@ -65,8 +65,8 @@ func main() {
 		shutDownCtx := context.Background()
 		shutDownCtx, shutDownCnc := context.WithTimeout(ctx, 10*time.Second)
 		defer shutDownCnc()
-		if err := srv.Shutdown(shutDownCtx); err != nil {
-			logger.Error("error shutting down server", slog.Any("error", err))
+		if shutDownErr := srv.Shutdown(shutDownCtx); shutDownErr != nil {
+			logger.Error("error shutting down server", slog.Any("error", shutDownErr))
 		}
 	}()
 
