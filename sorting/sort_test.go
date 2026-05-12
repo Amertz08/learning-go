@@ -129,6 +129,7 @@ type NamedSortFunc struct {
 
 var sortingFuncs = []NamedSortFunc{
 	{"InsertionSort", InsertionSort},
+	{"MergeSort", MergeSort},
 }
 
 var _ = Describe("Sort", func() {
