@@ -13,6 +13,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/cache"
+	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/config"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/database"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/hasher"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/server"
@@ -25,14 +26,16 @@ func main() {
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
+	cfg := config.ReadFromEnv()
+
 	h := &hasher.Base64Hasher{}
-	conn, err := pgx.Connect(ctx, "postgres://postgres:password@localhost:5432/postgres")
+	conn, err := pgx.Connect(ctx, cfg.DatabaseConfig.ConnString())
 	if err != nil {
 		logger.Error("could not connect to db", slog.Any("error", err))
 		os.Exit(1)
 	}
 	s := database.NewPGDataStore(conn)
-	c := cache.NewRedisCache("localhost", "6379")
+	c := cache.NewRedisCache(cfg.RedisConfig.Host, cfg.RedisConfig.Port)
 	defer func() {
 		if err := c.Close(); err != nil {
 			logger.Error("error closing cache", slog.Any("error", err))
