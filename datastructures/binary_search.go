@@ -11,12 +11,12 @@ func BinarySearch[T constraints.Ordered](data []T, target T) int {
 		mid := (left + right) / 2
 
 		guess := data[mid]
-		if guess == target {
-			return mid
-		} else if target < guess {
+		if target < guess {
 			right = mid - 1
-		} else {
+		} else if target > guess {
 			left = mid + 1
+		} else {
+			return mid
 		}
 	}
 	return -1
