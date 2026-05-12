@@ -69,11 +69,9 @@ func merge(data []int, s, m, e int) {
 		i++
 		k++
 	}
-
 	for j < len(right) {
 		data[k] = right[j]
 		j++
 		k++
 	}
-
 }
