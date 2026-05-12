@@ -28,6 +28,8 @@ func (c *DatabaseConfig) ConnString() string {
 }
 
 func ReadFromEnv() *Config {
+	// TODO: idk how I feel about this. I'd rather have the envars defined in the entrypoint
+	// 	This does make sense if there were multiple binaries that share config values.
 	c := &Config{
 		RedisConfig: RedisConfig{
 			Host: os.Getenv("REDIS_HOST"),
