@@ -6,6 +6,7 @@ import (
 )
 
 type tokens chan struct{}
+type token struct{}
 
 type TokenLimiter struct {
 	count  int
@@ -17,7 +18,7 @@ func NewTokenLimiter(count int) *TokenLimiter {
 	// TODO: configurable timer
 	toks := make(tokens, count)
 	for i := 0; i < count; i++ {
-		toks <- struct{}{}
+		toks <- token{}
 	}
 
 	return &TokenLimiter{
@@ -34,7 +35,7 @@ func (l *TokenLimiter) Start(ctx context.Context) {
 			select {
 			case <-l.ticker.C:
 				select {
-				case l.tokens <- struct{}{}:
+				case l.tokens <- token{}:
 				default:
 				}
 			case <-ctx.Done():
@@ -52,4 +53,9 @@ func (l *TokenLimiter) Acquire() bool {
 	default:
 		return false
 	}
+}
+
+// Wait blocks until a token is available
+func (l *TokenLimiter) Wait() {
+	<-l.tokens
 }
