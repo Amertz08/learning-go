@@ -16,7 +16,7 @@ type TokenLimiter struct {
 
 func NewTokenLimiter(count int) *TokenLimiter {
 	// TODO: configurable timer
-	toks := make(chan struct{}, count)
+	toks := make(tokens, count)
 	for i := 0; i < count; i++ {
 		toks <- struct{}{}
 	}
@@ -28,6 +28,7 @@ func NewTokenLimiter(count int) *TokenLimiter {
 	}
 }
 
+// Start will kick off a goroutine to add tokens to the bucket
 func (l *TokenLimiter) Start(ctx context.Context) {
 	go func() {
 		for {
@@ -44,6 +45,7 @@ func (l *TokenLimiter) Start(ctx context.Context) {
 	}()
 }
 
+// Acquire returns true if a token can be retrieved from the bucket false otherwise
 func (l *TokenLimiter) Acquire() bool {
 	select {
 	case <-l.tokens:
