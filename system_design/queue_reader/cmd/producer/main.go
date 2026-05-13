@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func main() {
+	workers := 10
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	if err != nil {
 		fmt.Println("error dialing rabbitmq")
@@ -41,13 +43,30 @@ func main() {
 	defer cancel()
 
 	body := "hello"
-	err = ch.PublishWithContext(ctx,
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(body),
-		})
+	var wg sync.WaitGroup
+
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for {
+				select {
+				case <-ctx.Done():
+				default:
+					err = ch.PublishWithContext(ctx,
+						"",     // exchange
+						q.Name, // routing key
+						false,  // mandatory
+						false,  // immediate
+						amqp.Publishing{
+							ContentType: "text/plain",
+							Body:        []byte(body),
+						})
+					time.Sleep(100 * time.Millisecond)
+				}
+			}
+		}()
+	}
+	wg.Wait()
+
 }
