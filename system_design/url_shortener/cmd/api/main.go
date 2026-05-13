@@ -27,6 +27,13 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	cfg := config.ReadFromEnv()
+	cfg.DatabaseConfig.Host = "localhost"
+	cfg.DatabaseConfig.Port = "5432"
+	cfg.DatabaseConfig.User = "postgres"
+	cfg.DatabaseConfig.Password = "password"
+	cfg.DatabaseConfig.Name = "postgres"
+	cfg.RedisConfig.Host = "localhost"
+	cfg.RedisConfig.Port = "6379"
 
 	h := &hasher.Base64Hasher{}
 	conn, err := pgx.Connect(ctx, cfg.DatabaseConfig.ConnString())

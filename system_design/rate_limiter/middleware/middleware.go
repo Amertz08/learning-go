@@ -21,14 +21,14 @@ func NewRateLimiterMiddleware(limiterFunc LimiterCreationFunc) *RateLimiterMiddl
 	return &RateLimiterMiddleware{limiterFunc}
 }
 
-func (m *RateLimiterMiddleware) Wrap(next http.Handler) http.Handler {
+func (m *RateLimiterMiddleware) Wrap(next http.Handler) http.HandlerFunc {
 	limiter := m.limiterCreationFunc()
 	limiter.Start(context.Background()) // TODO: not sure about this context
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		if limiter.Acquire() {
 			next.ServeHTTP(w, r)
 		} else {
 			w.WriteHeader(http.StatusTooManyRequests)
 		}
-	})
+	}
 }
