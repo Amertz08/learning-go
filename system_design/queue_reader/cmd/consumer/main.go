@@ -4,11 +4,14 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func main() {
+	workers := 5
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -52,14 +55,24 @@ func main() {
 		false,  // no-wait
 		nil,    // args
 	)
-	for {
-		select {
-		case <-ctx.Done():
-		case msg, ok := <-msgs:
-			if !ok {
-				return
+
+	var wg sync.WaitGroup
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			for {
+				select {
+				case <-ctx.Done():
+				case msg, ok := <-msgs:
+					if !ok {
+						return
+					}
+					fmt.Println(id, msg)
+					time.Sleep(1 * time.Second)
+				}
 			}
-			fmt.Println(msg)
-		}
+		}(i)
 	}
+	wg.Wait()
 }
