@@ -54,7 +54,26 @@ func (l *TokenLimiter) Acquire() bool {
 }
 
 func main() {
-	// script showing bucket rate limiting but how do I integrate this into an API?
+	/*
+		token limiter
+
+		could use as follows very WIP idea
+		func Middleware(limiter TokenLimiter) func(http.Handler) http.Handler {
+			// somehow get ctx here
+			limiter.Start(ctx)
+
+			return func(next http.Handler) http.Handler {
+				return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					if limiter.Aquire() {
+						next.ServeHTTP(w, r)
+					} else {
+						// write 429
+					}
+				})
+			}
+		}
+
+	*/
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	bucketSize := 5
