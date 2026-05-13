@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"time"
 
 	"github.come/Amertz08/learning-go/system_design/rate_limiter/middleware"
 	"github.come/Amertz08/learning-go/system_design/rate_limiter/middleware/funcs"
@@ -19,8 +20,9 @@ func NewServer(
 ) *http.Server {
 	mux := &http.ServeMux{}
 
-	tokenLimiterFunc := funcs.NewTokenLimiterClosure(5)
-	rateLimiterMiddleware := middleware.NewRateLimiterMiddleware(tokenLimiterFunc)
+	//tokenLimiterFunc := funcs.NewTokenLimiterClosure(5)
+	slidinglimiterFunc := funcs.NewSlidingLimiterClosure(5, 20*time.Second)
+	rateLimiterMiddleware := middleware.NewRateLimiterMiddleware(slidinglimiterFunc)
 
 	shortHandler := ShortenHandler(logger, hasher, store, cache)
 	visitHandler := VisitHandler(logger, store, cache)
