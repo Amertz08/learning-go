@@ -77,10 +77,10 @@ func NewRabbitMQImpl[T any](
 }
 
 func (q *RabbitMQImpl[T]) Close() error {
-	if err := q.conn.Close(); err != nil {
+	if err := q.channel.Close(); err != nil {
 		return err
 	}
-	if err := q.channel.Close(); err != nil {
+	if err := q.conn.Close(); err != nil {
 		return err
 	}
 	return nil
