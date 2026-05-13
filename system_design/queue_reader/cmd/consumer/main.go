@@ -103,10 +103,10 @@ func (q *RabbitMQImpl[T]) Read(ctx context.Context) <-chan T {
 		for {
 			select {
 			case <-ctx.Done():
-				break
+				return
 			case msg, ok := <-msgs:
 				if !ok {
-					break
+					return
 				}
 				val, decodeErr := q.encodeDecoder.Decode(msg)
 				if decodeErr != nil {
