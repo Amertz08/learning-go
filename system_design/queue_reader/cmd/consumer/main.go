@@ -52,8 +52,11 @@ type RabbitMQImpl[T any] struct {
 	encodeDecoder EncodeDecoder[T]
 }
 
-func NewRabbitMQImpl[T any]() (*RabbitMQImpl[T], error) {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+func NewRabbitMQImpl[T any](
+	connStr, queueName string,
+	encodeDecoder EncodeDecoder[T],
+) (*RabbitMQImpl[T], error) {
+	conn, err := amqp.Dial(connStr)
 	if err != nil {
 		return nil, err
 	}
@@ -64,9 +67,10 @@ func NewRabbitMQImpl[T any]() (*RabbitMQImpl[T], error) {
 		return nil, err
 	}
 	q := &RabbitMQImpl[T]{
-		conn:    conn,
-		channel: ch,
-		name:    "hello",
+		conn:          conn,
+		channel:       ch,
+		name:          queueName,
+		encodeDecoder: encodeDecoder,
 	}
 	return q, nil
 }
