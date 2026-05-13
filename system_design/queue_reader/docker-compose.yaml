@@ -1,0 +1,11 @@
+services:
+  queue:
+    image: rabbitmq:4.3
+    ports:
+      - "5672:5672"
+  db:
+    image: postgres:18.3
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: password
