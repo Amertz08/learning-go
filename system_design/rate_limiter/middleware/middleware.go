@@ -10,6 +10,9 @@ type Limiter interface {
 	Acquire() bool
 }
 
+// TODO: I think the way this is implemented unless you init a new
+//
+//	middleware for each handler you will be sharing a bucket.
 type RateLimiterMiddleware struct {
 	limiter Limiter
 }
