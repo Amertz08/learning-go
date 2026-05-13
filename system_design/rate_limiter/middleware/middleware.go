@@ -17,6 +17,10 @@ type RateLimiterMiddleware struct {
 	limiterCreationFunc LimiterCreationFunc
 }
 
+func NewRateLimiterMiddleware(limiterFunc LimiterCreationFunc) *RateLimiterMiddleware {
+	return &RateLimiterMiddleware{limiterFunc}
+}
+
 func (m *RateLimiterMiddleware) Wrap(next http.Handler) http.Handler {
 	limiter := m.limiterCreationFunc()
 	limiter.Start(context.Background()) // TODO: not sure about this context
