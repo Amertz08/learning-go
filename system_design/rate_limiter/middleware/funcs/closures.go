@@ -18,3 +18,8 @@ func NewSlidingLimiterClosure(logSize int, windowSize time.Duration) middleware.
 	limiter := limiters.NewSlidingWindowLogLimiter(logSize, windowSize)
 	return func() middleware.Limiter { return limiter }
 }
+
+func NewFixedWindowLimiterClosure(maxCount int, interval time.Duration) middleware.LimiterCreationFunc {
+	limiter := limiters.NewFixedWindowLimiter(maxCount, interval)
+	return func() middleware.Limiter { return limiter }
+}

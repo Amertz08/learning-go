@@ -13,6 +13,14 @@ type FixedWindowLimiter struct {
 	queue    datastructures.Queue[int]
 }
 
+func NewFixedWindowLimiter(maxCount int, interval time.Duration) *FixedWindowLimiter {
+	return &FixedWindowLimiter{
+		ticker:   time.NewTicker(interval),
+		maxCount: maxCount,
+		queue:    datastructures.NewLinkedListQueue[int](),
+	}
+}
+
 func (l *FixedWindowLimiter) Start(ctx context.Context) {
 	go func() {
 		for {

@@ -21,8 +21,9 @@ func NewServer(
 	mux := &http.ServeMux{}
 
 	//tokenLimiterFunc := funcs.NewTokenLimiterClosure(5)
-	slidinglimiterFunc := funcs.NewSlidingLimiterClosure(5, 20*time.Second)
-	rateLimiterMiddleware := middleware.NewRateLimiterMiddleware(slidinglimiterFunc)
+	//slidingLimiterFunc := funcs.NewSlidingLimiterClosure(5, 20*time.Second)
+	fixedWindowLimiter := funcs.NewFixedWindowLimiterClosure(5, 20*time.Second)
+	rateLimiterMiddleware := middleware.NewRateLimiterMiddleware(fixedWindowLimiter)
 
 	shortHandler := ShortenHandler(logger, hasher, store, cache)
 	visitHandler := VisitHandler(logger, store, cache)
