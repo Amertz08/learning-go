@@ -10,17 +10,18 @@ type Limiter interface {
 	Acquire() bool
 }
 
-// TODO: I think the way this is implemented unless you init a new
-//
-//	middleware for each handler you will be sharing a bucket.
+// LimiterCreationFunc allows the middleware to create a limiter per handler
+type LimiterCreationFunc func() Limiter
+
 type RateLimiterMiddleware struct {
-	limiter Limiter
+	limiterCreationFunc LimiterCreationFunc
 }
 
 func (m *RateLimiterMiddleware) Wrap(next http.Handler) http.Handler {
-	m.limiter.Start(context.Background())
+	limiter := m.limiterCreationFunc()
+	limiter.Start(context.Background()) // TODO: not sure about this context
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if m.limiter.Acquire() {
+		if limiter.Acquire() {
 			next.ServeHTTP(w, r)
 		} else {
 			w.WriteHeader(http.StatusTooManyRequests)
