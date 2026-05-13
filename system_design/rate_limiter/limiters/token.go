@@ -3,6 +3,8 @@ package limiters
 import (
 	"context"
 	"time"
+
+	"github.come/Amertz08/learning-go/system_design/rate_limiter/middleware"
 )
 
 type tokens chan struct{}
@@ -24,6 +26,16 @@ func NewTokenLimiter(count int) *TokenLimiter {
 		count:  count,
 		tokens: toks,
 		ticker: time.NewTicker(2 * time.Second),
+	}
+}
+
+// TODO: it seems weird to have the idea of 'middleware' here since
+//
+//	a token limiter does not have to be used in a middleware
+func NewTokenLimiterClosure(count int) middleware.LimiterCreationFunc {
+	limiter := NewTokenLimiter(count)
+	return func() middleware.Limiter {
+		return limiter
 	}
 }
 
