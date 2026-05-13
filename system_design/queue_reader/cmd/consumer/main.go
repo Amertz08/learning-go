@@ -60,6 +60,7 @@ func NewRabbitMQImpl[T any]() (*RabbitMQImpl[T], error) {
 
 	ch, err := conn.Channel()
 	if err != nil {
+		conn.Close()
 		return nil, err
 	}
 	q := &RabbitMQImpl[T]{
