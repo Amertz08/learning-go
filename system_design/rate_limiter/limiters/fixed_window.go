@@ -3,43 +3,36 @@ package limiters
 import (
 	"context"
 	"time"
+
+	"github.come/Amertz08/learning-go/datastructures"
 )
 
-type FixedWindowLimiter[T any] struct {
-	ticker    *time.Ticker
-	maxCount  int
-	inputChan chan T
+type FixedWindowLimiter struct {
+	ticker   *time.Ticker
+	maxCount int
+	queue    datastructures.Queue[int]
 }
 
-func (l *FixedWindowLimiter[T]) Start(ctx context.Context, procRequest func(T)) {
+func (l *FixedWindowLimiter) Start(ctx context.Context) {
 	go func() {
-		reqCount := 0
 		for {
 			select {
-			// TODO: do I need a default case? If nothing is in the channel I think
-			// 	we will read the zero value I believe and process that. Which we probably don't want.
 			case <-ctx.Done():
 				return
 			case <-l.ticker.C:
 				// reset count at end of window
-				reqCount = 0
-			case val, ok := <-l.inputChan:
-				if !ok {
-					return
-				}
-				// if reqCount == maxCount ignore
-				// else process request and increment count
-				if reqCount == l.maxCount {
-					continue
-				} else {
-					procRequest(val)
-					reqCount++
+				for i := l.queue.Len(); i > 0; i-- {
+					l.queue.Dequeue()
 				}
 			}
 		}
 	}()
 }
 
-func (l *FixedWindowLimiter[T]) Add(val T) {
-	l.inputChan <- val
+func (l *FixedWindowLimiter) Acquire() bool {
+	if l.queue.Len() == l.maxCount {
+		return false
+	}
+	l.queue.Enqueue(1)
+	return true
 }
