@@ -9,7 +9,8 @@ import (
 )
 
 func main() {
-	// script showing bucket throttling but how do I integrate this into an API?
+	// script showing bucket rate limiting but how do I integrate this into an API?
+	// TODO: use timer
 	ctx := context.Background()
 	bucketSize := 5
 	bucket := make(chan int, bucketSize)
