@@ -36,13 +36,14 @@ func main() {
 
 type QueueReader[T any] interface {
 	Close() error
-	Publish(ctx, val T) error
+	Publish(ctx context.Context, val T) error
 	Read(ctx context.Context) <-chan T
 }
 
+// EncodeDecoder should convert a type to and from []byte
 type EncodeDecoder[T any] interface {
-	Encode(T any) error
-	Decode(val any) (T, error)
+	Encode(T any) ([]byte, error)
+	Decode(val []byte) (T, error)
 }
 
 type RabbitMQImpl[T any] struct {
@@ -112,7 +113,7 @@ func (q *RabbitMQImpl[T]) Read(ctx context.Context) <-chan T {
 				if !ok {
 					return
 				}
-				val, decodeErr := q.encodeDecoder.Decode(msg)
+				val, decodeErr := q.encodeDecoder.Decode(msg.Body)
 				if decodeErr != nil {
 					// TODO: do something
 					continue
@@ -122,4 +123,22 @@ func (q *RabbitMQImpl[T]) Read(ctx context.Context) <-chan T {
 		}
 	}()
 	return output
+}
+
+func (q *RabbitMQImpl[T]) Publish(ctx context.Context, val T) error {
+	enc, err := q.encodeDecoder.Encode(val)
+	if err != nil {
+		return err
+	}
+	// TODO: is this the content type we want?
+	err = q.channel.PublishWithContext(ctx,
+		"",     // exchange
+		q.name, // routing key
+		false,  // mandatory
+		false,  // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        enc,
+		})
+	return err
 }
