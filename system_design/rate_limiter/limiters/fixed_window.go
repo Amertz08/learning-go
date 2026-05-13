@@ -21,6 +21,7 @@ func (l *FixedWindowLimiter[T]) Start(ctx context.Context, procRequest func(T)) 
 			case <-ctx.Done():
 				return
 			case <-l.ticker.C:
+				// reset count at end of window
 				reqCount = 0
 			case val, ok := <-l.inputChan:
 				if !ok {
