@@ -8,7 +8,7 @@ import (
 type JSONEncodeDecoder[T any] struct {
 }
 
-func NewJSONEncoderDecoder[T any]() *JSONEncodeDecoder[T] {
+func NewJSONEncodeDecoder[T any]() *JSONEncodeDecoder[T] {
 	return &JSONEncodeDecoder[T]{}
 }
 

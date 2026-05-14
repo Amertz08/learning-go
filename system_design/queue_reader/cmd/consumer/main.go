@@ -15,7 +15,7 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	encDecoder := queue.NewJSONEncoderDecoder[internal.Message]()
+	encDecoder := queue.NewJSONEncodeDecoder[internal.Message]()
 
 	q, err := queue.NewRabbitMQImpl[internal.Message](
 		"",
