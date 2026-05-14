@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// TODO: rework this to publish an actual value
 func ProducerService[T any](ctx context.Context, workerCount int, queue QueueReader[T]) {
 	var wg sync.WaitGroup
 
