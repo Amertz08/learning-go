@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.come/Amertz08/learning-go/system_design/queue_reader/internal"
@@ -18,11 +19,12 @@ func main() {
 	encDecoder := queue.NewJSONEncodeDecoder[internal.Message]()
 
 	q, err := queue.NewRabbitMQImpl[internal.Message](
-		"",
+		"amqp://guest:guest@localhost:5672/",
 		"hello",
 		encDecoder,
 	)
 	if err != nil {
+		fmt.Println(err)
 		os.Exit(1)
 	}
 	defer q.Close()
