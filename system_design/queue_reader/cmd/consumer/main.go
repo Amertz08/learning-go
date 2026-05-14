@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"os"
 
+	"github.come/Amertz08/learning-go/system_design/queue_reader/internal"
 	"github.come/Amertz08/learning-go/system_design/queue_reader/internal/queue"
 	"github.come/Amertz08/learning-go/system_design/queue_reader/internal/service"
 )
@@ -13,11 +15,17 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	// TODO: init actual queue implementation
-	q := queue.NewRabbitMQImpl[int](
+	encDecoder := queue.NewJSONEncoderDecoder[internal.Message]()
+
+	q, err := queue.NewRabbitMQImpl[internal.Message](
 		"",
 		"hello",
+		encDecoder,
 	)
+	if err != nil {
+		os.Exit(1)
+	}
+	defer q.Close()
 
-	service.ConsumerService[int](ctx, q, workers)
+	service.ConsumerService[internal.Message](ctx, q, workers)
 }
