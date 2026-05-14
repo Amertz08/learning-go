@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"sync"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.come/Amertz08/learning-go/system_design/queue_reader/internal/service"
 )
 
 func main() {
@@ -13,31 +13,11 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	var queue QueueReader[int]
+	// TODO: init actual queue implementation
+	var queue service.QueueReader[int]
 	defer queue.Close()
 
-	var wg sync.WaitGroup
-	for i := 0; i < workers; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			select {
-			case <-ctx.Done():
-				return
-			case _, ok := <-queue.Read(ctx):
-				if !ok {
-					return
-				}
-			}
-		}()
-	}
-	wg.Wait()
-}
-
-type QueueReader[T any] interface {
-	Close() error
-	Publish(ctx context.Context, val T) error
-	Read(ctx context.Context) <-chan T
+	service.ConsumerService[int](ctx, queue, workers)
 }
 
 // EncodeDecoder should convert a type to and from []byte
