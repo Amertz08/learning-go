@@ -2,11 +2,16 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"sync"
 )
 
-func ConsumerService[T any](ctx context.Context, queue QueueReader[T], workerCount int) {
+func ConsumerService[T any](
+	ctx context.Context,
+	logger *slog.Logger,
+	queue QueueReader[T],
+	workerCount int,
+) {
 	var wg sync.WaitGroup
 	for i := 0; i < workerCount; i++ {
 		wg.Add(1)
@@ -15,14 +20,13 @@ func ConsumerService[T any](ctx context.Context, queue QueueReader[T], workerCou
 			for {
 				select {
 				case <-ctx.Done():
-					fmt.Println("context cancelled")
 					return
 				case msg, ok := <-queue.Read(ctx):
 					if !ok {
-						fmt.Println("exiting")
+						logger.Info("exiting")
 						return
 					}
-					fmt.Println(msg)
+					logger.Info("message received", slog.Any("msg", msg))
 				}
 			}
 		}()

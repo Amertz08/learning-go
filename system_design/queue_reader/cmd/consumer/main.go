@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.come/Amertz08/learning-go/system_design/queue_reader/internal"
@@ -12,6 +13,7 @@ import (
 
 func main() {
 	workers := 5
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -29,5 +31,5 @@ func main() {
 	}
 	defer q.Close()
 
-	service.ConsumerService[internal.Message](ctx, q, workers)
+	service.ConsumerService[internal.Message](ctx, logger, q, workers)
 }
