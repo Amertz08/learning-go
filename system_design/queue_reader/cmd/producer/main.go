@@ -3,18 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
-	"sync"
 	"time"
 
 	"github.come/Amertz08/learning-go/system_design/queue_reader/internal"
 	"github.come/Amertz08/learning-go/system_design/queue_reader/internal/queue"
+	"github.come/Amertz08/learning-go/system_design/queue_reader/internal/service"
 )
 
 func main() {
 	workerCount := 10
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	ctx := context.Background()
 
 	encDecoder := queue.NewJSONEncodeDecoder[internal.Message]()
 
@@ -28,27 +28,21 @@ func main() {
 		os.Exit(1)
 	}
 	defer q.Close()
-	var wg sync.WaitGroup
 
 	msg := internal.Message{
 		First: "adam",
 		Last:  "mertz",
 	}
 
-	for i := 0; i < workerCount; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for {
-				select {
-				case <-ctx.Done():
-				default:
-					q.Publish(ctx, msg)
-					time.Sleep(100 * time.Millisecond)
-				}
-			}
-		}()
-	}
-	wg.Wait()
+	producer := service.NewProducer[internal.Message](
+		slog.New(slog.NewJSONHandler(os.Stdout, nil)),
+		workerCount,
+		q,
+	)
+	producer.Start(ctx)
 
+	for {
+		producer.Publish(msg)
+		time.Sleep(1 * time.Second)
+	}
 }

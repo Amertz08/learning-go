@@ -2,29 +2,51 @@ package service
 
 import (
 	"context"
+	"log/slog"
 	"sync"
-	"time"
 )
 
-// TODO: rework this to publish an actual value
-func ProducerService[T any](ctx context.Context, workerCount int, queue QueueReader[T]) {
+type Producer[T any] struct {
+	logger      *slog.Logger
+	messages    chan T
+	queue       QueueReader[T]
+	workerCount int
+}
+
+func NewProducer[T any](logger *slog.Logger, workerCount int, queue QueueReader[T]) *Producer[T] {
+	return &Producer[T]{
+		logger:      logger,
+		messages:    make(chan T),
+		queue:       queue,
+		workerCount: workerCount,
+	}
+}
+
+func (p *Producer[T]) Start(ctx context.Context) {
 	var wg sync.WaitGroup
 
-	var zeroVal T
-
-	for i := 0; i < workerCount; i++ {
+	for i := 0; i < p.workerCount; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			for {
 				select {
 				case <-ctx.Done():
-				default:
-					queue.Publish(ctx, zeroVal)
-					time.Sleep(100 * time.Millisecond)
+				case msg, ok := <-p.messages:
+					if !ok {
+						return
+					}
+					err := p.queue.Publish(ctx, msg)
+					if err != nil {
+						p.logger.Error("error publishing", slog.Any("error", err))
+						return
+					}
 				}
 			}
 		}()
 	}
-	wg.Wait()
+}
+
+func (p *Producer[T]) Publish(val T) {
+	p.messages <- val
 }
