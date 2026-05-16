@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"sync"
 	"time"
@@ -23,6 +24,7 @@ func main() {
 		encDecoder,
 	)
 	if err != nil {
+		fmt.Println(err)
 		os.Exit(1)
 	}
 	defer q.Close()

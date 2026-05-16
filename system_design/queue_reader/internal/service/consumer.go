@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"sync"
 )
 
@@ -11,12 +12,17 @@ func ConsumerService[T any](ctx context.Context, queue QueueReader[T], workerCou
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			select {
-			case <-ctx.Done():
-				return
-			case _, ok := <-queue.Read(ctx):
-				if !ok {
+			for {
+				select {
+				case <-ctx.Done():
+					fmt.Println("context cancelled")
 					return
+				case msg, ok := <-queue.Read(ctx):
+					if !ok {
+						fmt.Println("exiting")
+						return
+					}
+					fmt.Println(msg)
 				}
 			}
 		}()

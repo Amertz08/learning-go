@@ -16,7 +16,6 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	// TODO: as soon as producer comes online consumer dies
 	encDecoder := queue.NewJSONEncodeDecoder[internal.Message]()
 
 	q, err := queue.NewRabbitMQImpl[internal.Message](
