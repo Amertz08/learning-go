@@ -2,7 +2,7 @@ package sorting
 
 import "golang.org/x/exp/constraints"
 
-type SortFunc[T constraints.Ordered] func([]int) []int
+type SortFunc[T constraints.Ordered] func([]T) []T
 
 func InsertionSort[T constraints.Ordered](data []T) []T {
 	for curPtr := 1; curPtr < len(data); curPtr++ {
