@@ -1,8 +1,10 @@
 package sorting
 
-type SortFunc func([]int) []int
+import "golang.org/x/exp/constraints"
 
-func InsertionSort(data []int) []int {
+type SortFunc[T constraints.Ordered] func([]int) []int
+
+func InsertionSort[T constraints.Ordered](data []T) []T {
 	for curPtr := 1; curPtr < len(data); curPtr++ {
 		leftPtr := curPtr - 1
 		// while not at front of list AND the values we're looking at are less than each other
@@ -18,13 +20,13 @@ func InsertionSort(data []int) []int {
 	return data
 }
 
-func MergeSort(data []int) []int {
+func MergeSort[T constraints.Ordered](data []T) []T {
 
 	if len(data) <= 1 {
 		return data
 	}
 
-	helper := make([]int, len(data))
+	helper := make([]T, len(data))
 
 	copy(helper, data)
 
@@ -34,22 +36,22 @@ func MergeSort(data []int) []int {
 
 }
 
-func mergeSort(data []int, s, e int) {
+func mergeSort[T constraints.Ordered](data []T, s, e int) {
 	if s >= e {
 		return
 	}
 
 	m := (s + e) / 2
-	mergeSort(data, s, m)
-	mergeSort(data, m+1, e)
+	mergeSort[T](data, s, m)
+	mergeSort[T](data, m+1, e)
 
 	merge(data, s, m, e)
 
 }
 
-func merge(data []int, s, m, e int) {
-	left := append([]int{}, data[s:m+1]...)
-	right := append([]int{}, data[m+1:e+1]...)
+func merge[T constraints.Ordered](data []T, s, m, e int) {
+	left := append([]T{}, data[s:m+1]...)
+	right := append([]T{}, data[m+1:e+1]...)
 
 	i, j, k := 0, 0, s
 

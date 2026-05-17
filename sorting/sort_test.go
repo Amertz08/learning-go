@@ -124,12 +124,12 @@ var sortingTestCases = []SortingTestCase{
 
 type NamedSortFunc struct {
 	Name string
-	Fn   SortFunc
+	Fn   SortFunc[int]
 }
 
 var sortingFuncs = []NamedSortFunc{
-	{"InsertionSort", InsertionSort},
-	{"MergeSort", MergeSort},
+	{"InsertionSort", InsertionSort[int]},
+	{"MergeSort", MergeSort[int]},
 }
 
 var _ = Describe("Sort", func() {
