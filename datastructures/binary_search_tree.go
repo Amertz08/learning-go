@@ -1,6 +1,8 @@
 package datastructures
 
-type BinarySearchTree[T any] interface {
+import "golang.org/x/exp/constraints"
+
+type BinarySearchTree[T constraints.Ordered] interface {
 	// Insert
 	Insert(value T) bool
 
@@ -28,7 +30,7 @@ type BinarySearchTree[T any] interface {
 	IsEmpty() bool
 }
 
-type BSTNode[T any] interface {
+type BSTNode[T constraints.Ordered] interface {
 	Value() T
 
 	Left() (BSTNode[T], bool)
