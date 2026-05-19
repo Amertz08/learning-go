@@ -41,11 +41,13 @@ type BSTNode[T constraints.Ordered] interface {
 }
 
 type bstNodeImpl[T constraints.Ordered] struct {
-	val T
+	val   T
+	left  *bstNodeImpl[T]
+	right *bstNodeImpl[T]
 }
 
 func NewBSTNodeImpl[T constraints.Ordered](val T) BSTNode[T] {
-	return &bstNodeImpl[T]{val}
+	return &bstNodeImpl[T]{val, nil, nil}
 }
 
 func (n *bstNodeImpl[T]) Value() T {
@@ -53,17 +55,23 @@ func (n *bstNodeImpl[T]) Value() T {
 }
 
 func (n *bstNodeImpl[T]) Left() (BSTNode[T], bool) {
-	return nil, false
+	if n.left != nil {
+		return n.left, true
+	}
+	return n.left, false
 }
 
 func (n *bstNodeImpl[T]) Right() (BSTNode[T], bool) {
-	return nil, false
+	if n.right != nil {
+		return n.right, true
+	}
+	return n.right, false
 }
 
 func (n *bstNodeImpl[T]) HasLeft() bool {
-	return false
+	return n.left != nil
 }
 
 func (n *bstNodeImpl[T]) HasRight() bool {
-	return false
+	return n.right != nil
 }
