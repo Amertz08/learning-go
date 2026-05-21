@@ -84,5 +84,14 @@ var _ = Describe("interacting with BST", func() {
 		It("contains the value", func() {
 			Expect(uut.Contains(insertedVal)).To(BeTrue())
 		})
+		It("can find the node", func() {
+			_, ok := uut.Find(insertedVal)
+			Expect(ok).To(BeTrue())
+		})
+		It("will return the found node", func() {
+			n, _ := uut.Find(insertedVal)
+			Expect(n).ToNot(BeNil())
+			Expect(n.Value()).To(Equal(insertedVal))
+		})
 	})
 })

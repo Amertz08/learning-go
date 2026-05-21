@@ -108,6 +108,11 @@ func (t *bstImpl[T]) Contains(value T) bool {
 }
 
 func (t *bstImpl[T]) Find(value T) (BSTNode[T], bool) {
+	if t.root != nil {
+		if t.root.Value() == value {
+			return t.root, true
+		}
+	}
 	return nil, false
 }
 
