@@ -140,18 +140,30 @@ func (t *bstImpl[T]) Max() (T, bool) {
 }
 
 func (t *bstImpl[T]) InOrder() []T {
+	if t.root != nil {
+		return []T{t.root.Value()}
+	}
 	return nil
 }
 
 func (t *bstImpl[T]) PreOrder() []T {
+	if t.root != nil {
+		return []T{t.root.Value()}
+	}
 	return nil
 }
 
 func (t *bstImpl[T]) PostOrder() []T {
+	if t.root != nil {
+		return []T{t.root.Value()}
+	}
 	return nil
 }
 
 func (t *bstImpl[T]) LevelOrder() []T {
+	if t.root != nil {
+		return []T{t.root.Value()}
+	}
 	return nil
 }
 

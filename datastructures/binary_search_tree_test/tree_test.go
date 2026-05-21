@@ -118,5 +118,21 @@ var _ = Describe("interacting with BST", func() {
 			val, _ := uut.Max()
 			Expect(val).To(Equal(insertedVal))
 		})
+		It("will return the tree in order", func() {
+			tree := uut.InOrder()
+			Expect(tree).To(Equal([]int{insertedVal}))
+		})
+		It("will return the tree in preorder", func() {
+			tree := uut.PreOrder()
+			Expect(tree).To(Equal([]int{insertedVal}))
+		})
+		It("will return the tree in postorder", func() {
+			tree := uut.PostOrder()
+			Expect(tree).To(Equal([]int{insertedVal}))
+		})
+		It("will return the tree in level order", func() {
+			tree := uut.LevelOrder()
+			Expect(tree).To(Equal([]int{insertedVal}))
+		})
 	})
 })
