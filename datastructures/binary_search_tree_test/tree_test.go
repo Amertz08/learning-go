@@ -13,6 +13,15 @@ var _ = Describe("interacting with BST", func() {
 		uut = datastructures.NewBSTImpl[int]()
 	})
 
+	When("interacting with an empty tree", func() {
+		It("will have a length of zero", func() {
+			Expect(uut.Len()).To(Equal(0))
+		})
+		It("will be empty", func() {
+			Expect(uut.IsEmpty()).To(BeTrue())
+		})
+	})
+
 	When("inserting on an empty tree", func() {
 		It("returns true", func() {
 			Expect(uut.Insert(1)).To(BeTrue())
@@ -21,6 +30,11 @@ var _ = Describe("interacting with BST", func() {
 			uut.Insert(1)
 
 			Expect(uut.Len()).To(Equal(1))
+		})
+		It("will no longer be empty", func() {
+			uut.Insert(1)
+
+			Expect(uut.IsEmpty()).To(BeFalse())
 		})
 	})
 })

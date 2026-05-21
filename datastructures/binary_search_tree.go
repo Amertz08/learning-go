@@ -143,5 +143,5 @@ func (t *bstImpl[T]) Len() int {
 }
 
 func (t *bstImpl[T]) IsEmpty() bool {
-	return true
+	return t.root == nil
 }
