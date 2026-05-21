@@ -101,6 +101,9 @@ func (t *bstImpl[T]) Remove(value T) bool {
 func (t *bstImpl[T]) Clear() {}
 
 func (t *bstImpl[T]) Contains(value T) bool {
+	if t.root != nil {
+		return t.root.val == value
+	}
 	return false
 }
 

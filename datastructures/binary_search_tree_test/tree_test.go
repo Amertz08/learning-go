@@ -81,5 +81,8 @@ var _ = Describe("interacting with BST", func() {
 		It("will no longer be empty", func() {
 			Expect(uut.IsEmpty()).To(BeFalse())
 		})
+		It("contains the value", func() {
+			Expect(uut.Contains(insertedVal)).To(BeTrue())
+		})
 	})
 })
