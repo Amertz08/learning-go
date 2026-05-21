@@ -65,17 +65,20 @@ var _ = Describe("interacting with BST", func() {
 	})
 
 	When("inserting on an empty tree", func() {
+		var insertedVal int
+		var didInsert bool
+
+		BeforeEach(func() {
+			insertedVal = 1
+			didInsert = uut.Insert(insertedVal)
+		})
 		It("returns true", func() {
-			Expect(uut.Insert(1)).To(BeTrue())
+			Expect(didInsert).To(BeTrue())
 		})
 		It("will increase the length", func() {
-			uut.Insert(1)
-
 			Expect(uut.Len()).To(Equal(1))
 		})
 		It("will no longer be empty", func() {
-			uut.Insert(1)
-
 			Expect(uut.IsEmpty()).To(BeFalse())
 		})
 	})
