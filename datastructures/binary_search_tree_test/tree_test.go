@@ -102,5 +102,21 @@ var _ = Describe("interacting with BST", func() {
 			Expect(n).ToNot(BeNil())
 			Expect(n.Value()).To(Equal(insertedVal))
 		})
+		It("can find min", func() {
+			_, ok := uut.Min()
+			Expect(ok).To(BeTrue())
+		})
+		It("will return the value as min", func() {
+			val, _ := uut.Min()
+			Expect(val).To(Equal(insertedVal))
+		})
+		It("can find max", func() {
+			_, ok := uut.Max()
+			Expect(ok).To(BeTrue())
+		})
+		It("will return the value as Max", func() {
+			val, _ := uut.Max()
+			Expect(val).To(Equal(insertedVal))
+		})
 	})
 })

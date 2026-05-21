@@ -124,11 +124,17 @@ func (t *bstImpl[T]) Root() (BSTNode[T], bool) {
 }
 
 func (t *bstImpl[T]) Min() (T, bool) {
+	if t.root != nil {
+		return t.root.Value(), true
+	}
 	var zeroVal T
 	return zeroVal, false
 }
 
 func (t *bstImpl[T]) Max() (T, bool) {
+	if t.root != nil {
+		return t.root.Value(), true
+	}
 	var zeroVal T
 	return zeroVal, false
 }
