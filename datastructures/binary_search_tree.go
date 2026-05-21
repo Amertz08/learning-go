@@ -78,6 +78,7 @@ func (n *bstNodeImpl[T]) HasRight() bool {
 
 type bstImpl[T constraints.Ordered] struct {
 	root *bstNodeImpl[T]
+	len  int
 }
 
 func NewBSTImpl[T constraints.Ordered]() BinarySearchTree[T] {
@@ -87,6 +88,7 @@ func NewBSTImpl[T constraints.Ordered]() BinarySearchTree[T] {
 func (t *bstImpl[T]) Insert(value T) bool {
 	if t.root == nil {
 		t.root = &bstNodeImpl[T]{val: value}
+		t.len++
 		return true
 	}
 	return false
@@ -137,7 +139,7 @@ func (t *bstImpl[T]) LevelOrder() []T {
 }
 
 func (t *bstImpl[T]) Len() int {
-	return -1
+	return t.len
 }
 
 func (t *bstImpl[T]) IsEmpty() bool {

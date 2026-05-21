@@ -17,5 +17,10 @@ var _ = Describe("interacting with BST", func() {
 		It("returns true", func() {
 			Expect(uut.Insert(1)).To(BeTrue())
 		})
+		It("will increase the length", func() {
+			uut.Insert(1)
+
+			Expect(uut.Len()).To(Equal(1))
+		})
 	})
 })
