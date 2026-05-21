@@ -1,17 +1,10 @@
 package binary_search_tree_test
 
 import (
-	"testing"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.come/Amertz08/learning-go/datastructures"
 )
-
-func TestBST(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "BST tests")
-}
 
 var _ = Describe("interacting with BST node", func() {
 	When("it has a value", func() {
