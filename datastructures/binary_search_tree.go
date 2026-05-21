@@ -75,3 +75,71 @@ func (n *bstNodeImpl[T]) HasLeft() bool {
 func (n *bstNodeImpl[T]) HasRight() bool {
 	return n.right != nil
 }
+
+type bstImpl[T constraints.Ordered] struct {
+	root *bstNodeImpl[T]
+}
+
+func NewBSTImpl[T constraints.Ordered]() BinarySearchTree[T] {
+	return &bstImpl[T]{}
+}
+
+func (t *bstImpl[T]) Insert(value T) bool {
+	if t.root == nil {
+		t.root = &bstNodeImpl[T]{val: value}
+		return true
+	}
+	return false
+}
+
+func (t *bstImpl[T]) Remove(value T) bool {
+	return false
+}
+
+func (t *bstImpl[T]) Clear() {}
+
+func (t *bstImpl[T]) Contains(value T) bool {
+	return false
+}
+
+func (t *bstImpl[T]) Find(value T) (BSTNode[T], bool) {
+	return nil, false
+}
+
+func (t *bstImpl[T]) Root() (BSTNode[T], bool) {
+	return nil, false
+}
+
+func (t *bstImpl[T]) Min() (T, bool) {
+	var zeroVal T
+	return zeroVal, false
+}
+
+func (t *bstImpl[T]) Max() (T, bool) {
+	var zeroVal T
+	return zeroVal, false
+}
+
+func (t *bstImpl[T]) InOrder() []T {
+	return nil
+}
+
+func (t *bstImpl[T]) PreOrder() []T {
+	return nil
+}
+
+func (t *bstImpl[T]) PostOrder() []T {
+	return nil
+}
+
+func (t *bstImpl[T]) LevelOrder() []T {
+	return nil
+}
+
+func (t *bstImpl[T]) Len() int {
+	return -1
+}
+
+func (t *bstImpl[T]) IsEmpty() bool {
+	return true
+}
