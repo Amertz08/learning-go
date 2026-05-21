@@ -117,6 +117,9 @@ func (t *bstImpl[T]) Find(value T) (BSTNode[T], bool) {
 }
 
 func (t *bstImpl[T]) Root() (BSTNode[T], bool) {
+	if t.root != nil {
+		return t.root, true
+	}
 	return nil, false
 }
 

@@ -93,5 +93,14 @@ var _ = Describe("interacting with BST", func() {
 			Expect(n).ToNot(BeNil())
 			Expect(n.Value()).To(Equal(insertedVal))
 		})
+		It("can find root", func() {
+			_, ok := uut.Root()
+			Expect(ok).To(BeTrue())
+		})
+		It("will return the root", func() {
+			n, _ := uut.Root()
+			Expect(n).ToNot(BeNil())
+			Expect(n.Value()).To(Equal(insertedVal))
+		})
 	})
 })
