@@ -20,6 +20,48 @@ var _ = Describe("interacting with BST", func() {
 		It("will be empty", func() {
 			Expect(uut.IsEmpty()).To(BeTrue())
 		})
+		It("will return false for min", func() {
+			_, ok := uut.Min()
+			Expect(ok).To(BeFalse())
+		})
+		It("will return false for max", func() {
+			_, ok := uut.Max()
+			Expect(ok).To(BeFalse())
+		})
+		It("will return false for root", func() {
+			_, ok := uut.Root()
+			Expect(ok).To(BeFalse())
+		})
+		It("will return nil for the root node", func() {
+			n, _ := uut.Root()
+			Expect(n).To(BeNil())
+		})
+		It("will return false for find", func() {
+			_, ok := uut.Find(2)
+			Expect(ok).To(BeFalse())
+		})
+		It("will return nil for find answer", func() {
+			n, _ := uut.Find(2)
+			Expect(n).To(BeNil())
+		})
+		It("will return false for contains", func() {
+			Expect(uut.Contains(2)).To(BeFalse())
+		})
+		It("will return false for remove", func() {
+			Expect(uut.Remove(2)).To(BeFalse())
+		})
+		It("will return nil for InOrder", func() {
+			Expect(uut.InOrder()).To(BeNil())
+		})
+		It("will return nil for PreOrder", func() {
+			Expect(uut.PreOrder()).To(BeNil())
+		})
+		It("will return nil for PostOrder", func() {
+			Expect(uut.PostOrder()).To(BeNil())
+		})
+		It("will return nil for LevelOrder", func() {
+			Expect(uut.LevelOrder()).To(BeNil())
+		})
 	})
 
 	When("inserting on an empty tree", func() {
