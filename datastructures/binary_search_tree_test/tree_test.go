@@ -151,5 +151,15 @@ var _ = Describe("interacting with BST", func() {
 			obs := uut.InOrder()
 			Expect(obs).To(Equal([]int{firstVal, secondVal}))
 		})
+		It("blah", func() {
+			Expect(uut.Insert(-1)).To(BeTrue())
+			obs := uut.InOrder()
+			Expect(obs).To(Equal([]int{-1, firstVal, secondVal}))
+		})
+		It("blah2", func() {
+			Expect(uut.Insert(5)).To(BeTrue())
+			obs := uut.InOrder()
+			Expect(obs).To(Equal([]int{firstVal, secondVal, 5}))
+		})
 	})
 })
