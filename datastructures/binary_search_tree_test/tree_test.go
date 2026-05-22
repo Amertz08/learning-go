@@ -134,5 +134,22 @@ var _ = Describe("interacting with BST", func() {
 			tree := uut.LevelOrder()
 			Expect(tree).To(Equal([]int{insertedVal}))
 		})
+		It("will not insert the same value twice", func() {
+			Expect(uut.Insert(insertedVal)).To(BeFalse())
+		})
+	})
+	When("multiple values pushed to the tree", func() {
+		var firstVal, secondVal int
+
+		BeforeEach(func() {
+			firstVal = 1
+			secondVal = 2
+			Expect(uut.Insert(firstVal)).To(BeTrue())
+			Expect(uut.Insert(secondVal)).To(BeTrue())
+		})
+		It("will return them in order", func() {
+			obs := uut.InOrder()
+			Expect(obs).To(Equal([]int{firstVal, secondVal}))
+		})
 	})
 })

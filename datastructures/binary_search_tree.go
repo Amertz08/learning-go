@@ -91,7 +91,32 @@ func (t *bstImpl[T]) Insert(value T) bool {
 		t.len++
 		return true
 	}
-	return false
+
+	var ok bool
+	if value < t.root.Value() {
+		// insert left
+		t.root.left, ok = t.insert(t.root.left, value)
+	} else if value > t.root.Value() {
+		// insert right
+		t.root.right, ok = t.insert(t.root.right, value)
+	} else {
+		// same value
+	}
+	return ok
+}
+
+func (t *bstImpl[T]) insert(node *bstNodeImpl[T], value T) (*bstNodeImpl[T], bool) {
+	if node == nil {
+		t.len++
+		return &bstNodeImpl[T]{val: value}, true
+	}
+	if value < node.Value() {
+		return t.insert(node.left, value)
+	} else if value > node.Value() {
+		return t.insert(node.right, value)
+	}
+
+	return nil, false
 }
 
 func (t *bstImpl[T]) Remove(value T) bool {
@@ -140,10 +165,18 @@ func (t *bstImpl[T]) Max() (T, bool) {
 }
 
 func (t *bstImpl[T]) InOrder() []T {
-	if t.root != nil {
-		return []T{t.root.Value()}
+	var vals []T
+	return t.inOrder(t.root, vals)
+}
+
+func (t *bstImpl[T]) inOrder(node *bstNodeImpl[T], vals []T) []T {
+	if node == nil {
+		return vals
 	}
-	return nil
+	vals = t.inOrder(node.left, vals)
+	vals = append(vals, node.Value())
+	vals = t.inOrder(node.right, vals)
+	return vals
 }
 
 func (t *bstImpl[T]) PreOrder() []T {
