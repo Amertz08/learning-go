@@ -133,12 +133,19 @@ func (t *bstImpl[T]) contains(node *bstNodeImpl[T], value T) bool {
 }
 
 func (t *bstImpl[T]) Find(value T) (BSTNode[T], bool) {
-	if t.root != nil {
-		if t.root.Value() == value {
-			return t.root, true
-		}
+	return t.find(t.root, value)
+}
+
+func (t *bstImpl[T]) find(node *bstNodeImpl[T], value T) (BSTNode[T], bool) {
+	if node == nil {
+		return nil, false
 	}
-	return nil, false
+	if value < node.Value() {
+		return t.find(node.left, value)
+	} else if value > node.Value() {
+		return t.find(node.right, value)
+	}
+	return node, true
 }
 
 func (t *bstImpl[T]) Root() (BSTNode[T], bool) {
