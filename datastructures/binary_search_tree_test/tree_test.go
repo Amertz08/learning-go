@@ -138,45 +138,19 @@ var _ = Describe("interacting with BST", func() {
 			Expect(uut.Insert(insertedVal)).To(BeFalse())
 		})
 	})
-	When("inserting values", func() {
-		It("can insert a single value", func() {
-			value := 1
-			isOk := uut.Insert(value)
-			Expect(isOk).To(BeTrue())
-			Expect(uut.InOrder()).To(Equal([]int{value}))
-		})
-		It("can insert a multiple values", func() {
-			firstValue := 1
-			secondValue := 2
-			isOk := uut.Insert(firstValue)
-			Expect(isOk).To(BeTrue())
 
-			isOk = uut.Insert(secondValue)
-			Expect(uut.InOrder()).To(Equal([]int{firstValue, secondValue}))
-		})
-		It("can insert a multiple values2", func() {
-			firstValue := 1
-			secondValue := 2
-			isOk := uut.Insert(secondValue)
-			Expect(isOk).To(BeTrue())
+	DescribeTable("Inserting values valid cases", func(insertVal []int, expected []int) {
+		for _, val := range insertVal {
+			Expect(uut.Insert(val)).To(BeTrue())
+		}
 
-			isOk = uut.Insert(firstValue)
-			Expect(isOk).To(BeTrue())
-			Expect(uut.InOrder()).To(Equal([]int{firstValue, secondValue}))
-		})
-		It("can insert a multiple values3", func() {
-			firstValue := 1
-			secondValue := 2
-			thirdValue := -1
-			isOk := uut.Insert(secondValue)
-			Expect(isOk).To(BeTrue())
-
-			isOk = uut.Insert(firstValue)
-			Expect(isOk).To(BeTrue())
-
-			isOk = uut.Insert(thirdValue)
-			Expect(isOk).To(BeTrue())
-			Expect(uut.InOrder()).To(Equal([]int{thirdValue, firstValue, secondValue}))
-		})
-	})
+		Expect(uut.InOrder()).To(Equal(expected))
+		Expect(uut.Len()).To(Equal(len(expected)))
+	},
+		Entry("basic case", []int{1}, []int{1}),
+		Entry("already in order", []int{1, 2}, []int{1, 2}),
+		Entry("largest first", []int{2, 1}, []int{1, 2}),
+		Entry("basic 3", []int{1, 2, 3}, []int{1, 2, 3}),
+		Entry("negative", []int{1, 2, -1}, []int{-1, 1, 2}),
+	)
 })
