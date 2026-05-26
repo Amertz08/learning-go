@@ -86,22 +86,8 @@ func NewBSTImpl[T constraints.Ordered]() BinarySearchTree[T] {
 }
 
 func (t *bstImpl[T]) Insert(value T) bool {
-	if t.root == nil {
-		t.root = &bstNodeImpl[T]{val: value}
-		t.len++
-		return true
-	}
-
 	var ok bool
-	if value < t.root.Value() {
-		// insert left
-		t.root.left, ok = t.insert(t.root.left, value)
-	} else if value > t.root.Value() {
-		// insert right
-		t.root.right, ok = t.insert(t.root.right, value)
-	} else {
-		// same value
-	}
+	t.root, ok = t.insert(t.root, value)
 	return ok
 }
 
@@ -110,10 +96,14 @@ func (t *bstImpl[T]) insert(node *bstNodeImpl[T], value T) (*bstNodeImpl[T], boo
 		t.len++
 		return &bstNodeImpl[T]{val: value}, true
 	}
+
+	var ok bool
 	if value < node.Value() {
-		return t.insert(node.left, value)
+		node.left, ok = t.insert(node.left, value)
+		return node, ok
 	} else if value > node.Value() {
-		return t.insert(node.right, value)
+		node.right, ok = t.insert(node.right, value)
+		return node, ok
 	}
 
 	return nil, false

@@ -138,28 +138,45 @@ var _ = Describe("interacting with BST", func() {
 			Expect(uut.Insert(insertedVal)).To(BeFalse())
 		})
 	})
-	When("multiple values pushed to the tree", func() {
-		var firstVal, secondVal int
+	When("inserting values", func() {
+		It("can insert a single value", func() {
+			value := 1
+			isOk := uut.Insert(value)
+			Expect(isOk).To(BeTrue())
+			Expect(uut.InOrder()).To(Equal([]int{value}))
+		})
+		It("can insert a multiple values", func() {
+			firstValue := 1
+			secondValue := 2
+			isOk := uut.Insert(firstValue)
+			Expect(isOk).To(BeTrue())
 
-		BeforeEach(func() {
-			firstVal = 1
-			secondVal = 2
-			Expect(uut.Insert(firstVal)).To(BeTrue())
-			Expect(uut.Insert(secondVal)).To(BeTrue())
+			isOk = uut.Insert(secondValue)
+			Expect(uut.InOrder()).To(Equal([]int{firstValue, secondValue}))
 		})
-		It("will return them in order", func() {
-			obs := uut.InOrder()
-			Expect(obs).To(Equal([]int{firstVal, secondVal}))
+		It("can insert a multiple values2", func() {
+			firstValue := 1
+			secondValue := 2
+			isOk := uut.Insert(secondValue)
+			Expect(isOk).To(BeTrue())
+
+			isOk = uut.Insert(firstValue)
+			Expect(isOk).To(BeTrue())
+			Expect(uut.InOrder()).To(Equal([]int{firstValue, secondValue}))
 		})
-		It("blah", func() {
-			Expect(uut.Insert(-1)).To(BeTrue())
-			obs := uut.InOrder()
-			Expect(obs).To(Equal([]int{-1, firstVal, secondVal}))
-		})
-		It("blah2", func() {
-			Expect(uut.Insert(5)).To(BeTrue())
-			obs := uut.InOrder()
-			Expect(obs).To(Equal([]int{firstVal, secondVal, 5}))
+		It("can insert a multiple values3", func() {
+			firstValue := 1
+			secondValue := 2
+			thirdValue := -1
+			isOk := uut.Insert(secondValue)
+			Expect(isOk).To(BeTrue())
+
+			isOk = uut.Insert(firstValue)
+			Expect(isOk).To(BeTrue())
+
+			isOk = uut.Insert(thirdValue)
+			Expect(isOk).To(BeTrue())
+			Expect(uut.InOrder()).To(Equal([]int{thirdValue, firstValue, secondValue}))
 		})
 	})
 })
