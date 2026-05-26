@@ -153,4 +153,17 @@ var _ = Describe("interacting with BST", func() {
 		Entry("basic 3", []int{1, 2, 3}, []int{1, 2, 3}),
 		Entry("negative", []int{1, 2, -1}, []int{-1, 1, 2}),
 	)
+	DescribeTable("Contains value cases", func(insertVal []int, target int, expected bool) {
+		for _, val := range insertVal {
+			Expect(uut.Insert(val)).To(BeTrue())
+		}
+
+		Expect(uut.Contains(target)).To(Equal(expected))
+	},
+		Entry("empty tree", []int{}, 1, false),
+		Entry("basic case contains", []int{1}, 1, true),
+		Entry("basic case does not contains", []int{1}, 2, false),
+		Entry("exists in right tree", []int{1, 2}, 2, true),
+		Entry("does not exist in right tree", []int{1, 2}, 3, false),
+	)
 })

@@ -116,10 +116,20 @@ func (t *bstImpl[T]) Remove(value T) bool {
 func (t *bstImpl[T]) Clear() {}
 
 func (t *bstImpl[T]) Contains(value T) bool {
-	if t.root != nil {
-		return t.root.val == value
+	return t.contains(t.root, value)
+}
+
+func (t *bstImpl[T]) contains(node *bstNodeImpl[T], value T) bool {
+	if node == nil {
+		return false
 	}
-	return false
+	if value < node.Value() {
+		return t.contains(node.left, value)
+	} else if value > node.Value() {
+		return t.contains(node.right, value)
+	}
+	// same value
+	return true
 }
 
 func (t *bstImpl[T]) Find(value T) (BSTNode[T], bool) {
