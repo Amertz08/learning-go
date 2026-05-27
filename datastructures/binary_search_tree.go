@@ -146,9 +146,22 @@ func (t *bstImpl[T]) remove(node *bstNodeImpl[T], value T) (*bstNodeImpl[T], boo
 		if node.left == nil && node.right != nil {
 			return node.right, found
 		}
-		// TODO: both case sub trees exist
-		// both trees exist, what do we want to do?
-		return nil, found
+		leftMaxPtr := node.left.right
+
+		// If the right value of the left subtree is already nill we know
+		// we can just set the right subtree to be the right of the left subtree
+		if leftMaxPtr == nil {
+			node.left.right = node.right
+			return node.left, found
+		}
+
+		// traverse to the max value in the left subtree
+		for leftMaxPtr.right != nil {
+			leftMaxPtr = leftMaxPtr.right
+		}
+		// assign it's right pointer to be the right tree
+		leftMaxPtr.right = node.right
+		return node.left, found
 	}
 }
 

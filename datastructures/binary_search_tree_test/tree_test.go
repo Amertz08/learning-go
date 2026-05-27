@@ -228,5 +228,8 @@ var _ = Describe("interacting with BST", func() {
 		Entry("delete value at root", []int{1, 5}, 1, true),
 		Entry("delete value in right", []int{1, 5}, 5, true),
 		Entry("delete value in left", []int{5, 1}, 1, true),
+		Entry("delete middle node on right", []int{1, 5, 3}, 5, true),
+		Entry("delete middle node with left subtree that has a right", []int{1, 5, 3, 4}, 5, true),
+		Entry("delete left subtree in right subtree", []int{1, 5, 3, 4}, 3, true),
 	)
 })
