@@ -186,4 +186,18 @@ var _ = Describe("interacting with BST", func() {
 		Entry("exists in right tree", []int{1, 2}, 2, true),
 		Entry("does not exist in right tree", []int{1, 2}, 3, false),
 	)
+	DescribeTable("min value test cases", func(insertVals []int, target int, expected bool) {
+		for _, val := range insertVals {
+			Expect(uut.Insert(val)).To(BeTrue())
+		}
+		minVal, found := uut.Min()
+		Expect(found).To(Equal(expected))
+		Expect(minVal).To(Equal(target))
+	},
+		Entry("empty tree", []int{}, 0, false),
+		Entry("single value", []int{1}, 1, true),
+		Entry("value left", []int{1, -1}, -1, true),
+		Entry("value right of left", []int{1, -5, -1}, -5, true),
+		Entry("value right of left", []int{1, -1, -5}, -5, true),
+	)
 })
