@@ -200,4 +200,19 @@ var _ = Describe("interacting with BST", func() {
 		Entry("value right of left", []int{1, -5, -1}, -5, true),
 		Entry("value right of left", []int{1, -1, -5}, -5, true),
 	)
+	DescribeTable("max value test cases", func(insertVals []int, target int, expected bool) {
+		for _, val := range insertVals {
+			Expect(uut.Insert(val)).To(BeTrue())
+		}
+		maxVal, found := uut.Max()
+		Expect(found).To(Equal(expected))
+		Expect(maxVal).To(Equal(target))
+	},
+		Entry("empty tree", []int{}, 0, false),
+		Entry("single value", []int{1}, 1, true),
+		Entry("still at root", []int{1, -1}, 1, true),
+		Entry("value right", []int{1, 5, -1}, 5, true),
+		Entry("value right of right", []int{1, 2, 5}, 5, true),
+		Entry("value right with a left", []int{1, 3, 2, 5}, 5, true),
+	)
 })

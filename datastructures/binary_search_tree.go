@@ -171,11 +171,17 @@ func (t *bstImpl[T]) Min() (T, bool) {
 }
 
 func (t *bstImpl[T]) Max() (T, bool) {
-	if t.root != nil {
-		return t.root.Value(), true
+	var maxVal T
+	if t.root == nil {
+		return maxVal, false
 	}
-	var zeroVal T
-	return zeroVal, false
+	curPtr := t.root
+	maxVal = curPtr.Value()
+	for curPtr, ok := curPtr.Right(); ok; {
+		maxVal = curPtr.Value()
+		curPtr, ok = curPtr.Right()
+	}
+	return maxVal, true
 }
 
 func (t *bstImpl[T]) InOrder() []T {
