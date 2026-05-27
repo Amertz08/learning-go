@@ -215,4 +215,18 @@ var _ = Describe("interacting with BST", func() {
 		Entry("value right of right", []int{1, 2, 5}, 5, true),
 		Entry("value right with a left", []int{1, 3, 2, 5}, 5, true),
 	)
+	DescribeTable("remove test cases", func(insertVals []int, target int, expected bool) {
+		for _, val := range insertVals {
+			Expect(uut.Insert(val)).To(BeTrue())
+		}
+		// TODO: test order/structure of tree
+		Expect(uut.Remove(target)).To(Equal(expected))
+	},
+		Entry("empty tree", []int{}, 1, false),
+		Entry("single value at root", []int{1}, 1, true),
+		Entry("single value not in tree", []int{1}, 2, false),
+		Entry("delete value at root", []int{1, 5}, 1, true),
+		Entry("delete value in right", []int{1, 5}, 5, true),
+		Entry("delete value in left", []int{5, 1}, 1, true),
+	)
 })

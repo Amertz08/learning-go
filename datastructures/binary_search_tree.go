@@ -110,7 +110,46 @@ func (t *bstImpl[T]) insert(node *bstNodeImpl[T], value T) (*bstNodeImpl[T], boo
 }
 
 func (t *bstImpl[T]) Remove(value T) bool {
-	return false
+	var found bool
+	if t.root == nil {
+		return found
+	}
+	t.root, found = t.remove(t.root, value)
+	return found
+}
+
+func (t *bstImpl[T]) remove(node *bstNodeImpl[T], value T) (*bstNodeImpl[T], bool) {
+	var found bool
+	if node == nil {
+		return nil, found
+	}
+
+	if value < node.Value() {
+		node.left, found = t.remove(node.left, value)
+		return node, found
+	} else if value > node.Value() {
+		node.right, found = t.remove(node.right, value)
+		return node, found
+	} else {
+		found = true
+
+		// If neither tree exists, we can just return now and the caller
+		// can reassign to nil
+		if node.left == nil && node.right == nil {
+			return nil, found
+		}
+		// If the left exists but not the right just return left
+		if node.left != nil && node.right == nil {
+			return node.left, found
+		}
+		// If the right exists but not the left just return right
+		if node.left == nil && node.right != nil {
+			return node.right, found
+		}
+		// TODO: both case sub trees exist
+		// both trees exist, what do we want to do?
+		return nil, found
+	}
 }
 
 func (t *bstImpl[T]) Clear() {}
