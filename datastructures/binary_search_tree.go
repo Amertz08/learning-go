@@ -234,6 +234,7 @@ func (t *bstImpl[T]) Max() (T, bool) {
 }
 
 func (t *bstImpl[T]) InOrder() []T {
+	// TODO: use make. we want an empty slice not nil
 	var vals []T
 	return t.inOrder(t.root, vals)
 }
@@ -249,10 +250,19 @@ func (t *bstImpl[T]) inOrder(node *bstNodeImpl[T], vals []T) []T {
 }
 
 func (t *bstImpl[T]) PreOrder() []T {
-	if t.root != nil {
-		return []T{t.root.Value()}
+	vals := make([]T, 0)
+	return t.preOrder(t.root, vals)
+}
+
+func (t *bstImpl[T]) preOrder(node *bstNodeImpl[T], vals []T) []T {
+	if node == nil {
+		return vals
 	}
-	return nil
+	vals = append(vals, node.Value())
+	vals = t.preOrder(node.left, vals)
+	vals = t.preOrder(node.right, vals)
+
+	return vals
 }
 
 func (t *bstImpl[T]) PostOrder() []T {

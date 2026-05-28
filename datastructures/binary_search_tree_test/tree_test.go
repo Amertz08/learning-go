@@ -232,4 +232,17 @@ var _ = Describe("interacting with BST", func() {
 		Entry("delete middle node with left subtree that has a right", []int{1, 5, 3, 4}, 5, true, []int{1, 3, 4}),
 		Entry("delete left subtree in right subtree", []int{1, 5, 3, 4}, 3, true, []int{1, 4, 5}),
 	)
+	DescribeTable("pre order traversal", func(insertVals []int, expected []int) {
+		for _, val := range insertVals {
+			Expect(uut.Insert(val)).To(BeTrue())
+		}
+		Expect(uut.PreOrder()).To(Equal(expected))
+	},
+		Entry("empty tree", []int{}, []int{}),
+		Entry("single item", []int{1}, []int{1}),
+		Entry("basic left tree", []int{5, 1}, []int{5, 1}),
+		Entry("basic right tree", []int{1, 5}, []int{1, 5}),
+		Entry("complex left tree", []int{5, 1, 3}, []int{5, 1, 3}),
+		Entry("basic right tree", []int{1, 3, 5}, []int{1, 3, 5}),
+	)
 })
