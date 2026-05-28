@@ -51,10 +51,10 @@ var _ = Describe("interacting with BST", func() {
 			Expect(uut.Remove(2)).To(BeFalse())
 		})
 		It("will return nil for InOrder", func() {
-			Expect(uut.InOrder()).To(BeNil())
+			Expect(uut.InOrder()).To(Equal([]int{}))
 		})
 		It("will return nil for PreOrder", func() {
-			Expect(uut.PreOrder()).To(BeNil())
+			Expect(uut.PreOrder()).To(Equal([]int{}))
 		})
 		It("will return nil for PostOrder", func() {
 			Expect(uut.PostOrder()).To(BeNil())
@@ -222,8 +222,8 @@ var _ = Describe("interacting with BST", func() {
 		Expect(uut.Remove(target)).To(Equal(expected))
 		Expect(uut.InOrder()).To(Equal(inOrder))
 	},
-		Entry("empty tree", []int{}, 1, false, nil),
-		Entry("single value at root", []int{1}, 1, true, nil),
+		Entry("empty tree", []int{}, 1, false, []int{}),
+		Entry("single value at root", []int{1}, 1, true, []int{}),
 		Entry("single value not in tree", []int{1}, 2, false, []int{1}),
 		Entry("delete value at root", []int{1, 5}, 1, true, []int{5}),
 		Entry("delete value in right", []int{1, 5}, 5, true, []int{1}),

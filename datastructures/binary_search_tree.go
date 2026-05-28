@@ -234,8 +234,7 @@ func (t *bstImpl[T]) Max() (T, bool) {
 }
 
 func (t *bstImpl[T]) InOrder() []T {
-	// TODO: use make. we want an empty slice not nil
-	var vals []T
+	vals := make([]T, 0)
 	return t.inOrder(t.root, vals)
 }
 
