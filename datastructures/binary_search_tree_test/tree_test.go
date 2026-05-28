@@ -215,21 +215,21 @@ var _ = Describe("interacting with BST", func() {
 		Entry("value right of right", []int{1, 2, 5}, 5, true),
 		Entry("value right with a left", []int{1, 3, 2, 5}, 5, true),
 	)
-	DescribeTable("remove test cases", func(insertVals []int, target int, expected bool) {
+	DescribeTable("remove test cases", func(insertVals []int, target int, expected bool, inOrder []int) {
 		for _, val := range insertVals {
 			Expect(uut.Insert(val)).To(BeTrue())
 		}
-		// TODO: test order/structure of tree
 		Expect(uut.Remove(target)).To(Equal(expected))
+		Expect(uut.InOrder()).To(Equal(inOrder))
 	},
-		Entry("empty tree", []int{}, 1, false),
-		Entry("single value at root", []int{1}, 1, true),
-		Entry("single value not in tree", []int{1}, 2, false),
-		Entry("delete value at root", []int{1, 5}, 1, true),
-		Entry("delete value in right", []int{1, 5}, 5, true),
-		Entry("delete value in left", []int{5, 1}, 1, true),
-		Entry("delete middle node on right", []int{1, 5, 3}, 5, true),
-		Entry("delete middle node with left subtree that has a right", []int{1, 5, 3, 4}, 5, true),
-		Entry("delete left subtree in right subtree", []int{1, 5, 3, 4}, 3, true),
+		Entry("empty tree", []int{}, 1, false, nil),
+		Entry("single value at root", []int{1}, 1, true, nil),
+		Entry("single value not in tree", []int{1}, 2, false, []int{1}),
+		Entry("delete value at root", []int{1, 5}, 1, true, []int{5}),
+		Entry("delete value in right", []int{1, 5}, 5, true, []int{1}),
+		Entry("delete value in left", []int{5, 1}, 1, true, []int{5}),
+		Entry("delete middle node on right", []int{1, 5, 3}, 5, true, []int{1, 3}),
+		Entry("delete middle node with left subtree that has a right", []int{1, 5, 3, 4}, 5, true, []int{1, 3, 4}),
+		Entry("delete left subtree in right subtree", []int{1, 5, 3, 4}, 3, true, []int{1, 4, 5}),
 	)
 })
