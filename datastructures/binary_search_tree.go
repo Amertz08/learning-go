@@ -111,9 +111,6 @@ func (t *bstImpl[T]) insert(node *bstNodeImpl[T], value T) (*bstNodeImpl[T], boo
 
 func (t *bstImpl[T]) Remove(value T) bool {
 	var found bool
-	if t.root == nil {
-		return found
-	}
 	t.root, found = t.remove(t.root, value)
 	return found
 }
