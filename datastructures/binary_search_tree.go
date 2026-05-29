@@ -265,10 +265,18 @@ func (t *bstImpl[T]) preOrder(node *bstNodeImpl[T], vals []T) []T {
 }
 
 func (t *bstImpl[T]) PostOrder() []T {
-	if t.root != nil {
-		return []T{t.root.Value()}
+	vals := make([]T, 0)
+	return t.postOrder(t.root, vals)
+}
+
+func (t *bstImpl[T]) postOrder(node *bstNodeImpl[T], vals []T) []T {
+	if node == nil {
+		return vals
 	}
-	return nil
+	vals = t.postOrder(node.left, vals)
+	vals = t.postOrder(node.right, vals)
+	vals = append(vals, node.Value())
+	return vals
 }
 
 func (t *bstImpl[T]) LevelOrder() []T {

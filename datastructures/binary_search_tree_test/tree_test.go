@@ -245,4 +245,17 @@ var _ = Describe("interacting with BST", func() {
 		Entry("complex left tree", []int{5, 1, 3}, []int{5, 1, 3}),
 		Entry("basic right tree", []int{1, 3, 5}, []int{1, 3, 5}),
 	)
+	DescribeTable("post order traversal", func(insertVals []int, expected []int) {
+		for _, val := range insertVals {
+			Expect(uut.Insert(val)).To(BeTrue())
+		}
+		Expect(uut.PostOrder()).To(Equal(expected))
+	},
+		Entry("empty tree", []int{}, []int{}),
+		Entry("single item", []int{1}, []int{1}),
+		Entry("basic left tree", []int{5, 1}, []int{1, 5}),
+		Entry("basic right tree", []int{1, 5}, []int{5, 1}),
+		Entry("complex left tree", []int{5, 1, 3}, []int{3, 1, 5}),
+		Entry("basic right tree", []int{1, 3, 5}, []int{5, 3, 1}),
+	)
 })
