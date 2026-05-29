@@ -53,6 +53,10 @@ func (h *compareHeapImpl[T]) Add(value T) {
 
 func (h *compareHeapImpl[T]) Pop() T {
 	var zeroVal T
+	if len(h.data) == 1 {
+		return zeroVal
+	}
+	// TODO: actually implement
 	return zeroVal
 }
 
