@@ -57,7 +57,7 @@ var _ = Describe("interacting with BST", func() {
 			Expect(uut.PreOrder()).To(Equal([]int{}))
 		})
 		It("will return nil for PostOrder", func() {
-			Expect(uut.PostOrder()).To(BeNil())
+			Expect(uut.PostOrder()).To(Equal([]int{}))
 		})
 		It("will return nil for LevelOrder", func() {
 			Expect(uut.LevelOrder()).To(BeNil())
