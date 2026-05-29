@@ -21,6 +21,12 @@ type Heap[T constraints.Ordered] interface {
 // right child 2 * i + 1
 // parent i / 2
 
+// TODO: what about a struct type?
+//		In a real world application you'd likely be using a struct that contains values.
+//		You might want to use one or more of those values to determine priority.
+//		So maybe part of the constructor also accepts a comparison function to determine
+//		which is lt/gt the other.
+
 func NewMinHeap[T constraints.Ordered]() Heap[T] {
 	var zeroVal T
 	return &minHeapImpl[T]{data: []T{zeroVal}}
