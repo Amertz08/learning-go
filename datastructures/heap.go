@@ -1,11 +1,16 @@
 package datastructures
 
-import "golang.org/x/exp/constraints"
+import (
+	"iter"
+
+	"golang.org/x/exp/constraints"
+)
 
 type Heap[T constraints.Ordered] interface {
 	Add(value T)
 	Pop() T
 	List() []T
+	Iterate() iter.Seq[T]
 }
 
 // left child 2 * i
@@ -31,5 +36,9 @@ func (h *minHeapImpl[T]) Pop() T {
 }
 
 func (h *minHeapImpl[T]) List() []T {
-	return h.data
+	return h.data[1:]
+}
+
+func (h *minHeapImpl[T]) Iterate() iter.Seq[T] {
+	return nil
 }
