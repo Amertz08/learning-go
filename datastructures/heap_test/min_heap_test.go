@@ -22,5 +22,8 @@ var _ = Describe("min heap tests", func() {
 	},
 		Entry("empty list", []int{}, []int{}),
 		Entry("single value", []int{1}, []int{1}),
+		Entry("multiple values already in order", []int{1, 2}, []int{1, 2}),
+		Entry("multiple values not in order", []int{2, 1}, []int{1, 2}),
+		Entry("multiple values not in order case 2", []int{5, 2, 1}, []int{1, 5, 2}),
 	)
 })

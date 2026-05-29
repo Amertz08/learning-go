@@ -6,6 +6,10 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
+// TODO: negative values? I am of the mindset you disallow. It's a priority queue
+// 		at the end of the day. What is a negative priority? If you want to inject a value
+//		to the front of the queue then you simply need a priority < current min.
+
 type Heap[T constraints.Ordered] interface {
 	Add(value T)
 	Pop() T
@@ -27,7 +31,17 @@ type minHeapImpl[T constraints.Ordered] struct {
 }
 
 func (h *minHeapImpl[T]) Add(value T) {
+	// Add the value as the newest node
 	h.data = append(h.data, value)
+	i := len(h.data) - 1
+
+	// percolate up the value
+	for h.data[i] < h.data[i/2] {
+		tmp := h.data[i]
+		h.data[i] = h.data[i/2]
+		h.data[i/2] = tmp
+		i = i / 2
+	}
 }
 
 func (h *minHeapImpl[T]) Pop() T {
