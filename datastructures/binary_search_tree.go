@@ -76,6 +76,10 @@ func (n *bstNodeImpl[T]) HasRight() bool {
 	return n.right != nil
 }
 
+// TODO: How to make this more generic such that we could use a struct?
+//		The compare function implementation from the CompareHeap might work,
+//		but I think you'd have to implement multiple in order for this to work.
+
 type bstImpl[T constraints.Ordered] struct {
 	root *bstNodeImpl[T]
 	len  int
