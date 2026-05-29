@@ -27,7 +27,7 @@ type CompareFunc[T any] func(x T, y T) bool
 //		So maybe part of the constructor also accepts a comparison function to determine
 //		which is lt/gt the other.
 
-func CompareHeap[T any](compFunc CompareFunc[T]) Heap[T] {
+func NewCompareHeap[T any](compFunc CompareFunc[T]) Heap[T] {
 	var zeroVal T
 	return &compareHeapImpl[T]{data: []T{zeroVal}, compare: compFunc}
 }
