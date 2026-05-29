@@ -10,7 +10,9 @@ var _ = Describe("min heap tests", func() {
 	var heap datastructures.Heap[int]
 
 	BeforeEach(func() {
-		heap = datastructures.NewMinHeap[int]()
+		heap = datastructures.CompareHeap[int](func(x int, y int) bool {
+			return x < y
+		})
 	})
 
 	DescribeTable("adding to the heap", func(insertVals []int, expectedVals []int) {

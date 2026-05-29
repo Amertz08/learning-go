@@ -2,15 +2,13 @@ package datastructures
 
 import (
 	"iter"
-
-	"golang.org/x/exp/constraints"
 )
 
 // TODO: negative values? I am of the mindset you disallow. It's a priority queue
 // 		at the end of the day. What is a negative priority? If you want to inject a value
 //		to the front of the queue then you simply need a priority < current min.
 
-type Heap[T constraints.Ordered] interface {
+type Heap[T any] interface {
 	Add(value T)
 	Pop() T
 	List() []T
@@ -21,28 +19,31 @@ type Heap[T constraints.Ordered] interface {
 // right child 2 * i + 1
 // parent i / 2
 
+type CompareFunc[T any] func(x T, y T) bool
+
 // TODO: what about a struct type?
 //		In a real world application you'd likely be using a struct that contains values.
 //		You might want to use one or more of those values to determine priority.
 //		So maybe part of the constructor also accepts a comparison function to determine
 //		which is lt/gt the other.
 
-func NewMinHeap[T constraints.Ordered]() Heap[T] {
+func CompareHeap[T any](compFunc CompareFunc[T]) Heap[T] {
 	var zeroVal T
-	return &minHeapImpl[T]{data: []T{zeroVal}}
+	return &compareHeapImpl[T]{data: []T{zeroVal}, compare: compFunc}
 }
 
-type minHeapImpl[T constraints.Ordered] struct {
-	data []T
+type compareHeapImpl[T any] struct {
+	data    []T
+	compare CompareFunc[T]
 }
 
-func (h *minHeapImpl[T]) Add(value T) {
+func (h *compareHeapImpl[T]) Add(value T) {
 	// Add the value as the newest node
 	h.data = append(h.data, value)
 	i := len(h.data) - 1
 
 	// percolate up the value
-	for h.data[i] < h.data[i/2] {
+	for h.compare(h.data[i], h.data[i/2]) {
 		tmp := h.data[i]
 		h.data[i] = h.data[i/2]
 		h.data[i/2] = tmp
@@ -50,15 +51,15 @@ func (h *minHeapImpl[T]) Add(value T) {
 	}
 }
 
-func (h *minHeapImpl[T]) Pop() T {
+func (h *compareHeapImpl[T]) Pop() T {
 	var zeroVal T
 	return zeroVal
 }
 
-func (h *minHeapImpl[T]) List() []T {
+func (h *compareHeapImpl[T]) List() []T {
 	return h.data[1:]
 }
 
-func (h *minHeapImpl[T]) Iterate() iter.Seq[T] {
+func (h *compareHeapImpl[T]) Iterate() iter.Seq[T] {
 	return nil
 }
