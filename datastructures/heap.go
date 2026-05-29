@@ -27,7 +27,7 @@ type minHeapImpl[T constraints.Ordered] struct {
 }
 
 func (h *minHeapImpl[T]) Add(value T) {
-
+	h.data = append(h.data, value)
 }
 
 func (h *minHeapImpl[T]) Pop() T {

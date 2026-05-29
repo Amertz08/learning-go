@@ -21,5 +21,6 @@ var _ = Describe("min heap tests", func() {
 		Expect(heap.List()).To(Equal(expectedVals))
 	},
 		Entry("empty list", []int{}, []int{}),
+		Entry("single value", []int{1}, []int{1}),
 	)
 })
