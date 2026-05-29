@@ -162,7 +162,9 @@ func (t *bstImpl[T]) remove(node *bstNodeImpl[T], value T) (*bstNodeImpl[T], boo
 	}
 }
 
-func (t *bstImpl[T]) Clear() {}
+func (t *bstImpl[T]) Clear() {
+	// TODO: implement
+}
 
 func (t *bstImpl[T]) Contains(value T) bool {
 	return t.contains(t.root, value)
@@ -280,6 +282,7 @@ func (t *bstImpl[T]) postOrder(node *bstNodeImpl[T], vals []T) []T {
 }
 
 func (t *bstImpl[T]) LevelOrder() []T {
+	// TODO: implement
 	if t.root != nil {
 		return []T{t.root.Value()}
 	}
