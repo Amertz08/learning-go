@@ -14,8 +14,8 @@ func NewServer(
 ) *echo.Echo {
 	e := echo.New()
 	e.Logger = logger
-	//mux := &http.ServeMux{}
 
+	// TODO: reimplement middleware
 	//tokenLimiterFunc := funcs.NewTokenLimiterClosure(5)
 	//slidingLimiterFunc := funcs.NewSlidingLimiterClosure(5, 20*time.Second)
 	//fixedWindowLimiter := funcs.NewFixedWindowLimiterClosure(5, 20*time.Second)

@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -11,6 +10,7 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
+// TODO: err empty response is unused now
 var (
 	ErrEmptyRequest          = errors.New("empty request")
 	ErrCouldNotDecodeRequest = errors.New("could not decode request")
@@ -30,7 +30,7 @@ func ShortenHandler(
 		data, err := decodeRequest[ShortenRequest](c)
 		if err != nil {
 			logger.Error("could not decode request", slog.Any("error", err))
-			return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
+			return encodeServerErrorResponse(c)
 		}
 
 		if !data.Valid() {
@@ -44,12 +44,12 @@ func ShortenHandler(
 		shortRecord, err := store.CreateShortenedRecord(ctx, encoded, data.URL)
 		if err != nil {
 			logger.Error("could not save shortened link", slog.Any("error", err))
-			return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
+			return encodeServerErrorResponse(c)
 		}
 
 		if err = cache.Set(ctx, encoded, shortRecord, 30*time.Minute); err != nil {
 			logger.Error("could not cache value", slog.Any("error", err))
-			return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
+			return encodeServerErrorResponse(c)
 		}
 
 		// TODO: shorten prefix should be a config
@@ -80,13 +80,13 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 		shortRecord, err := cache.Get(ctx, hash)
 		if err != nil {
 			logger.Error("error getting hash from cache", slog.Any("error", err))
-			return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
+			return encodeServerErrorResponse(c)
 		}
 		if shortRecord == nil {
 			shortRecord, err = store.Get(ctx, hash)
 			if err != nil {
 				logger.Error("error getting hash from DB", slog.Any("error", err))
-				return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
+				return encodeServerErrorResponse(c)
 			}
 			if shortRecord == nil {
 				logger.Warn("not found", slog.Any("hash", hash))
@@ -94,14 +94,14 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 			}
 			if err = cache.Set(ctx, hash, shortRecord, 30*time.Minute); err != nil {
 				logger.Error("error setting the cache", slog.Any("error", err))
-				return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
+				return encodeServerErrorResponse(c)
 			}
 		}
 
 		_, err = store.CreateVisitRecord(ctx, shortRecord.Id)
 		if err != nil {
 			logger.Error("error creating visit", slog.Any("error", err))
-			return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
+			return encodeServerErrorResponse(c)
 		}
 
 		return c.Redirect(http.StatusFound, shortRecord.TargetURL)
@@ -116,30 +116,12 @@ func decodeRequest[T any](c *echo.Context) (*T, error) {
 	return &data, nil
 }
 
-func encodeResponse[T any](w http.ResponseWriter, status int, data *T) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		encodeServerErrorResponse(w)
-		return
-	}
-}
-
 type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-func encodeClientErrorResponse(w http.ResponseWriter, message string) {
-	encodeResponse[ErrorResponse](w, http.StatusBadRequest, &ErrorResponse{Error: message})
-}
-
-func encodeServerErrorResponse(w http.ResponseWriter) {
-	encodeResponse[ErrorResponse](
-		w,
-		http.StatusInternalServerError,
-		&ErrorResponse{Error: "server error"},
-	)
+func encodeServerErrorResponse(c *echo.Context) error {
+	return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
 }
 
 type HashService interface {
