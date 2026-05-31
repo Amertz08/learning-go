@@ -2,38 +2,30 @@ package server
 
 import (
 	"log/slog"
-	"net"
-	"net/http"
-	"time"
 
-	"github.come/Amertz08/learning-go/system_design/rate_limiter/middleware"
-	"github.come/Amertz08/learning-go/system_design/rate_limiter/middleware/funcs"
+	"github.com/labstack/echo/v5"
 )
 
 func NewServer(
 	logger *slog.Logger,
-	host string,
-	port string,
 	hasher HashService,
 	store HashDataStore,
 	cache HashCacheStore,
-) *http.Server {
-	mux := &http.ServeMux{}
+) *echo.Echo {
+	e := echo.New()
+	e.Logger = logger
+	//mux := &http.ServeMux{}
 
 	//tokenLimiterFunc := funcs.NewTokenLimiterClosure(5)
 	//slidingLimiterFunc := funcs.NewSlidingLimiterClosure(5, 20*time.Second)
-	fixedWindowLimiter := funcs.NewFixedWindowLimiterClosure(5, 20*time.Second)
-	rateLimiterMiddleware := middleware.NewRateLimiterMiddleware(fixedWindowLimiter)
+	//fixedWindowLimiter := funcs.NewFixedWindowLimiterClosure(5, 20*time.Second)
+	//rateLimiterMiddleware := middleware.NewRateLimiterMiddleware(fixedWindowLimiter)
 
 	shortHandler := ShortenHandler(logger, hasher, store, cache)
 	visitHandler := VisitHandler(logger, store, cache)
 
-	mux.HandleFunc("POST /shorten", rateLimiterMiddleware.Wrap(shortHandler))
-	mux.HandleFunc("GET /v/{short_hash}", visitHandler)
+	e.POST("/shorten", shortHandler)
+	e.GET("/v/:short_hash", visitHandler)
 
-	server := &http.Server{
-		Handler: mux,
-		Addr:    net.JoinHostPort(host, port),
-	}
-	return server
+	return e
 }

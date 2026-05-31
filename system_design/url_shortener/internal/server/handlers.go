@@ -8,6 +8,8 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/labstack/echo/v5"
 )
 
 var (
@@ -23,24 +25,26 @@ func ShortenHandler(
 	hasher HashService,
 	store HashDataStore,
 	cache HashCacheStore,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		data, err := decodeRequest[ShortenRequest](r.Body)
-
-		if err != nil {
-			if errors.As(err, &ErrEmptyRequest) {
-				encodeClientErrorResponse(w, "invalid parameters")
-				return
-			}
-			logger.Error("could not decode request", slog.Any("error", err))
-			encodeServerErrorResponse(w)
-			return
+) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		ctx := c.Request().Context()
+		var data ShortenRequest
+		if err := c.Bind(&data); err != nil {
+			return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
 		}
 
+		//if err != nil {
+		//	if errors.As(err, &ErrEmptyRequest) {
+		//		encodeClientErrorResponse(w, "invalid parameters")
+		//		return
+		//	}
+		//	logger.Error("could not decode request", slog.Any("error", err))
+		//	encodeServerErrorResponse(w)
+		//	return
+		//}
+
 		if !data.Valid() {
-			encodeClientErrorResponse(w, "invalid parameters")
-			return
+			return c.JSON(http.StatusBadRequest, &ErrorResponse{Error: "invalid parameters"})
 		}
 
 		encoded := hasher.Encode(data.URL)
@@ -50,18 +54,16 @@ func ShortenHandler(
 		shortRecord, err := store.CreateShortenedRecord(ctx, encoded, data.URL)
 		if err != nil {
 			logger.Error("could not save shortened link", slog.Any("error", err))
-			encodeServerErrorResponse(w)
-			return
+			return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
 		}
 
 		if err = cache.Set(ctx, encoded, shortRecord, 30*time.Minute); err != nil {
 			logger.Error("could not cache value", slog.Any("error", err))
-			encodeServerErrorResponse(w)
-			return
+			return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
 		}
 
 		// TODO: shorten prefix should be a config
-		encodeResponse[ShortenedResponse](w, http.StatusOK, &ShortenedResponse{URL: "http://localhost:8080/v/" + encoded})
+		return c.JSON(http.StatusOK, &ShortenedResponse{URL: "http://localhost:8080/v/" + encoded})
 	}
 }
 
@@ -80,44 +82,39 @@ type ShortenedResponse struct {
 	URL string `json:"url"`
 }
 
-func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		hash := r.PathValue("short_hash")
+func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		ctx := c.Request().Context()
+		hash := c.Param("short_hash")
 
 		shortRecord, err := cache.Get(ctx, hash)
 		if err != nil {
 			logger.Error("error getting hash from cache", slog.Any("error", err))
-			encodeServerErrorResponse(w)
-			return
+			return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
 		}
 		if shortRecord == nil {
 			shortRecord, err = store.Get(ctx, hash)
 			if err != nil {
 				logger.Error("error getting hash from DB", slog.Any("error", err))
-				encodeServerErrorResponse(w)
-				return
+				return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
 			}
 			if shortRecord == nil {
 				logger.Warn("not found", slog.Any("hash", hash))
-				w.WriteHeader(http.StatusNotFound)
-				return
+				return echo.NewHTTPError(http.StatusNotFound, "record not found")
 			}
 			if err = cache.Set(ctx, hash, shortRecord, 30*time.Minute); err != nil {
 				logger.Error("error setting the cache", slog.Any("error", err))
-				encodeServerErrorResponse(w)
-				return
+				return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
 			}
 		}
 
 		_, err = store.CreateVisitRecord(ctx, shortRecord.Id)
 		if err != nil {
 			logger.Error("error creating visit", slog.Any("error", err))
-			encodeServerErrorResponse(w)
-			return
+			return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
 		}
 
-		http.Redirect(w, r, shortRecord.TargetURL, http.StatusFound)
+		return c.Redirect(http.StatusFound, shortRecord.TargetURL)
 	}
 }
 
