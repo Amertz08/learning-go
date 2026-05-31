@@ -252,6 +252,7 @@ func encodeTestRequest[T any](data *T) io.ReadWriter {
 func newShortenedRequest(url string) (*http.Request, *server.ShortenRequest) {
 	data := &server.ShortenRequest{URL: url}
 	body := encodeTestRequest[server.ShortenRequest](data)
-	request, _ := http.NewRequest("POST", "/shorten", body)
+	request := httptest.NewRequest("POST", "/shorten", body)
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	return request, data
 }

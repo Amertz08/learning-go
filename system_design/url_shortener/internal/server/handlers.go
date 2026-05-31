@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
 	"log/slog"
 	"net/http"
 	"time"
@@ -28,20 +27,11 @@ func ShortenHandler(
 ) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		ctx := c.Request().Context()
-		var data ShortenRequest
-		if err := c.Bind(&data); err != nil {
+		data, err := decodeRequest[ShortenRequest](c)
+		if err != nil {
+			logger.Error("could not decode request", slog.Any("error", err))
 			return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
 		}
-
-		//if err != nil {
-		//	if errors.As(err, &ErrEmptyRequest) {
-		//		encodeClientErrorResponse(w, "invalid parameters")
-		//		return
-		//	}
-		//	logger.Error("could not decode request", slog.Any("error", err))
-		//	encodeServerErrorResponse(w)
-		//	return
-		//}
 
 		if !data.Valid() {
 			return c.JSON(http.StatusBadRequest, &ErrorResponse{Error: "invalid parameters"})
@@ -118,12 +108,9 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 	}
 }
 
-func decodeRequest[T any](r io.ReadCloser) (*T, error) {
-	if r == nil {
-		return nil, ErrEmptyRequest
-	}
+func decodeRequest[T any](c *echo.Context) (*T, error) {
 	var data T
-	if err := json.NewDecoder(r).Decode(&data); err != nil {
+	if err := c.Bind(&data); err != nil {
 		return nil, ErrCouldNotDecodeRequest
 	}
 	return &data, nil
