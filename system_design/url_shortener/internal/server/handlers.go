@@ -33,7 +33,7 @@ func ShortenHandler(
 			return encodeServerErrorResponse(c)
 		}
 
-		if !data.Valid() {
+		if err = c.Validate(data); err != nil {
 			return c.JSON(http.StatusBadRequest, &ErrorResponse{Error: "invalid parameters"})
 		}
 
@@ -58,14 +58,7 @@ func ShortenHandler(
 }
 
 type ShortenRequest struct {
-	URL string `json:"url"`
-}
-
-func (r *ShortenRequest) Valid() bool {
-	if r.URL == "" {
-		return false
-	}
-	return true
+	URL string `json:"url" validate:"required"`
 }
 
 type ShortenedResponse struct {
