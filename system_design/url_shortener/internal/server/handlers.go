@@ -48,6 +48,7 @@ func ShortenHandler(
 			return echo.ErrInternalServerError
 		}
 
+		// TODO: cache TTL should be config
 		if err = cache.Set(ctx, encoded, shortRecord, 30*time.Minute); err != nil {
 			logger.Error("could not cache value", slog.Any("error", err))
 			return echo.ErrInternalServerError
