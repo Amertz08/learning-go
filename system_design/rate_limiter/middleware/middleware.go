@@ -3,6 +3,8 @@ package middleware
 import (
 	"context"
 	"net/http"
+
+	"github.com/labstack/echo/v5"
 )
 
 type Limiter interface {
@@ -21,14 +23,14 @@ func NewRateLimiterMiddleware(limiterFunc LimiterCreationFunc) *RateLimiterMiddl
 	return &RateLimiterMiddleware{limiterFunc}
 }
 
-func (m *RateLimiterMiddleware) Wrap(next http.Handler) http.HandlerFunc {
+func (m *RateLimiterMiddleware) Wrap(next echo.HandlerFunc) echo.HandlerFunc {
 	limiter := m.limiterCreationFunc()
 	limiter.Start(context.Background()) // TODO: not sure about this context
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(c *echo.Context) error {
 		if limiter.Acquire() {
-			next.ServeHTTP(w, r)
+			return next(c)
 		} else {
-			w.WriteHeader(http.StatusTooManyRequests)
+			return echo.NewHTTPError(http.StatusTooManyRequests, "too many requests")
 		}
 	}
 }
