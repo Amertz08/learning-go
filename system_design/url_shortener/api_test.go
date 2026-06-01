@@ -94,8 +94,8 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 				srv.ServeHTTP(recorder, request)
 
-				resp := decodeTestResponse[server.ErrorResponse](recorder.Body)
-				Expect(resp).To(Equal(&server.ErrorResponse{Error: "invalid parameters"}))
+				resp := decodeTestResponse[echo.HTTPError](recorder.Body)
+				Expect(resp).To(Equal(&echo.HTTPError{Message: "invalid parameters"}))
 			})
 		})
 		When("no body provided", func() {
@@ -111,8 +111,8 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 				srv.ServeHTTP(recorder, request)
 
-				resp := decodeTestResponse[server.ErrorResponse](recorder.Body)
-				Expect(resp).To(Equal(&server.ErrorResponse{Error: "invalid parameters"}))
+				resp := decodeTestResponse[echo.HTTPError](recorder.Body)
+				Expect(resp).To(Equal(&echo.HTTPError{Message: "invalid parameters"}))
 			})
 		})
 		When("an insertion error occurs", func() {
@@ -132,8 +132,8 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 				srv.ServeHTTP(recorder, request)
 
-				resp := decodeTestResponse[server.ErrorResponse](recorder.Body)
-				Expect(resp).To(Equal(&server.ErrorResponse{Error: "server error"}))
+				resp := decodeTestResponse[echo.HTTPError](recorder.Body)
+				Expect(resp).To(Equal(&echo.HTTPError{Message: "server error"}))
 			})
 		})
 		When("a cache error occurs", func() {
@@ -153,8 +153,8 @@ var _ = Describe("Interacting with URL shortener API", func() {
 
 				srv.ServeHTTP(recorder, request)
 
-				resp := decodeTestResponse[server.ErrorResponse](recorder.Body)
-				Expect(resp).To(Equal(&server.ErrorResponse{Error: "server error"}))
+				resp := decodeTestResponse[echo.HTTPError](recorder.Body)
+				Expect(resp).To(Equal(&echo.HTTPError{Message: "server error"}))
 			})
 		})
 	})

@@ -30,11 +30,11 @@ func ShortenHandler(
 		data, err := decodeRequest[ShortenRequest](c)
 		if err != nil {
 			logger.Error("could not decode request", slog.Any("error", err))
-			return encodeServerErrorResponse(c)
+			return encodeServerErrorResponse()
 		}
 
 		if err = c.Validate(data); err != nil {
-			return c.JSON(http.StatusBadRequest, &ErrorResponse{Error: "invalid parameters"})
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid parameters")
 		}
 
 		encoded := hasher.Encode(data.URL)
@@ -44,12 +44,12 @@ func ShortenHandler(
 		shortRecord, err := store.CreateShortenedRecord(ctx, encoded, data.URL)
 		if err != nil {
 			logger.Error("could not save shortened link", slog.Any("error", err))
-			return encodeServerErrorResponse(c)
+			return encodeServerErrorResponse()
 		}
 
 		if err = cache.Set(ctx, encoded, shortRecord, 30*time.Minute); err != nil {
 			logger.Error("could not cache value", slog.Any("error", err))
-			return encodeServerErrorResponse(c)
+			return encodeServerErrorResponse()
 		}
 
 		// TODO: shorten prefix should be a config
@@ -73,13 +73,13 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 		shortRecord, err := cache.Get(ctx, hash)
 		if err != nil {
 			logger.Error("error getting hash from cache", slog.Any("error", err))
-			return encodeServerErrorResponse(c)
+			return encodeServerErrorResponse()
 		}
 		if shortRecord == nil {
 			shortRecord, err = store.Get(ctx, hash)
 			if err != nil {
 				logger.Error("error getting hash from DB", slog.Any("error", err))
-				return encodeServerErrorResponse(c)
+				return encodeServerErrorResponse()
 			}
 			if shortRecord == nil {
 				logger.Warn("not found", slog.Any("hash", hash))
@@ -87,14 +87,14 @@ func VisitHandler(logger *slog.Logger, store HashDataStore, cache HashCacheStore
 			}
 			if err = cache.Set(ctx, hash, shortRecord, 30*time.Minute); err != nil {
 				logger.Error("error setting the cache", slog.Any("error", err))
-				return encodeServerErrorResponse(c)
+				return encodeServerErrorResponse()
 			}
 		}
 
 		_, err = store.CreateVisitRecord(ctx, shortRecord.Id)
 		if err != nil {
 			logger.Error("error creating visit", slog.Any("error", err))
-			return encodeServerErrorResponse(c)
+			return encodeServerErrorResponse()
 		}
 
 		return c.Redirect(http.StatusFound, shortRecord.TargetURL)
@@ -109,12 +109,8 @@ func decodeRequest[T any](c *echo.Context) (*T, error) {
 	return &data, nil
 }
 
-type ErrorResponse struct {
-	Error string `json:"error"`
-}
-
-func encodeServerErrorResponse(c *echo.Context) error {
-	return c.JSON(http.StatusInternalServerError, &ErrorResponse{Error: "server error"})
+func encodeServerErrorResponse() error {
+	return echo.NewHTTPError(http.StatusInternalServerError, "server error")
 }
 
 type HashService interface {
