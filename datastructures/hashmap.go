@@ -36,7 +36,10 @@ func (h *basicHashImpl[T]) Put(key string, value T) error {
 
 func (h *basicHashImpl[T]) Get(key string) (T, bool) {
 	idx := h.hashKey(key)
-	// TODO: will blow up on nil
+	var zeroVal T
+	if h.data[idx] == nil {
+		return zeroVal, false
+	}
 	return h.data[idx].value, true
 }
 
