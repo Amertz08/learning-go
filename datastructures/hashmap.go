@@ -4,7 +4,7 @@ const defaultHashSize = 2
 
 type HashMap[T any] interface {
 	Put(key string, value T) error
-	Get(key string) T
+	Get(key string) (T, bool)
 }
 
 type hashValue[T any] struct {
@@ -18,7 +18,7 @@ type basicHashImpl[T any] struct {
 	capacity int
 }
 
-func CreateHashMap[T any]() HashMap[T] {
+func NewHashMap[T any]() HashMap[T] {
 	h := &basicHashImpl[T]{size: 0}
 	h.capacity = defaultHashSize
 	return h
@@ -38,7 +38,7 @@ func (h *basicHashImpl[T]) Put(key string, value T) error {
 	return nil
 }
 
-func (h *basicHashImpl[T]) Get(key string) T {
+func (h *basicHashImpl[T]) Get(key string) (T, bool) {
 	var zeroVal T
-	return zeroVal
+	return zeroVal, false
 }
