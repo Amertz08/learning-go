@@ -20,11 +20,6 @@ var _ = Describe("bash hash map tests", func() {
 		uut = datastructures.NewHashMap[int]()
 	})
 	When("dealing with an empty hashmap", func() {
-		It("does not return an error", func() {
-			key := "hello"
-			value := 5
-			Expect(uut.Put(key, value)).To(BeNil())
-		})
 		It("can get the value back", func() {
 			key := "hello"
 			value := 5

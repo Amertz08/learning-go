@@ -3,7 +3,7 @@ package datastructures
 const defaultHashSize = 2
 
 type HashMap[T any] interface {
-	Put(key string, value T) error
+	Put(key string, value T)
 	Get(key string) (T, bool)
 }
 
@@ -24,7 +24,7 @@ func NewHashMap[T any]() HashMap[T] {
 	return h
 }
 
-func (h *basicHashImpl[T]) Put(key string, value T) error {
+func (h *basicHashImpl[T]) Put(key string, value T) {
 	idx := h.hashKey(key)
 	data := hashValue[T]{
 		key:   key,
@@ -35,7 +35,6 @@ func (h *basicHashImpl[T]) Put(key string, value T) error {
 		idx++
 	}
 	h.data[idx] = &data
-	return nil
 }
 
 func (h *basicHashImpl[T]) Get(key string) (T, bool) {
