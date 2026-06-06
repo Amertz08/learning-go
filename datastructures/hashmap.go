@@ -13,7 +13,7 @@ type hashValue[T any] struct {
 }
 
 type basicHashImpl[T any] struct {
-	data     [defaultHashSize]hashValue[T]
+	data     [defaultHashSize]*hashValue[T]
 	size     int
 	capacity int
 }
@@ -25,20 +25,27 @@ func NewHashMap[T any]() HashMap[T] {
 }
 
 func (h *basicHashImpl[T]) Put(key string, value T) error {
-	//hashInt, err := strconv.Atoi(key)
-	//if err != nil {
-	//	return err
-	//}
-	//idx := hashInt % h.capacity
-	//data := hashValue[T]{
-	//	key:   key,
-	//	value: value,
-	//}
-	//h.data[idx] = data
+	idx := h.hashKey(key)
+	data := hashValue[T]{
+		key:   key,
+		value: value,
+	}
+	h.data[idx] = &data
 	return nil
 }
 
 func (h *basicHashImpl[T]) Get(key string) (T, bool) {
-	var zeroVal T
-	return zeroVal, false
+	idx := h.hashKey(key)
+	// TODO: will blow up on nil
+	return h.data[idx].value, true
+}
+
+func (h *basicHashImpl[T]) hashKey(key string) int {
+	var hashInt int
+	for _, ch := range key {
+		hashInt += int(ch)
+	}
+
+	idx := hashInt % h.capacity
+	return idx
 }
