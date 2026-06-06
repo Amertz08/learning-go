@@ -30,8 +30,7 @@ func (h *basicHashImpl[T]) Put(key string, value T) error {
 		key:   key,
 		value: value,
 	}
-	// TODO: pretty sure this will infinite loop if
-	//		the array was full
+	// TODO: this will blow up if the array is full
 	for h.data[idx] != nil {
 		idx++
 	}
@@ -46,8 +45,7 @@ func (h *basicHashImpl[T]) Get(key string) (T, bool) {
 		return zeroVal, false
 	}
 
-	// TODO: pretty sure this will infinite loop if
-	//		the array was full
+	// TODO: this will blow up if the array is full
 	for h.data[idx] != nil && h.data[idx].key != key {
 		idx++
 	}
