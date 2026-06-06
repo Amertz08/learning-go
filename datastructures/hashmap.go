@@ -1,5 +1,7 @@
 package datastructures
 
+const defaultHashSize = 2
+
 type HashMap[T any] interface {
 	Put(key string, value T) error
 	Get(key string) T
@@ -11,14 +13,15 @@ type hashValue[T any] struct {
 }
 
 type basicHashImpl[T any] struct {
-	data     []hashValue[T]
+	data     [defaultHashSize]hashValue[T]
 	size     int
 	capacity int
 }
 
 func CreateHashMap[T any]() HashMap[T] {
-	default_cap := 2
-	return &basicHashImpl[T]{data: make([]hashValue[T], default_cap), size: 0, capacity: default_cap}
+	h := &basicHashImpl[T]{size: 0}
+	h.capacity = defaultHashSize
+	return h
 }
 
 func (h *basicHashImpl[T]) Put(key string, value T) error {
