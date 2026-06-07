@@ -1,11 +1,17 @@
 package datastructures
 
-const defaultHashSize = 2
+const defaultHashSize = 4
 
 type HashMap[T any] interface {
 	Put(key string, value T)
 	Get(key string) (T, bool)
 }
+
+/*
+	TODO
+		- other probing implementations
+		- other resizing implementations
+*/
 
 type hashValue[T any] struct {
 	key   string
