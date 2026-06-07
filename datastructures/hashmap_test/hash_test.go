@@ -35,6 +35,24 @@ var _ = Describe("bash hash map tests", func() {
 			Expect(ok).To(BeFalse())
 			Expect(val).To(Equal(0))
 		})
+		It("can overwrite a value", func() {
+			key := "hello"
+			value := 2
+
+			uut.Put(key, value)
+			val, ok := uut.Get(key)
+
+			Expect(ok).To(BeTrue())
+			Expect(val).To(Equal(value))
+
+			value = 5
+
+			uut.Put(key, value)
+			val, ok = uut.Get(key)
+
+			Expect(ok).To(BeTrue())
+			Expect(val).To(Equal(value))
+		})
 	})
 	When("inserting collisions", func() {
 		It("will insert without issue", func() {

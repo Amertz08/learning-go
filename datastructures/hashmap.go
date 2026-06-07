@@ -25,16 +25,12 @@ func NewHashMap[T any]() HashMap[T] {
 }
 
 func (h *basicHashImpl[T]) Put(key string, value T) {
-	idx := h.hashKey(key)
 	data := hashValue[T]{
 		key:   key,
 		value: value,
 	}
 
-	for h.data[idx] != nil && h.data[idx].key != key {
-		idx++
-		idx = idx % h.capacity
-	}
+	idx := h.probeIndex(key, h.data)
 	h.data[idx] = &data
 	h.size++
 
@@ -45,11 +41,7 @@ func (h *basicHashImpl[T]) Put(key string, value T) {
 
 		for _, v := range h.data {
 			if v != nil {
-				newIdx := h.hashKey(v.key)
-				for newArr[newIdx] != nil && newArr[newIdx].key != key {
-					newIdx++
-					newIdx = newIdx % h.capacity
-				}
+				newIdx := h.probeIndex(v.key, newArr)
 				newArr[newIdx] = v
 			}
 		}
@@ -58,15 +50,11 @@ func (h *basicHashImpl[T]) Put(key string, value T) {
 }
 
 func (h *basicHashImpl[T]) Get(key string) (T, bool) {
-	idx := h.hashKey(key)
+	idx := h.probeIndex(key, h.data)
+
 	var zeroVal T
 	if h.data[idx] == nil {
 		return zeroVal, false
-	}
-
-	for h.data[idx] != nil && h.data[idx].key != key {
-		idx++
-		idx = idx % h.capacity
 	}
 
 	return h.data[idx].value, true
@@ -79,5 +67,14 @@ func (h *basicHashImpl[T]) hashKey(key string) int {
 	}
 
 	idx := hashInt % h.capacity
+	return idx
+}
+
+func (h *basicHashImpl[T]) probeIndex(key string, data []*hashValue[T]) int {
+	idx := h.hashKey(key)
+	for data[idx] != nil && data[idx].key != key {
+		idx++
+		idx = idx % h.capacity
+	}
 	return idx
 }
