@@ -54,5 +54,16 @@ var _ = Describe("bash hash map tests", func() {
 			Expect(ok).To(BeTrue())
 			Expect(val).To(Equal(valueTwo))
 		})
+		It("will not blow up if many are inserted", func() {
+			keyOne := "hello"
+			keyTwo := "hlloe"
+			keyThree := "hlleo"
+			valueOne := 2
+			valueTwo := 5
+
+			uut.Put(keyOne, valueOne)
+			uut.Put(keyTwo, valueTwo)
+			uut.Put(keyThree, valueTwo)
+		})
 	})
 })
