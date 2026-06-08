@@ -7,12 +7,6 @@ type HashMap[T any] interface {
 	Get(key string) (T, bool)
 }
 
-/*
-	TODO
-		- other probing implementations
-		- other resizing implementations
-*/
-
 type hashValue[T any] struct {
 	key   string
 	value T
@@ -62,15 +56,17 @@ func (h *basicHashImpl[T]) hashKey(key string) int {
 		hashInt += int(ch)
 	}
 
-	idx := hashInt % h.capacity
+	idx := hashInt & (h.capacity - 1)
 	return idx
 }
 
 func (h *basicHashImpl[T]) probeIndex(key string, data []*hashValue[T]) int {
 	idx := h.hashKey(key)
 	// find an empty index or the key
+	i := 0
 	for data[idx] != nil && data[idx].key != key {
-		idx++
+		i++
+		idx = idx + i*i
 		idx = idx % h.capacity
 	}
 	return idx
@@ -81,6 +77,8 @@ func (h *basicHashImpl[T]) shouldResize() bool {
 }
 
 func (h *basicHashImpl[T]) resize() {
+	// TODO: this will increase in size much faster than 2^n since it's 4*4, 16*16, 256*256, ...
+	//		make it actually 2^n
 	h.capacity = h.capacity * h.capacity
 	newArr := make([]*hashValue[T], h.capacity)
 
