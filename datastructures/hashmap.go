@@ -60,6 +60,7 @@ func (h *basicHashImpl[T]) hashKey(key string) int {
 	return idx
 }
 
+// probeIndex finds the index for the given key via quadratic probing
 func (h *basicHashImpl[T]) probeIndex(key string, data []*hashValue[T]) int {
 	idx := h.hashKey(key)
 	// find an empty index or the key
@@ -73,7 +74,7 @@ func (h *basicHashImpl[T]) probeIndex(key string, data []*hashValue[T]) int {
 }
 
 func (h *basicHashImpl[T]) shouldResize() bool {
-	return (float64(h.size) / float64(h.capacity)) >= 0.5
+	return (float64(h.size) / float64(h.capacity)) >= 0.75
 }
 
 func (h *basicHashImpl[T]) resize() {
