@@ -70,7 +70,7 @@ func (h *basicHashImpl[T]) probeIndex(key string, data []*hashValue[T]) int {
 	idx := h.hashKey(key)
 	// find an empty index or the key
 	for data[idx] != nil && data[idx].key != key {
-		idx = idx * idx
+		idx++
 		idx = idx % h.capacity
 	}
 	return idx
