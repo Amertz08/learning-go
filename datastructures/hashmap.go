@@ -40,18 +40,8 @@ func (h *basicHashImpl[T]) Put(key string, value T) {
 	h.data[idx] = &data
 	h.size++
 
-	// Resize data
-	if (float64(h.size) / float64(h.capacity)) >= 0.5 {
-		h.capacity = h.capacity * h.capacity
-		newArr := make([]*hashValue[T], h.capacity)
-
-		for _, v := range h.data {
-			if v != nil {
-				newIdx := h.probeIndex(v.key, newArr)
-				newArr[newIdx] = v
-			}
-		}
-		h.data = newArr
+	if h.shouldResize() {
+		h.resize()
 	}
 }
 
@@ -84,4 +74,21 @@ func (h *basicHashImpl[T]) probeIndex(key string, data []*hashValue[T]) int {
 		idx = idx % h.capacity
 	}
 	return idx
+}
+
+func (h *basicHashImpl[T]) shouldResize() bool {
+	return (float64(h.size) / float64(h.capacity)) >= 0.5
+}
+
+func (h *basicHashImpl[T]) resize() {
+	h.capacity = h.capacity * h.capacity
+	newArr := make([]*hashValue[T], h.capacity)
+
+	for _, v := range h.data {
+		if v != nil {
+			newIdx := h.probeIndex(v.key, newArr)
+			newArr[newIdx] = v
+		}
+	}
+	h.data = newArr
 }
