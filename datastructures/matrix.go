@@ -1,15 +1,36 @@
 package datastructures
 
-type Matrix[T any] [][]T
-
-func (m Matrix[T]) Rows() int {
-	return len(m)
+type Matrix[T any] interface {
+	Get(int, int) (T, error)
+	Rows() int
+	Columns() int
+	Transpose() [][]T
+}
+type matrixImpl[T any] struct {
+	data [][]T
 }
 
-func (m Matrix[T]) Columns() int {
-	return len(m[0])
+func NewMatrix[T any](rows, columns int) Matrix[T] {
+	d := make([][]T, rows)
+	for i := 0; i < rows; i++ {
+		d[i] = make([]T, columns)
+	}
+	return &matrixImpl[T]{data: d}
 }
 
-func (m Matrix[T]) Transpose() [][]T {
+func (m *matrixImpl[T]) Rows() int {
+	return len(m.data)
+}
+
+func (m *matrixImpl[T]) Columns() int {
+	return len(m.data[0])
+}
+
+func (m *matrixImpl[T]) Transpose() [][]T {
 	return nil
+}
+
+func (m *matrixImpl[T]) Get(r, c int) (T, error) {
+	var zeroVal T
+	return zeroVal, nil
 }
