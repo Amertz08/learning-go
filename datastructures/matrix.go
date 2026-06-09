@@ -4,7 +4,7 @@ type Matrix[T any] interface {
 	Get(int, int) (T, error)
 	Rows() int
 	Columns() int
-	Transpose() [][]T
+	Transpose() Matrix[T]
 }
 type matrixImpl[T any] struct {
 	data [][]T
@@ -26,7 +26,7 @@ func (m *matrixImpl[T]) Columns() int {
 	return len(m.data[0])
 }
 
-func (m *matrixImpl[T]) Transpose() [][]T {
+func (m *matrixImpl[T]) Transpose() Matrix[T] {
 	return nil
 }
 
