@@ -1,5 +1,8 @@
 package datastructures
 
+// TODO: any is probably not correct. It should probably be anything that is +-
+//
+//	'constraints.Ordered' is close but has a string. So maybe make my own?
 type Matrix[T any] interface {
 	Get(int, int) (T, error)
 	Rows() int
@@ -33,4 +36,8 @@ func (m *matrixImpl[T]) Transpose() Matrix[T] {
 func (m *matrixImpl[T]) Get(r, c int) (T, error) {
 	var zeroVal T
 	return zeroVal, nil
+}
+
+func DotProduct[T any](a, b Matrix[T]) (Matrix[T], error) {
+	return nil, nil
 }
