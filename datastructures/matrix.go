@@ -1,5 +1,9 @@
 package datastructures
 
+import "errors"
+
+var ErrOutOfBounds = errors.New("out of bounds")
+
 // TODO: any is probably not correct. It should probably be anything that is +-
 //
 //	'constraints.Ordered' is close but has a string. So maybe make my own?
@@ -35,6 +39,9 @@ func (m *matrixImpl[T]) Transpose() Matrix[T] {
 
 func (m *matrixImpl[T]) Get(r, c int) (T, error) {
 	var zeroVal T
+	if r < 0 || c < 0 {
+		return zeroVal, ErrOutOfBounds
+	}
 	return zeroVal, nil
 }
 
