@@ -8,6 +8,7 @@ var ErrOutOfBounds = errors.New("out of bounds")
 //
 //	'constraints.Ordered' is close but has a string. So maybe make my own?
 type Matrix[T any] interface {
+	Set(int, int, T) error
 	Get(int, int) (T, error)
 	Rows() int
 	Columns() int
@@ -39,10 +40,26 @@ func (m *matrixImpl[T]) Transpose() Matrix[T] {
 
 func (m *matrixImpl[T]) Get(r, c int) (T, error) {
 	var zeroVal T
-	if r < 0 || c < 0 {
+	if min(r, c) < 0 {
 		return zeroVal, ErrOutOfBounds
 	}
-	return zeroVal, nil
+	if r > len(m.data)-1 || c > len(m.data)-1 {
+		return zeroVal, ErrOutOfBounds
+	}
+	return m.data[r][c], nil
+}
+
+func (m *matrixImpl[T]) Set(r, c int, val T) error {
+	if min(r, c) < 0 {
+		return ErrOutOfBounds
+	}
+	if r > len(m.data)-1 || c > len(m.data)-1 {
+		return ErrOutOfBounds
+	}
+
+	m.data[r][c] = val
+
+	return nil
 }
 
 func DotProduct[T any](a, b Matrix[T]) (Matrix[T], error) {
