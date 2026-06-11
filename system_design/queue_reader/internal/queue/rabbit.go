@@ -6,7 +6,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type RabbitMQImpl[T any] struct {
+type rabbitMQImpl[T any] struct {
 	conn          *amqp.Connection
 	channel       *amqp.Channel
 	name          string
@@ -16,7 +16,7 @@ type RabbitMQImpl[T any] struct {
 func NewRabbitMQImpl[T any](
 	connStr, queueName string,
 	encodeDecoder EncodeDecoder[T],
-) (*RabbitMQImpl[T], error) {
+) (*rabbitMQImpl[T], error) {
 	conn, err := amqp.Dial(connStr)
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func NewRabbitMQImpl[T any](
 		conn.Close()
 		return nil, err
 	}
-	q := &RabbitMQImpl[T]{
+	q := &rabbitMQImpl[T]{
 		conn:          conn,
 		channel:       ch,
 		name:          queueName,
@@ -36,7 +36,7 @@ func NewRabbitMQImpl[T any](
 	return q, nil
 }
 
-func (q *RabbitMQImpl[T]) Close() error {
+func (q *rabbitMQImpl[T]) Close() error {
 	if err := q.channel.Close(); err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (q *RabbitMQImpl[T]) Close() error {
 	return nil
 }
 
-func (q *RabbitMQImpl[T]) Read(ctx context.Context) <-chan T {
+func (q *rabbitMQImpl[T]) Read(ctx context.Context) <-chan T {
 	msgs, err := q.channel.ConsumeWithContext(ctx,
 		q.name, // queue
 		"",     // consumer
@@ -85,7 +85,7 @@ func (q *RabbitMQImpl[T]) Read(ctx context.Context) <-chan T {
 	return output
 }
 
-func (q *RabbitMQImpl[T]) Publish(ctx context.Context, val T) error {
+func (q *rabbitMQImpl[T]) Publish(ctx context.Context, val T) error {
 	enc, err := q.encodeDecoder.Encode(val)
 	if err != nil {
 		return err
