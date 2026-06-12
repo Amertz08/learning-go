@@ -9,11 +9,11 @@ import (
 type Producer[T any] struct {
 	logger      *slog.Logger
 	messages    chan T
-	queue       QueueReader[T]
+	queue       QueueReadWriter[T]
 	workerCount int
 }
 
-func NewProducer[T any](logger *slog.Logger, workerCount int, queue QueueReader[T]) *Producer[T] {
+func NewProducer[T any](logger *slog.Logger, workerCount int, queue QueueReadWriter[T]) *Producer[T] {
 	return &Producer[T]{
 		logger:      logger,
 		messages:    make(chan T),

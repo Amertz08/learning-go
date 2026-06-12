@@ -9,7 +9,7 @@ import (
 func ConsumerService[T any](
 	ctx context.Context,
 	logger *slog.Logger,
-	queue QueueReader[T],
+	queue QueueReadWriter[T],
 	workerCount int,
 ) {
 	var wg sync.WaitGroup
