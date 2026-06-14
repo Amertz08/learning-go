@@ -57,7 +57,8 @@ func (h *compareHeapImpl[T]) Pop() T {
 		return zeroVal
 	}
 	// TODO: actually implement
-	return zeroVal
+	val := h.data[1]
+	return val
 }
 
 func (h *compareHeapImpl[T]) List() []T {
