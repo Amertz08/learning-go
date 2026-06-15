@@ -56,8 +56,15 @@ func (h *compareHeapImpl[T]) Pop() T {
 	if len(h.data) == 1 {
 		return zeroVal
 	}
+
+	var val T
+	if len(h.data) == 2 {
+		val = h.data[1]
+		h.data = h.data[:len(h.data)-1]
+		return val
+	}
 	// TODO: actually implement
-	val := h.data[1]
+	val = h.data[1]
 	return val
 }
 
