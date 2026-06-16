@@ -63,8 +63,37 @@ func (h *compareHeapImpl[T]) Pop() T {
 		h.data = h.data[:len(h.data)-1]
 		return val
 	}
-	// TODO: actually implement
+	// TODO: tests
+
 	val = h.data[1]
+
+	// Get the last value and assign it as the new root
+	newFirst := h.data[len(h.data)-1]
+	h.data[1] = newFirst
+
+	// 'pop' the heap i.e. drop the last value since it's now at the root
+	h.data = h.data[:len(h.data)-1]
+
+	// Percolate down value
+	i := 1
+	for 2*i < len(h.data) {
+		if (2*i+1 < len(h.data)) && (h.compare(h.data[2*i+1], h.data[2*i])) &&
+			(!h.compare(h.data[i], h.data[2*i+1])) {
+			// swap right child
+			tmp := h.data[i]
+			h.data[i] = h.data[2*i+1]
+			h.data[2*i+1] = tmp
+			i = 2*i + 1
+		} else if !h.compare(h.data[i], h.data[2*i]) {
+			// swap left child
+			tmp := h.data[i]
+			h.data[i] = h.data[2*i]
+			h.data[2*i] = tmp
+			i = 2 * i
+		} else {
+			break
+		}
+	}
 	return val
 }
 
