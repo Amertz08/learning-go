@@ -7,10 +7,12 @@ import (
 	"github.come/Amertz08/learning-go/datastructures"
 )
 
+// FixedWindowLimiter only allows a defined count of requests over a defined time period.
+// At the end of the time period the count will be reset.
 type FixedWindowLimiter struct {
 	ticker   *time.Ticker
 	maxCount int
-	queue    datastructures.Queue[int]
+	queue    datastructures.Queue[int] // TODO: this does not need to use a queue. Kind of overkill.
 }
 
 func NewFixedWindowLimiter(maxCount int, interval time.Duration) *FixedWindowLimiter {
