@@ -2,14 +2,9 @@ package main
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 	"os/signal"
-	"sync"
-	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.come/Amertz08/learning-go/system_design/url_shortener/internal/cache"
@@ -49,33 +44,8 @@ func main() {
 		}
 	}()
 
-	srv := server.NewServer(logger, "localhost", "8080", h, s, c)
-
-	go func() {
-		logger.Info(fmt.Sprintf("starting server -> %s", srv.Addr))
-		if listenErr := srv.ListenAndServe(); listenErr != nil {
-			if errors.Is(listenErr, http.ErrServerClosed) {
-				logger.Info("server closed gracefully")
-				return
-			}
-			logger.Error("error running server", slog.Any("error", listenErr))
-		}
-	}()
-
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
-		<-ctx.Done()
-
-		shutDownCtx := context.Background()
-		shutDownCtx, shutDownCnc := context.WithTimeout(ctx, 10*time.Second)
-		defer shutDownCnc()
-		if shutDownErr := srv.Shutdown(shutDownCtx); shutDownErr != nil {
-			logger.Error("error shutting down server", slog.Any("error", shutDownErr))
-		}
-	}()
-
-	wg.Wait()
+	srv := server.NewServer(logger, h, s, c)
+	if err = srv.Start(":8080"); err != nil {
+		logger.Error("error shutting down server", slog.Any("error", err))
+	}
 }
