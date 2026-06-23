@@ -19,13 +19,9 @@ type Heap[T any] interface {
 // right child 2 * i + 1
 // parent i / 2
 
+// CompareFunc should evaluate less than or greater than depending on whether
+// you want a min or a max heap
 type CompareFunc[T any] func(x T, y T) bool
-
-// TODO: what about a struct type?
-//		In a real world application you'd likely be using a struct that contains values.
-//		You might want to use one or more of those values to determine priority.
-//		So maybe part of the constructor also accepts a comparison function to determine
-//		which is lt/gt the other.
 
 func NewCompareHeap[T any](compFunc CompareFunc[T]) Heap[T] {
 	var zeroVal T
@@ -102,5 +98,9 @@ func (h *compareHeapImpl[T]) List() []T {
 }
 
 func (h *compareHeapImpl[T]) Iterate() iter.Seq[T] {
-	return nil
+	return func(yield func(T) bool) {
+		for i := 1; i < len(h.data); i++ {
+			yield(h.data[i])
+		}
+	}
 }
