@@ -72,20 +72,23 @@ func (h *compareHeapImpl[T]) Pop() T {
 
 	// Percolate down value
 	i := 1
-	for 2*i < len(h.data) {
-		if (2*i+1 < len(h.data)) && (h.compare(h.data[2*i+1], h.data[2*i])) &&
-			(!h.compare(h.data[i], h.data[2*i+1])) {
+	leftChildIdx := 2 * i
+	for leftChildIdx < len(h.data) {
+		rightChildIdx := 2*i + 1
+
+		if (rightChildIdx < len(h.data)) && (h.compare(h.data[rightChildIdx], h.data[leftChildIdx])) &&
+			(!h.compare(h.data[i], h.data[rightChildIdx])) {
 			// swap right child
 			tmp := h.data[i]
-			h.data[i] = h.data[2*i+1]
-			h.data[2*i+1] = tmp
-			i = 2*i + 1
-		} else if !h.compare(h.data[i], h.data[2*i]) {
+			h.data[i] = h.data[rightChildIdx]
+			h.data[rightChildIdx] = tmp
+			i = rightChildIdx
+		} else if !h.compare(h.data[i], h.data[leftChildIdx]) {
 			// swap left child
 			tmp := h.data[i]
-			h.data[i] = h.data[2*i]
-			h.data[2*i] = tmp
-			i = 2 * i
+			h.data[i] = h.data[leftChildIdx]
+			h.data[leftChildIdx] = tmp
+			i = leftChildIdx
 		} else {
 			break
 		}
